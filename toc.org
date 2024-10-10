@@ -1,0 +1,22 @@
+#+title: Programming Languages @BUCS
+#+subtitle: UNDER CONSTRUCTION
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="myStyle.css" />
+#+OPTIONS: html-style:nil H:1 toc:nil num:nil
+#+HTML_LINK_HOME: https://nmmull.github.io
+This is a set of notes for /CAS CS 320: Principles
+of Programming Langauges/ at Boston Univeristy.  They are based on
+material created by several members of the Principles of Programming
+and Verification (POPV) group.
+
+These notes are *incredibly incredibly rough*. They are likely rife
+with typos, misspellings and grammatical errors, poorly written
+sections, missing explanations, etc. To students: we appreciate your
+(assumed) patience. To everyone: any comments are welcome. If you spot
+a error, you are encouraged to post an issue to the associated GitHub
+repository.
+
+* Formal Grammar
+* Parsing
+* Formal Semantics
+* Type Checking
+* Type Inference
