@@ -1,0 +1,1433 @@
+#+title: Formal Grammar
+#+HTML_MATHJAX: align: left indent: 2em
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../myStyle.css" />
+#+OPTIONS: html-style:nil H:3 toc:2 num:nil tasks:nil
+#+HTML_LINK_HOME: ../toc.html
+
+Before discussing parsing, we have to look at its mathematical
+counterpart: /formal language theory/.  We won't put heavy emphasis on
+formal language theory in this course (as interesting as it is);
+rather the most important thing to get from these notes are:
+
++ the terminology, you need to know what a grammar is, what precedence is, etc.
++ the ability to *read* a grammar and (in time) construct a parser
+  from it using a parser generator
+
+In particular, the problem of *designing* grammars is a subtle and
+difficult one, and certainly one worth studying if you're interested.
+But, logistically speaking, in this course you will be /given/ a
+grammar, from which you will generate a parser.
+
+* Introduction
+
+Most of us are familiar with grammar in the context of natural
+language.  In English class, we learn that we should use the article
+"an" instead of "a" if its corresponding noun starts with a vowel
+sound, and that what follows a semicolon should be a independent
+clause (i.e., should be able to stand on its own as a complete
+sentences).  These are examples of English /grammar rules/.
+
+Grammar, in broad strokes, refers to the rules which govern what
+constitutes a well-formed sentence in a given language, barring
+low-level syntactic concerns like spelling or whitespace.  It's the
+concern of grammar to determine that
+
+
+#+begin_src sentence
+I taught the car in the refrigerator
+#+end_src
+
+makes grammatical sense and that
+
+#+begin_src sentence
+I car teach refrigerator in there
+#+end_src
+
+does not.  It's /not/ the concern of grammar to determine that the
+first sentence, though grammatical, has no reasonable interpretation
+in English (except, perhaps, in surrealist fiction).
+
+Programming languages──being themselves languages in their own right,
+albeit more stringent ones than natural languages──have their own
+grammars, i.e., rules for determining what counts as a well-formed
+/program/.  Due to the grammatic precision expected of programming
+languages (we don't want too much variation in what we are allowed to
+write as a valid program), these tend to be called *formal grammars*.
+
+#+begin_quote
+*Example.* In OCaml, the program
+
+#+begin_src ocaml
+  let f x = x + 1
+#+end_src
+
+is well-formed, but the program
+
+#+begin_src ocaml
+  let f x = x 1 +
+#+end_src
+
+is not, because the rule for using the ~+~ operator is that its
+arguments appear to its left and its right, i.e., it's an /infix
+operator/.[fn::It can be used as a prefix operator if put in
+parentheses, e.g. ~(+) x 1~, but it cannot in any circumstances be
+used as a postfix operator.  We will discuss fixity in more detail
+later.]
+#+end_quote
+
+As in the case of natural language, grammars for programming languages
+are not concerned with the *meaning* of programs, just their
+well-formedness. The program
+
+
+#+begin_src ocaml
+  let omega x = x x
+#+end_src
+
+is well-formed in OCaml, but it's not well-typed since the argument
+~x~ is expected to be a function of type ~'a -> 'b~ as well as an
+argument of type ~'a~, an impossibility in the type system of OCaml.
+
+If our goal is to interpret computer programs, then we have to
+understand formally──both theoretically and practically──the grammars
+describing the well-formed programs.  This means being able to
+represent and interpret representations of formal grammars.  The
+grammar of OCaml, for example, is given in its entirety in [[https://v2.ocaml.org/manual/expr.html][The OCaml
+Manual]].  After going through this chapter, you should be able to
+interpret the specification given there.
+
+Placing this in the pipeline of interpretation, a grammar represents
+the target of /parsing/.  As a reminder, a stream of tokens is parsed
+into a *parse tree*, a hierarchical structure which describes the way
+the program is formally composed.  It's easier to determine the meaning
+of a program (i.e., to interpret it) given its hierarchical structure
+as opposed to its linear form as a stream of tokens.
+
+#+begin_quote
+*Remark.* This is another way of conceptualizing the role of grammar:
+it determines the hierarchical structure of a sentence.  A sentence
+may be considered well-formed if it can constructed as well-formed
+parse tree, e.g.
+
+#+begin_src ascii
+  S
+  ├──┐
+  NP VP
+  │  ├──────┐
+  N  V      NP
+  │  │      ├───────┐
+  │  │      NP      PP
+  │  │      ├───┐   ├──┐
+  │  │      A   N   P  NP
+  │  │      │   │   │  ├───┐
+  │  │      │   │   │  A   N
+  │  │      │   │   │  │   │
+  I  taught the car in the refrigerator.
+#+end_src
+#+end_quote
+
+Its not important that you know exactly what you each of the
+abbreviations in the above image stand for (this isn't a linguistics
+course, but hopefully we can make educated guesses) but hopefully the
+structure aligns with your intuition about how words in the sentences
+are grouped.
+
+In this collection of notes on formal grammars, we will:
+
++ define *Backus-Naur Form* specifications, a way of describing
+  so-called *context-free grammars*, which we will use to present the
+  grammars of programming languages;
++ discuss *ambiguity* in grammar along with how to avoid it (and why);
++ Look at *Extended BNF* as a slightly more useful framework for
+  specifying programming languages.
+
+* Backus-Naur Form
+
+Backus-Naur Form (BNF) specifications are used to describe what are
+called *context-free grammars*.  Context-free grammars form a class of
+formal grammars which are sufficiently expressive to capture the
+grammars of most programming languages.  We will be using BNF
+specifications to describe the rules which determine well-formed
+programs in programming languages we aim to interpret.
+
+First, a toy example/thought experiment.  Consider the following
+English statement.
+
+#+begin_src sentence
+  the cow jumped over the moon
+#+end_src
+
+Suppose we tried to break down the cognitive process of determining
+that this sentence is grammatical.  We might first recognize that each
+word falls into a particular part of speech.  We can represent this
+step of the process by replacing each word in the sentence with a
+symbol /standing for/ each figure of speech (the choice of symbol
+being influenced by what is to come).
+
+#+begin_src sentence
+  <article> <noun> <verb> <prep> <article> <noun>
+#+end_src
+
+We then might recognize some familiar patterns: ~<article> <noun>~
+captures the determination or quantification of an object, so we might
+mentally group these symbols (into what grammaticists call *nominal
+phrases* or *noun phrases*) and represent them by a new symbol:
+
+#+begin_src sentence
+  <noun-phrase> <verb> <prep> <noun-phrase>
+#+end_src
+
+Then we might recognize that a preposition followed by a noun phrase
+is also single unit ("over the moon", "through the woods", and "behind
+the wall" are examples of *prepositional phrases*) so that the
+structure of the entire sentence may be represented as
+
+#+begin_src sentence
+  <noun-phrase> <verb> <prep-phrase>
+#+end_src
+
+Then we might recognize that prepositional phrases can modify verbs,
+again creating a single unit (e.g., "ran to the car", "arose from
+bed") leaving us with something like
+
+#+begin_src sentence
+  <noun-phrase> <verb-phrase>
+#+end_src
+
+which we should finally recognize the canonical structure of a
+well-formed sentence: /a thing does a thing./ A bit hand-wavy, but
+this accounts roughly for what we do when we judge that the above
+sentence is grammatical.
+
+Putting these steps in reverse order (and starting with a single
+symbol ~<sentence>~) we get something that looks like a /proof/ that
+~the cow jumped over the moon~ is a grammatical sentence.
+
+
+#+begin_src deriv
+  <sentence>
+  <noun phrase>    <verb phrase>
+  <noun phrase>    <verb> <prep phrase>
+  <noun phrase>    <verb> <prep> <noun phrase>
+  <article> <noun> <verb> <prep> <article> <noun>
+  the       cow    jumped over   the       moon
+#+end_src
+
+That is, a representation of our congnitive process.  And if we
+squint, we can see something that hierarchical, something that looks a
+bit like the parse tree in the introduction to this chapter.
+
+#+begin_src tree
+  S
+  ├───────┐
+  NP      VP
+  ├───┐   ├──────┐
+  A   N   V      PP
+  │   │   │      ├────┐
+  │   │   │      P    NP
+  │   │   │      │    ├───┐
+  │   │   │      │    A   N
+  │   │   │      │    │   │
+  the cow jumped over the moon
+#+end_src
+
+A *formal grammar* is meant to model this cognitive process of
+classifying a sentence as grammatical by verifying that it has the
+"right" hierarchical structure.
+
+** Definitions
+
+When defining a formal grammar, we fix ourselves to a collection of
+symbols.  These symbols are divided into two disjoint groups: the
+*terminal symbols* and the *non-terminal symbols*.  We will always
+notate a non-terminal symbol by something of the form ~<non-term>~
+(where we replace ~non-term~ with something more descriptive) and
+terminal symbols by sequence of (typically) alphanumeric symbols.
+
+#+begin_quote
+*Remark.* We almost never state outright what the underlying symbols
+of a grammar are.  It should always be possible to determine what
+terminal and non-terminal symbols we are considering by looking at the
+BNF specification itself.
+#+end_quote
+
+In the proof that ~the cow jumped over the moon~ was grammatical, we
+built a sequence of not-quite sentences, until the very last one which
+was an actual sentences. We call these not-quite sentences *sentential
+forms*.
+
+#+begin_quote
+*Definition.* A *sentential form* is a sequence of symbols (terminal
+or non-terminal).  A **sentence** is a sequence of terminal symbols.
+#+end_quote
+
+#+begin_quote
+*Remark.* We notate a sequences of symbols by white space separation.
+For example,
+
+#+begin_src sent
+the dog jumped
+#+end_src
+
+is a sentence and
+
+#+begin_src sent
+the <noun> jumped
+#+end_src
+
+is a sentential form.  But it is important to note that /this is just
+notation/.  If it helps, it may be useful to imagine a /list/
+
+#+begin_src sent
+[the; <noun>; jumped]
+#+end_src
+
+when thinking about what a sentential form is.
+#+end_quote
+
+In the process of building sentential forms, we replaced non-terminal
+symbols with sentential forms, e.g., we replaced ~<noun phrase>~ with
+~<article> <noun>~.  A grammar is determined by what replacements we
+are allowed to do.
+
+#+begin_quote
+*Definition.* A *production rule* is an equation of the form
+
+#+begin_src prod
+<non-term> ::= SENTENTIAL-FORM
+#+end_src
+
+where the left-hand side of the ~::=~ is a non-terminal symbol, and
+the right-hand side is a sentential form.
+#+end_quote
+
+We read a production rule as: "the non-terminal symbol on the
+left-hand side can be replaced with the sentential form on the right
+hand side."  In a sense, production rules /define/ the non-terminal
+symbols, e.g., a sentence is a noun phrase followed by a verb phrase.
+
+#+begin_quote
+*Definition.* A *Backus-Naur Form (BNF) specification* is a collection
+of production rules, together with a designated the *starting symbol*.
+#+end_quote
+
+
+We will always take the start symbol will be designated as the
+left-hand side of the *first* rule appearing in a specification.
+
+#+begin_quote
+*Example.* The following is an example of a grammar which /recognizes/
+the sentence above.
+
+#+begin_src bnf
+<sentence>    ::= <noun-phrase> <verb-phrase>
+<verb-phrase> ::= <verb> <prep-phrase>
+<verb-phrase> ::= <verb>
+<prep-phrase> ::= <prep> <noun-phrase>
+<noun-phrase> ::= <article> <noun>
+<article>     ::= the
+<noun>        ::= cow
+<noun>        ::= moon
+<verb>        ::= jumped
+<prep>        ::= over
+#+end_src
+
+The nonterminal symbol ~<sentence>~ is our starting symbol because it
+appears as the left-hand side of the first rule.
+#+end_quote
+
+Note that a non-terminal symbol can have multiple associated
+production rules.  This is common enough that we have special syntax
+for this.
+
+#+begin_quote
+*Notation.* We write
+
+#+begin_src bnf
+<non-term> ::= SENT-FORM-1 | SENT-FORM-2 | ... | SENT-FORM-n
+#+end_src
+
+as shorthand for
+
+#+begin_src bnf
+<non-term> ::= SENT-FORM-1
+<non-term> ::= SENT-FORM-2
+...
+<non-term> ::= SENT-FORM-n
+#+end_src
+
+#+end_quote
+
+With this shorthand, we can write the above grammar as:
+
+#+begin_src bnf
+<sentence>    ::= <noun-phrase> <verb-phrase>
+<verb-phrase> ::= <verb> | <verb> <prep-phrase>
+<prep-phrase> ::= <prep> <noun-phrase>
+<noun-phrase> ::= <article> <noun>
+<article>     ::= the
+<noun>        ::= cow | moon
+<verb>        ::= jumped
+<prep>        ::= over
+#+end_src
+
+The last piece of the thought experiment above that we need to
+formalize is the /proof/ that the given sentence was grammatical.  We
+formalize this in the notion of a *derivation*.
+
+#+begin_quote
+*Definition.* A *derivation* of a sentence ~S~ in a BNF grammar is a
+sequence of sentential forms with the following properties:
+
++ it beginning with the designated start symbol;
++ it ends in the sentence ~S~;
++ each sentential form is a the result of replacing /one of/ the
+  non-terminal symbols in the preceding sentence with a sentential
+  form according to a production rule of the grammar.
+
+We say that a grammar *recognizes* a sentence ~S~ if there is a
+derivation of ~S~ in the grammar.
+#+end_quote
+
+This definition restates the process from the thought experiment
+mathematically.  That said, it deviates in one way which makes the
+definition easier to state: in the thought experiment, we allowed
+ourselves to replace multiple non-terminal symbols simultaneously.
+This is not allowed in the above notion of a derivation. A /correct/
+derivation would look like:
+
+#+begin_src deriv
+<sentence>
+<noun-phrase>    <verb-phrase>
+<noun-phrase>    <verb> <prep-phrase>
+<noun-phrase>    <verb> <prep> <noun-phrase>
+<article> <noun> <verb> <prep> <noun-phrase>
+<article> <noun> <verb> <prep> <article> <noun>
+the       <noun> <verb> <prep> <article> <noun>
+the       cow    <verb> <prep> <article> <noun>
+the       cow    jumped <prep> <article> <noun>
+the       cow    jumped over   <article> <noun>
+the       cow    jumped over   the       <noun>
+the       cow    jumped over   the       moon
+#+end_src
+
+#+begin_quote
+*Exercise.* In the above derivation, mark the nonterminal in each
+sentential form which was replaced in the following line.
+#+end_quote
+
+A sentence is not guaranteed to have a /unique/ derivation.  There are
+two forms of derivations that will be of particular importance for us.
+
+#+begin_quote
+*Definition.* A *leftmost derivation* of a sentence is one in which
+the leftmost nonterminal symbol is expanded in each step.  A
+*rightmost derivation* is one in which the rightmost nonterminal
+symbol is expanded in each step.
+#+end_quote
+
+
+Note that the above derivation is neither the leftmost derivation or
+the rightmost derivation.
+
+#+begin_quote
+*Exercise.* Write leftmost and rightmost derivations for the sentence
+
+#+begin_src sent
+the cow jumped over the moon
+#+end_src
+
+in the above grammar.
+#+end_quote
+
+** A More Interesting Example
+
+The following is a BNF specification for a fragment of a simple
+imperative programming language.
+
+#+begin_src bnf
+<program> ::= <stmts>
+<stmts>   ::= <stmt> | <stmt> ; <stmts>
+<stmt>    ::= <var> = <expr>
+<var>     ::= a | b | c | d
+<expr>    ::= <term> | <term> + <term> | <term> - <term>
+<term>    ::= <var> | const
+#+end_src
+
+In English, we would read this specification as:
+
++ a PROGRAM is a SEQUENCE OF STATEMENTS;
++ a SEQUENCE OF STATEMENTS is either a single STATEMENT, or a single
+  STATEMENT followed a semicolon, followed by a SEQUENCE OF
+  STATEMENTS;
++ a STATEMENT is a VARIABLE followed by an equals sign, followed
+  by an EXPRESSION.
+
+and so on.
+
+This second rule highlights something interesting which we can do in
+BNF specifications: rules are allowed to be /recursive/.  The
+production rule for ~<stmts>~ allows us to replace it with a
+sentential form which /contains/ the non-terminal symbol ~<stmts>~.
+This is quite powerful, particularly because it means it is possible
+to derive an infinite number of sentences in a given grammar.
+
+#+begin_quote
+*Exercise.* Determine the number of sentences that can be derived in
+ the grammar from the previous section (i.e., the number of sentences
+ which can be derived from the starting symbol ~<sentence>~).
+#+end_quote
+
+Consider the following program.
+
+#+begin_src prog
+a = const ;
+a = a + const ;
+b = a
+#+end_src
+
+We can verify that this program is recognized by the above grammar by
+finding a (leftmost) derivation.
+
+#+begin_src deriv
+<program>
+<stmts>
+<stmt> ; <stmts>
+<var> = <expr> ; <stmts>
+a = <expr> ; <stmts>
+a = <term> ; <stmts>
+a = const ; <stmts>
+a = const ; <stmt> ; <stmts>
+a = const ; <var> = <expr> ; <stmts>
+a = const ; a = <expr> ; <stmts>
+a = const ; a = <term> + <term> ; <stmts>
+a = const ; a = <var> + <term> ; <stmts>
+a = const ; a = a + <term> ; <stmts>
+a = const ; a = a + const ; <stmts>
+a = const ; a = a + const ; <var> = <expr>
+a = const ; a = a + const ; b = <expr>
+a = const ; a = a + const ; b = <term>
+a = const ; a = a + const ; b = <var>
+a = const ; a = a + const ; b = a
+#+end_src
+
+#+begin_quote
+*Remark.* As a reminder, we're not interested in white space when we
+consider whether or not a sentence is recognized by a grammar.  The
+choice to present the sentences in three lines was for readability,
+and the choice to present it in a single line in the derivation was
+for convenience.
+#+end_quote
+
+One notable feature of the last four lines of the above derivation:
+even if a nonterminal symbol is replaced by a /single/ nonterminal
+symbol in succession, *we have to include each step*.  We're only
+allowed to apply one production rule at a time, e.g., we cannot
+immedatiely replace ~<expr>~ with ~<var>~ because that is not one of
+our production rules.
+
+#+begin_quote
+*Exercise.* Write a rightmost derivation for the above program.
+#+end_quote
+
+#+begin_quote
+*Exercise.* Verify that
+
+#+begin_src prog
+a = a + a ; b = b
+#+end_src
+
+is recognized by the above grammar.
+#+end_quote
+
+** Parse Trees
+
+Grammars imbue sentences with hierarchical structure.  This structure
+is represented graphically as a *parse tree*.  We've seen a couple
+examples of English grammar parse trees so far, but we can also build
+parse trees for sentences recognized by /any/ grammar with a BNF
+specification.
+
+#+begin_quote
+*Definition.* A *parse tree* for a sentence ~S~ in a grammar is a tree
+~T~ with the following properties:
+
++ every leaf of ~T~ has a terminal symbol;
++ every non-leaf node ~n~ has a nonterminal symbol (we write ~val(n)~
+  for the value at ~n~);
++ if a node ~n~ with has children ~[t1, t2, ..., tk]~ then
+
+  #+begin_src pseudo
+    val(n) ::= root(t1) root(t2) ... root(tk)
+  #+end_src
+
+  is a production rule in the grammar (where ~root(t)~ denotes the
+  value at the root of the tree ~t~);
+
++ the leaves (in order) (i.e., the *frontier* of ~T~) form the
+  sentence ~S~.
+#+end_quote
+
+The details of the above definition are not so important, as long as
+you have the right picture in your head.  For example, the sentence ~a
+= b + const~ has the following derivation.
+
+#+begin_src deriv
+<program>
+<stmts>
+<stmt>
+<var> = <expr>
+a = <expr>
+a = <term> + <term>
+a = <var> + <term>
+a = b + <term>
+a = b + const
+#+end_src
+
+And has the following parse tree.
+
+#+begin_src ascii
+  <program>
+  │
+  <stmts>
+  │
+  <stmt>
+  ├─────┬───┐
+  <var> │   <expr>
+  │     │   ├──────┬─┐
+  │     │   <term> │ <term>
+  │     │   │      │ │
+  │     │   <var>  │ │
+  │     │   │      │ │
+  a     =   b      + const
+#+end_src
+
+#+begin_quote
+*Remark.* You don't have to draw your trees in this rectilinear
+styling. If you're drawing one on paper, I'd recommend drawing it like
+any other tree you've drawn for another computer science course.  I
+just have a predilection for ASCII art...
+#+end_quote
+
+#+begin_quote
+*Exercise.* Given the ADT
+
+#+begin_src ocaml
+type 'a tree
+   = Leaf of 'a
+   | Node of 'a * 'a tree list
+#+end_src
+
+write the OCaml function ~frontier~ which, given
+
++ ~t~ of type ~'a tree~
+
+returns the list of leaves of ~t~ in order from left to right.
+#+end_quote
+
+Every derivation can be converted into a parse tree, and vice versa,
+but multiple derivations may correspond to the same parse tree.  This
+will be important when we cover ambiguity in the next section.
+
+#+begin_quote
+*Exercise.* Write a derivation corresponding to the above parse tree
+ when is neither leftmost nor rightmost.
+#+end_quote
+
+* Ambiguity
+
+As participants of language, we are no strangers to grammatical
+ambiguity.  Take, for instance, the following sentence:[fn::This
+sentence is taken from the Wikipedia article on [[https://en.wikipedia.org/wiki/Syntactic_ambiguity][syntactic ambiguity]].]
+
+#+begin_src sent
+John saw the man on the mountain with the telescope
+#+end_src
+
+Was John using the telescope?  Was the man carrying the telescope?
+Are the multiple mountains, one of which has a telescope on it?
+
+The ambiguity exists because it is not clear /which/ hierarchical
+structure should scaffold the sentence.  Here are two options for the
+verb phrase in the sentence.
+
+#+begin_src ascii
+  VP
+  ├───┬───────────────────────┐
+  V   NP                      PP
+  │   ├───────┐               │
+  │   NP      PP              │
+  │   │       ├──┐            ├────┐
+  │   │       P  NP           P    NP
+  │   ├───┐   │  ├───┐        │    ├───┐
+  │   A   N   │  A   N        │    A   N
+  │   │   │   │  │   │        │    │   │
+  saw the man on the mountain with the telescope
+#+end_src
+
+The propositional phrase ~with the telescope~ is grouped alongside the
+verb phrase starting with ~saw~, indicating that John was /using/ the
+telescope.  Another option:
+
+
+#+begin_src ascii
+  VP
+  ├───┐
+  V   NP
+  │   ├───────┐
+  │   NP      PP
+  │   ├───┐   ├──┐
+  │   A   N   P  NP
+  │   │   │   │  ├────────────┐
+  │   │   │   │  NP           PP
+  │   │   │   │  ├───┐        ├────┐
+  │   │   │   │  A   N        P    NP
+  │   │   │   │  │   │        │    ├───┐
+  │   │   │   │  │   │        │    A   N
+  │   │   │   │  │   │        │    │   │
+  saw the man on the mountain with the telescope
+#+end_src
+
+The prepositional phrase ~with the telescope~ is part of the noun
+phrase with ~the mountain~, indicating the there is a telescope on the
+mountain and the man is climbing that mountain.
+
+The ambiguity comes from not being completely sure which parse tree to
+give to the sentence; we experience language in a /linear fashion/,
+either by reading it or hearing it.  If our interlocutor could
+/display/ the parse tree of their statement (floating eerily in space
+before your eyes) there would be nothing to say of (grammatical)
+ambiguity.
+
+But this is /not/ how we experience language, or how we write
+programs for that matter.  To drive the point home, there is a
+natural-enough looking grammar which recognizes the above sentence.
+
+#+begin_src bnf
+<s>  ::= <np> <vp>
+<vp> ::= <v> | <v> <np> | <v> <np> <pp>
+<pp> ::= <p> <np>
+<np> ::= <n> | <d> <n> | <np> <pp>
+<n>  ::= John | man | mountain | telescope
+<v>  ::= saw
+<d>  ::= the
+<p>  ::= on | with
+#+end_src
+
+The above sentence has multiple parse trees in the above
+grammar. Equivalently, since parse trees correspond to exactly one
+leftmost derivation (you should try to convince yourself of this), it
+also has multiple leftmost derivations.
+
+#+begin_quote
+*Exercise.* Give two leftmost derivations of
+
+#+begin_src sent
+John saw the man on the mountain with the telescope
+#+end_src
+
+in the above grammar.
+#+end_quote
+
+Ambiguity in natural language is a complex topic, but restricted to
+formal grammars, ambiguity is a well-defined notion.
+
+#+begin_quote
+*Definition.* A grammar is *ambiguous* there is a sentence it
+recognizes which has two distinct parse trees.  Equivalently, it is
+ambiguous of there is a sentence it recognizes which has two distinct
+leftmost derivations.
+#+end_quote
+
+Thus, the above grammar is ambiguous in the mathematical sense.
+
+More to the point, consider the following grammar which may be seen as
+a prototype of a grammar for arithmetic expressions (something we will
+probably want if we're to give a grammar for a programming language).
+
+#+begin_src bnf
+<expr> ::= <var> | <expr> <op> <expr>
+<op>   ::= + | - | * | /
+<var>  ::= x
+#+end_src
+
+This seems, ignoring obvious issues, a reasonable enough definition;
+/an expression is either a variable or a pair of expressions with an
+operator between them/.  Note that the recursive nature of the first
+production rule means that this grammar recognizes an infinite number
+of sentence.
+
+#+begin_quote
+*Exercise.* Give a leftmost a derivation of ~x * x + x * x~ in the above grammar.
+#+end_quote
+
+But, with regards to ambiguity, we should already be suspicious of the
+first production rule.  As soon as we've applied the (second
+alternative of) the first production rule twice we have the partial derivation:
+
+#+begin_src bnf
+<expr>
+<expr> <op> <expr>
+<expr> <op> <expr> <op> <expr>
+#+end_src
+
+For the third line, /which of the two ~<expr>~ symbols did we expand?/
+To make this concrete, here are two parse trees for the sentence ~x +
+x + x~.
+
+#+begin_src tree
+  <expr>                                <expr>
+  ├──────┬────┐                         ├──────────────────┬────┐
+  <expr> <op> <expr>                    <expr>             <op> <expr>
+  │      │    ├──────┬────┐             ├──────┬────┐      │    │
+  <var>  │    <expr> <op> <expr>        <expr> <op> <expr> │    <var>
+  │      │    │      │    │             │      │    │      │    │
+  │      │    <var>  │    <var>         <var>  │    <var>  │    │
+  │      │    │      │    │             │      │    │      │    │
+  x      +    x      +    x             x      +    x      +    x
+#+end_src
+
+These two parse trees correspond to the following two leftmost
+derivations (the first for the tree on the left, the second for the
+tree on the right).
+
+#+begin_src deriv
+<expr>
+<expr> <op> <expr>
+<var> <op> <expr>
+x <op> <expr>
+x + <expr>
+x + <expr> <op> <expr>
+x + <var> <op> <expr>
+x + x <op> <expr>
+x + x + <expr>
+x + x + <var>
+x + x + x
+
+<expr>
+<expr> <op> <expr>
+<expr> <op> <expr> <op> <expr>
+<var> <op> <expr> <op> <expr>
+x <op> <expr> <op> <expr>
+x + <expr> <op> <expr>
+x + <var> <op> <expr>
+x + x <op> <expr>
+x + x + <expr>
+x + x + <var>
+x + x + x
+#+end_src
+
+
+This demonstrates that the above grammar is ambiguous.
+
+#+begin_quote
+*Aside.* In this example, and many of the examples we will see, it
+will be fairly clear that the grammar is ambiguous.  As students of
+computer science, we might think that we could write a /program/ that
+checks for us if a grammar is ambiguous.  Unfortunately, this is
+impossible (not just very difficult, but *impossible*).  This is to
+say that determining if a context-free grammar is ambiguous is
+*undecidable* (a term worth looking up if this piques your
+interest).
+#+end_quote
+
+** Avoiding Ambiguity
+
+Our next task it to determine how to avoid this ambiguity, but first,
+/why should we care?/ Natural language is ambiguous and we get along
+perfectly fine.  Why should we go through this trouble to make sure
+grammars we design are unambiguous?
+
+It's a fair question; the way I see it, it's something of a promise
+that we make to the user of a programming language that we **never
+make unspoken assumptions about what a user meant when we read one of
+their programs.** To be fair, we try to do this with natural language
+too, but in communication, if a statement is ambiguous, we can usually
+just ask our interlocutor what they meant.  We can't do this for a
+program, so instead we make it /impossible/ for a sentence to have
+multiple meanings.
+
+#+begin_quote
+*Aside.* We see a similar phenomena in legal language, which tends to
+ be grammatically sterile, and usually no fun to read.
+#+end_quote
+
+*** (Reverse) Polish Notation
+
+If our only concern is avoiding ambiguity, we can use *Polish
+notation* or *reverse polish notation*.  In Polish notation, operators
+appear *before* all their arguments, e.g.
+
+~~~
+<expr> ::= <var> | <op> <expr> <expr>
+<op>   ::= + | - | * | /
+<var>  ::= x
+~~~
+
+We won't dwell on this but it turns out this gives us an unambiguous
+grammar, we don't even need parentheses.
+
+It's not difficult to then guess what reverse polish notation is:
+operators always appear *after* all their arguments.  This is how
+early calculators like [[https://en.wikipedia.org/wiki/Hewlett-Packard_9100A][HP 9100A Desktop Calculator]] were designed.  If
+you wanted to calculate something ~(2 + 3) * (4 - 5)~, you would
+/push/ the values you want to apply operations to onto a *stack*, and
+then apply operations to the top elements of the stack, like so:
+
+#+begin_src rpn
+STACK        RPN EXPRESSION
+2            2
+2 3          2 3
+5            2 3 +
+5 4          2 3 + 4
+5 4 5        2 3 + 4 5
+5 (-1)       2 3 + 4 5 -
+(-5)         2 3 + 4 5 - *
+#+end_src
+
+So the sequence of tokens you end up typing into the calculator is an
+expression in reverse polish notation.
+
+#+begin_quote
+*Exercise.* Derive the sentence
+
+#+begin_src rpn
++ * x * x - x x x x
+#+end_src
+
+in the above grammar.
+#+end_quote
+
+The obvious issue with (reverse) polish notation is that it's
+difficult to read.  Imagine working with a language in which
+if-then-else logic had to be done like this:
+
+#+begin_src prog
+  IFTHENELSE
+    cond
+    IFTHENELSE
+      IFTHENELSE
+	cond
+	ifcase
+	elsecase
+      ifcase
+      elsecase
+    elsecase
+#+end_src
+
+This is in part to say that what truly causes ambiguity in expressions
+is complex operator *fixity*.
+
+#+begin_quote
+*Definition.* The *fixity* of an operator refers to where the
+(syntactic components of an) operator is placed relative to its
+arguments.  There are four kinds of operator fixity.
++ A *prefix* operator appears before its arguments. This is like
+  function application in OCaml, e.g.,
+  + ~f x~
+  + ~not b~
++ A *postfix* operator appears after its arguments. This is like type
+  constructor application in OCaml, e.g.,
+  + ~int list~
+  + ~bool option list~
++ An *infix* operator appears in between its arguments. This is like
+  arithmetic operations we learn in primary school, e.g.,
+  + ~2 + 3~
+  + ~4 / 5~
++ A *mixfix* operator is an operator with multiple syntactic
+  components which may appear as some combination of prefix, infix and
+  postfix. This is like if-then-else expressions or anonymous
+  functions in OCaml, e.g.,
+  + ~if b then x else y~
+  + ~fun x -> e~
+#+end_quote
+
+If we want to contend with operator fixity (i.e., we don't want *just*
+prefix or *just* postfix operators, as in polish notation or reverse
+polish notation) then we have to work to avoid ambiguity.
+
+*** Parentheses
+
+Another simple solution is to surround applications of operations with
+parentheses:
+
+#+begin_src bnf
+<expr> ::= <var> | ( <expr> <op> <expr> )
+<op>   ::= + | - | * | /
+<var>  ::= x
+#+end_src
+
+It then becomes very clear in a derivation like
+
+#+begin_src deriv
+<expr>
+( <expr> <op> <expr> )
+( ( <expr> <op> <expr> ) <op> <expr> )
+#+end_src
+
+which ~<expr>~ in the second line we expanded.  But we run into a
+similar issue: /lots of parentheses are no fun to read or type./
+
+#+begin_quote
+*Exercise.* Give a derivation of
+
+
+#+begin_src sent
+( ( ( x * x ) * x ) + ( x / x ) )
+#+end_src
+
+in the above grammar.
+#+end_quote
+
+#+begin_quote
+*Aside.* The cult of parentheses is real.  Programming languages based
+on [[https://en.wikipedia.org/wiki/Lisp_(programming_language)][LISP]] use full parenthesization /and/ prefix notation.  Many people
+consider this to be elegant, and many others believe it to be ugly as
+hell.
+#+end_quote
+
+So, our real basic question is: /how do we avoid grammar while being
+able to mix operator fixities and not use so many parentheses?/ And
+this question has a simple answer in theory: /make explicit
+assumptions about how operator arguments are grouped./ This will mean
+contending with two things: *associativity* and *precedence*.
+
+** Associativity
+
+Associativity refers to how arguments are grouped when we are given a
+sequence of applications of an infix operator in the absence of
+parentheses, e.g.,
+
+#+begin_src sent
+x + x + x + x
+#+end_src
+
+may be understood as any one of the following (among others):
+
+#+begin_src sent
+(((x + x) + x) + x)
+(x + (x + (x + x)))
+((x + x) + (x + x))
+(x + ((x + x) + x))
+#+end_src
+
+#+begin_quote
+*Exercise.* Determine the number of ways the expression
+
+#+begin_src sent
+x + x + x + x
+#+end_src
+
+can be parenthesized.
+#+end_quote
+
+In the case of addition this point is somewhat moot.  The order in
+which we group arguments does not affect the /value/ of a sequence of
+additions.  That is, addition is *associative*.
+
+#+begin_quote
+*Definition.* An operator $\circ: X \to X \to X$ is *associative* if
+
+\begin{align*}
+  (a \circ b) \circ c = a \circ (b \circ c)
+\end{align*}
+
+for any $a$, $b$, and $c$ in $X$.
+#+end_quote
+
+Not all operators are associative.  Take division for example.  We
+need to /decide/ how to implicitly parenthesize an expression like
+
+\begin{align*}
+a / b / c / d
+\end{align*}
+
+Again, we could try to bar the ability to write an expression like
+this, but we might rather avoid using parentheses if possible.
+
+#+begin_quote
+*Exercise.* How does OCaml evaluate the expression ~100 / 5 / 4~?
+How are arguments grouped?
+#+end_quote
+
+For binary operators, we typically choose one of the first two choices
+in the list of parenthesizations above.
+
+#+begin_quote
+*Definition.* A operation $\circ : X \to X \to X$ is said to be
+*left-associative* if sequences of applications of the operator are
+understood as grouping arguments from the left, i.e.,
+
+\begin{align*}
+a \circ b \circ c \circ d = (((a \circ b) \circ c) \circ d)
+\end{align*}
+for any $a$, $b$, $c$, and $d$, in $X$.  It's said to be
+*right-associative* if arguments are grouped from the right, i.e.,
+
+\begin{align*}
+a \circ b \circ c \circ d = (a \circ (b \circ (c \circ d)))
+\end{align*}
+#+end_quote
+
+#+begin_quote
+*Remark.* Another option is that a binary operator can have no
+associativity.  It does not, for instance, make sense to apply a
+sequence of ~(=)~ operators in OCaml.
+#+end_quote
+
+Bringing this back to grammatical ambiguity, giving a parenthesization
+of a sequence of operators means specifying a "shape" for the
+corresponding parse tree.  For example, taking addition to be
+left-associative, i.e., taking ~x + x + x~ to mean ~((x + x) + x)~,
+implies that, of the two parse trees for this sentence in the above
+image, the one on the right should be the "correct" one, /not/ the
+one on the left.
+
+#+begin_quote
+*Example.* Another common ambiguous grammar in programming languages
+is the one for function types.
+
+#+begin_src bnf
+<fun-type> ::= <int-type> | <fun-type> -> <fun-type>
+<int-type> ::= int
+#+end_src
+
+#+end_quote
+
+#+begin_quote
+*Exercise.* Give two leftmost derivations of ~int -> int -> int~ in
+ the above grammar.
+#+end_quote
+
+#+begin_quote
+*Aside.* Looking ahead a bit, we will end up building parsers using a
+parser generator.  In this setting, specifying the associativity of an
+operator will be simple: there will be a command for doing so, a line
+we'll add to the code.  But we can also deal with associativity /in
+the grammar itself./
+
+Function types are right associative, so we understand
+
+#+begin_src ty
+int -> int -> int
+#+end_src
+
+to be parenthesized implicitly as
+
+#+begin_src ty
+int -> (int -> int)
+#+end_src
+
+The problem, as it stands, is that because of the production rule
+
+#+begin_src rule
+<fun-type> ::= <fun-type> -> <fun-type>
+#+end_src
+
+the argument type can an arbitrary complex function type.  But we
+might recognize that, no matter how deep the nesting, the argument
+types have the special property in the case we assume right
+associativity: /they're always just ~int~/.  Therefore, we
+might consider the following updated grammar.
+
+#+begin_src bnf
+<fun-type> ::= <int-type> | <int-type> -> <fun-type>
+<int-type> ::= int
+#+end_src
+
+In this grammar, no matter how many times you apply the second
+alternative of the first production rule, the argument type is always
+just the ~int~ type.  So we were, in fact, able to restrict the shape
+of the parse tree for sentences, by *breaking the symmetry* the
+production rule.  (This, of course, is more complicated once we start
+considering higher-order functions).
+#+end_quote
+
+#+begin_quote
+*Exercise.* Write the leftmost derivation of
+
+#+begin_src ty
+int -> int -> int
+#+end_src
+
+in the above grammar, along with its parse tree.
+#+end_quote
+
+** Precedence
+
+In the examples from the previous section, there was only one operator.
+In the presence of multiple operators we have new issues to deal with.
+/How should something like $x * y + z$ be implicitly parenthesized?/
+
+This is an issue of *precedence* or *order of operations* something
+probably already somewhat familiar to you.
+
+If you went through the American public school system then you
+probably learned the abbreviation PEMDAS ((P)arentheses,
+(E)xponentiation, (M)ultiplication, (D)ivision, (A)ddition,
+(S)ubtraction, along with an accompanying mnemonic, something like
+"please excuse my dear aunt sally").  Focusing on just the last four
+letters, this rule tells us that we should group multiplications and
+divisions first, and then group additions and subtractions.  That is
+to say, multiplication and division have greater *precedence* than
+addition and subtraction.
+
+#+begin_quote
+*Definition.* The *precedence* of an operator, relative to another
+operator, determines which operator binds more tightly, in the
+presents of ambiguity.
+#+end_quote
+
+#+begin_quote
+*Example.* The expression $2 * 3 + 4 * 5$ should be implicitly
+ parenthesized as $(2 * 3) + (4 * 5)$ because multiplication binds
+ tighter, it is considered first.
+#+end_quote
+
+
+The relative precedence of a collection of operators determines the
+"shape" of the parse tree we get when we generate the sentence with a
+grammar.  To say that multiplication has higher precedence is to say
+that when we build the parse tree for ~x * x + x~, we want ~+~ to be
+the top-level operation, at the root of the tree.
+
+
+#+begin_quote
+*Remark.* One thing that was probably glossed over if/when you learned
+PEMDAS: what do you do with something like $1 + 1 - 1 + 1$?  Do you
+group additions and then subtractions? Or vice versa?  The issue here
+is that addition and subtraction have the /same/ precedence.  In this
+case, we will use the associativity of the operators to determine how
+to parenthesize: **given a sequences of operators of the same
+precedence, we use their associativity to group them.**
+
+Since addition and subtraction are both left-associative, this would
+be parenthesized as $((1 + 1) - 1) + 1$.  Things can get /truly/ ugly
+if you have two operators with the same precedence, but /different/
+associativity.  We will ignore this possibility in this course, but
+this really matters in languages like Haskell, in which users can
+define their own operators, with specified precedence and
+associativity.
+#+end_quote
+
+All of this is to say: in order to define an unambiguous grammar
+without parentheses, we need to know three things of each operator
+appearing in the grammar: *fixity*, *associativity*, and *precedence*.
+Fixity is determined directly by the production rules, but we will
+have to specify associativity and precedence explicitly.
+
+We can, for example, present the four basic arithmetic operators along
+with this information.  The operators are presented in order of
+decreasing precedence.[fn::We can only present the table like this
+because we assume that all operators of the same precedence also have
+the same fixity.]
+
+| Operator | Fixity | Associativity |
+|----------+--------+---------------+
+| ~*~, ~/~ | infix  | left          |
+| ~+~, ~-~ | infix  | left          |
+
+In fact, just like the grammar for the OCaml is given in the OCaml
+Manual, so is [[https://v2.ocaml.org/api/Ocaml_operators.html][the associativity and precedence of all its operators]].
+
+#+begin_quote
+*Aside.* As with associativity, we will be able to specify precedence
+the parser generator we use.  And, as with associativity, we can also
+deal with precedence in the grammar itself.
+
+In the case of arithmetic expressions, we use similar observations:
++ because of associativity, the right argument of multiplication or division must be a variable ~x~;
++ because of precedence, the left argument of multiplication or division must contain only multiplications and divisions;
++ because of associativity, the right argument of addition or subtraction must be an expression with only multiplications and divisions.
+
+These observations yields the following grammar.  I've tried to use
+suggestive names to indicate how the three points above manifest.
+
+#+begin_src bnf
+<expr>         ::= <only-mul-div> | <expr> <add-sub> <only-mul-div>
+<only-mul-div> ::= <var> | <only-mul-div> <mul-div> <var>
+<add-sub>      ::= + | -
+<mul-div>      ::= * | /
+<var>          ::= x
+#+end_src
+#+end_quote
+
+#+begin_quote
+*Exercise.* Give the leftmost derivation of
+
+#+begin_src sent
+x * x + x * x
+#+end_src
+
+in the above grammar. Also draw its parse tree.
+#+end_quote
+
+
+Proving that this grammar is unambiguous is a bit tricky (we won't do
+this).  It suffices to say that, given we know how to parenthesize
+such expressions, and this grammar captures the rules we use, it would
+seem to be ambiguous.
+
+** Parentheses (Again)
+
+We're not quite done.  Without parentheses, we can't derive all
+expressions we might want to write down.  This is important:
+*parentheses in a programming language aren't just "there"
+implicitly.  We have to explicitly include them in our grammar.*
+
+Given the rules we've described above, we cannot write an expression
+(without parentheses) which is equivalent to
+
+#+begin_src sent
+(x + x) + x
+#+end_src
+
+To give a complete specification of the arithmetic expressions we know
+and love, we have to add back parentheses (this is the "P" part of
+PEMDAS).
+
+But where should we put parentheses into the grammar?  As we saw
+above, if we put them everywhere, we get unnecessarily verbose
+sentences.  Rather, it should be the case that: /it should be possible
+put *any* expression as an argument to operator if it's wrapped in
+parentheses./ For this we will replace ~<var>~ with something can also
+be any expression wrapped in parentheses.
+
+#+begin_src bnf
+<expr>          ::= <only-mul-div> | <expr> <add-sub> <only-mul-div>
+<only-mul-div>  ::= <var-or-parens> | <only-mul-div> <mul-div> <var-or-parens>
+<add-sub>       ::= + | -
+<mul-div>       ::= * | /
+<var-or-parens> ::= x | ( <expr> )
+#+end_src
+
+We might worry that now, it is again possible to have an arbitrary
+expression as an argument to an operator, but the point is that, if we
+do this, it must be wrapped in parentheses, which ensures unambiguity.
+
+#+begin_quote
+> *Exercise.* Give a leftmost derivation of
+
+#+begin_src sent
+( x + x ) * x
+#+end_src
+
+in the above grammar. Draw its parse tree.
+#+end_quote
+
+
+#+begin_quote
+*Exercise.* (Challenge) According to PEMDAS, we also need to handle
+exponentiation.  Give a grammar for arithmetic expressions including
+parentheses and exponentiation, using the following operator
+information.
+
+| Operator | Fixity | Associativity |
+|----------+--------+---------------|
+| ~^~      | infix  | right         |
+| ~*~, ~/~ | infix  | left          |
+| ~+~, ~-~ | infix  | left          |
+#+end_quote
+
+#+begin_quote
+*Exercise.* (Challenge) Write a grammar for Boolean expressions in Python.  You
+can check what sorts of expressions are allowed by using the Python
+interpreter.
+#+end_quote
+
+* Extended BNF
+
+There are a number of extensions to the BNF (meta-)syntax which make
+it more usable.  If you go digging around the Internet for Extended
+BNF (EBNF), you'll find a couple definitions, most of which are more
+complex than what we will choose to call EBNF here.  That said, the
+extensions we consider in this short section are the ones that will be
+available in the parser generator we use in the next chapter.
+
+** Optional
+
+We use ~[ SENT-FORM ]~ to notate part of a production rule which is
+optional.  We may, for instance, want to write a language which has
+both if-then and if-then-else expressions.  Rather than using the BNF
+production rules
+
+#+begin_src rule
+  <if-expr> ::= if <expr> then <expr> | if <expr> then <expr> else <expr>
+#+end_src
+
+we can use the EBNF production rule
+
+#+begin_src rule
+  <if-expr> ::= if <expr> then <expr> [ else <expr> ]
+#+end_src
+
+These two rules express the same thing. In fact, /all BNF production
+rules are also EBNF production rules, and all EBNF production rules
+can be rewritten as a collection of BNF production rules./
+
+#+begin_quote
+*Exercise.* Rewrite the following EBNF production rule as a collection of BNF production rules.
+
+#+begin_src rule
+  <a> ::= a [ <b> ] [ a ]
+#+end_src
+#+end_quote
+
+#+begin_quote
+*Remark.* One issue with extending BNF is now we've made it harder to
+express grammars which include the symbols used for the EBNF
+extensions (e.g., ~[~ and ~]~).  In practice this is not a problem, we
+will try to be very explicit if something like ~[~ appears as part of
+a symbol of the grammar, and not a part of the specification of the
+grammar.
+#+end_quote
+
+** Alternative
+
+We use ~( SENT-FORM₁ | SENT-FORM₂ | ... | SENT-FORMₖ )~ to notate the
+choice of multiple sentential forms as /part/ of a production rule.
+In the previous section we defined a grammar for arithmetic
+expressions with multiple rules for the choice of operation.
+
+#+begin_src bnf
+  <expr>          ::= <only-mul-div> | <expr> <add-sub> <only-mul-div>
+  <only-mul-div>  ::= <var-or-parens> | <only-mul-div> <mul-div> <var-or-parens>
+  <add-sub>       ::= + | -
+  <mul-div>       ::= * | /
+  <var-or-parens> ::= x | ( <expr> )
+#+end_src
+
+We can simplify this in EBNF by removing the production rules for operators.
+
+#+begin_src bnf
+  <expr>          ::= <only-mul-div> | <expr> (+ | -)  <only-mul-div>
+  <only-mul-div>  ::= <var-or-parens> | <only-mul-div> (* | /) <var-or-parens>
+  <var-or-parens> ::= x | ( <expr> )
+#+end_src
+
+** Repetition
+
+We use ~{ SENT-FORM }~ to notate a part of a production rule which can
+be repeated as many times as we want.  We can also combine this with
+the alternative notation to as
+
+#+begin_src sent
+  { SENT-FORM₁ | SENT-FORM₂ | ... | SENT-FORMₖ }
+#+end_src
+
+to represent a collection of choices we may repeat as many times as we
+want.
+
+In the same grammar as above, we can rewrite the recursive production
+rules in terms of repetition.
+
+#+begin_src bnf
+  <expr>          ::= <only-mul-div> { (+ | -) <only-mul-div> }
+  <only-mul-div>  ::= <var-or-parens> { (* | /) <var-or-parens> }
+  <var-or-parens> ::= x | ( <expr> )
+#+end_src
+
+#+begin_quote
+*Exercise.* (Challenge) Write an EBNF specification for Boolean
+ expressions in Python.
+#+end_quote

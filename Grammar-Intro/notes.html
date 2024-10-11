@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2024-10-10 Thu 19:50 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Introduction</title>
+<meta name="author" content="Nathan  Mull" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="../myStyle.css" />
+</head>
+<body>
+<div id="org-div-home-and-up"><a href="../toc.html">↩</a></div><div id="content" class="content">
+<h1 class="title">Introduction</h1>
+<p>
+Most of us are familiar with grammar in the context of natural
+language.  In English class, we learn that we should use the article
+"an" instead of "a" if its corresponding noun starts with a vowel
+sound, and that what follows a semicolon should be a independent
+clause (i.e., should be able to stand on its own as a complete
+sentences).  These are examples of English <i>grammar rules</i>.
+</p>
+
+<p>
+Grammar, in broad strokes, refers to the rules which govern what
+constitutes a well-formed sentence in a given language, barring
+low-level syntactic concerns like spelling or whitespace.  It's the
+concern of grammar to determine that
+</p>
+
+
+<div class="org-src-container">
+<pre class="src src-sentence">I taught the car in the refrigerator
+</pre>
+</div>
+
+<p>
+makes grammatical sense and that
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sentence">I car teach refrigerator in there
+</pre>
+</div>
+
+<p>
+does not.  It's <i>not</i> the concern of grammar to determine that the
+first sentence, though grammatical, has no reasonable interpretation
+in English (except, perhaps, in surrealist fiction).
+</p>
+
+<p>
+Programming languages──being themselves languages in their own right,
+albeit more stringent ones than natural languages──have their own
+grammars, i.e., rules for determining what counts as a well-formed
+<i>program</i>.  Due to the grammatic precision expected of programming
+languages (we don't want too much variation in what we are allowed to
+write as a valid program), these tend to be called <b>formal grammars</b>.
+</p>
+
+<blockquote>
+<p>
+<b>Example.</b> In OCaml, the program
+</p>
+
+<div class="org-src-container">
+<pre class="src src-ocaml"><span style="color: #000000; font-weight: bold;">let</span> <span style="color: #0000ff;">f</span> <span style="color: #a0522d;">x</span> = x + 1
+</pre>
+</div>
+
+<p>
+is well-formed, but the program
+</p>
+
+<div class="org-src-container">
+<pre class="src src-ocaml"><span style="color: #000000; font-weight: bold;">let</span> <span style="color: #0000ff;">f</span> <span style="color: #a0522d;">x</span> = x 1 +
+</pre>
+</div>
+
+<p>
+is not, because the rule for using the <code>+</code> operator is that its
+arguments appear to its left and its right, i.e., it's an <i>infix
+operator</i>.<sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup>
+</p>
+</blockquote>
+
+<p>
+As in the case of natural language, grammars for programming languages
+are not concerned with the <b>meaning</b> of programs, just their
+well-formedness. The program
+</p>
+
+
+<div class="org-src-container">
+<pre class="src src-ocaml"><span style="color: #000000; font-weight: bold;">let</span> <span style="color: #0000ff;">omega</span> <span style="color: #a0522d;">x</span> = x x
+</pre>
+</div>
+
+<p>
+is well-formed in OCaml, but it's not well-typed since the argument
+<code>x</code> is expected to be a function of type <code>'a -&gt; 'b</code> as well as an
+argument of type <code>'a</code>, an impossibility in the type system of OCaml.
+</p>
+
+<p>
+If our goal is to interpret computer programs, then we have to
+understand formally──both theoretically and practically──the grammars
+describing the well-formed programs.  This means being able to
+represent and interpret representations of formal grammars.  The
+grammar of OCaml, for example, is given in its entirety in <a href="https://v2.ocaml.org/manual/expr.html">The OCaml
+Manual</a>.  After going through this chapter, you should be able to
+interpret the specification given there.
+</p>
+
+<p>
+Placing this in the pipeline of interpretation, a grammar represents
+the target of <i>parsing</i>.  As a reminder, a stream of tokens is parsed
+into a <b>parse tree</b>, a hierarchical structure which describes the way
+the program is formally composed.  It's easier to determine the meaning
+of a program (i.e., to interpret it) given its hierarchical structure
+as opposed to its linear form as a stream of tokens.
+</p>
+
+<blockquote>
+<p>
+<b>Remark.</b> This is another way of conceptualizing the role of grammar:
+it determines the hierarchical structure of a sentence.  A sentence
+may be considered well-formed if it can constructed as well-formed
+parse tree, e.g.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-ascii">S
+├──┐
+│  VP
+│  ├──────┐
+│  │      NP
+│  │      ├───────┐
+│  │      │       PP
+│  │      │       ├──┐
+NP │      NP      │  NP
+│  │      ├───┐   │  ├───┐
+N  V      A   N   P  A   N
+│  │      │   │   │  │   │
+I  taught the car in the refrigerator.
+</pre>
+</div>
+</blockquote>
+
+<p>
+Its not important that you know exactly what you each of the
+abbreviations in the above image stand for (this isn't a linguistics
+course, but hopefully we can make educated guesses) but hopefully the
+structure aligns with your intuition about how words in the sentences
+are grouped.
+</p>
+
+<p>
+In this collection of notes on formal grammars, we will:
+</p>
+
+<ul class="org-ul">
+<li>define <b>Backus-Naur Form</b> specifications, a way of describing
+so-called <b>context-free grammars</b>, which we will use to present the
+grammars of programming languages;</li>
+<li>discuss <b>ambiguity</b> in grammar along with how to avoid it (and why);</li>
+<li>Look at <b>Extended BNF</b> as a slightly more useful framework for
+specifying programming languages.</li>
+</ul>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink">1</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">It can be used as a prefix operator if put in
+parentheses, e.g. <code>(+) x 1</code>, but it cannot in any circumstances be
+used as a postfix operator.  We will discuss fixity in more detail
+later.</p></div></div>
+
+
+</div>
+</div></div>
+</body>
+</html>

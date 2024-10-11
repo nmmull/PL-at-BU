@@ -1,0 +1,477 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2024-10-10 Thu 20:01 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Backus-Naur Form</title>
+<meta name="author" content="Nathan  Mull" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="../myStyle.css" />
+</head>
+<body>
+<div id="org-div-home-and-up"><a href="../toc.html">↩</a></div><div id="content" class="content">
+<h1 class="title">Backus-Naur Form</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#orgb4ac19c">Definitions</a></li>
+</ul>
+</div>
+</div>
+<p>
+Backus-Naur Form (BNF) specifications are used to describe what are
+called <b>context-free grammars</b>.  Context-free grammars form a class of
+formal grammars which are sufficiently expressive to capture the
+grammars of most programming languages.  We will be using BNF
+specifications to describe the rules which determine well-formed
+programs in programming languages we aim to interpret.
+</p>
+
+<p>
+First, a toy example/thought experiment.  Consider the following
+English statement.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sentence">the cow jumped over the moon
+</pre>
+</div>
+
+<p>
+Suppose we tried to break down the cognitive process of determining
+that this sentence is grammatical.  We might first recognize that each
+word falls into a particular part of speech.  We can represent this
+step of the process by replacing each word in the sentence with a
+symbol <i>standing for</i> each figure of speech (the choice of symbol
+being influenced by what is to come).
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sentence">&lt;article&gt; &lt;noun&gt; &lt;verb&gt; &lt;prep&gt; &lt;article&gt; &lt;noun&gt;
+</pre>
+</div>
+
+<p>
+We then might recognize some familiar patterns: <code>&lt;article&gt; &lt;noun&gt;</code>
+captures the determination or quantification of an object, so we might
+mentally group these symbols (into what grammaticists call <b>nominal
+phrases</b> or <b>noun phrases</b>) and represent them by a new symbol:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sentence">&lt;noun-phrase&gt; &lt;verb&gt; &lt;prep&gt; &lt;noun-phrase&gt;
+</pre>
+</div>
+
+<p>
+Then we might recognize that a preposition followed by a noun phrase
+is also single unit ("over the moon", "through the woods", and "behind
+the wall" are examples of <b>prepositional phrases</b>) so that the
+structure of the entire sentence may be represented as
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sentence">&lt;noun-phrase&gt; &lt;verb&gt; &lt;prep-phrase&gt;
+</pre>
+</div>
+
+<p>
+Then we might recognize that prepositional phrases can modify verbs,
+again creating a single unit (e.g., "ran to the car", "arose from
+bed") leaving us with something like
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sentence">&lt;noun-phrase&gt; &lt;verb-phrase&gt;
+</pre>
+</div>
+
+<p>
+which we should finally recognize the canonical structure of a
+well-formed sentence: <i>a thing does a thing.</i> A bit hand-wavy, but
+this accounts roughly for what we do when we judge that the above
+sentence is grammatical.
+</p>
+
+<p>
+Putting these steps in reverse order (and starting with a single
+symbol <code>&lt;sentence&gt;</code>) we get something that looks like a <i>proof</i> that
+<code>the cow jumped over the moon</code> is a grammatical sentence.
+</p>
+
+
+<div class="org-src-container">
+<pre class="src src-deriv">&lt;sentence&gt;
+&lt;noun phrase&gt;    &lt;verb phrase&gt;
+&lt;noun phrase&gt;    &lt;verb&gt; &lt;prep phrase&gt;
+&lt;noun phrase&gt;    &lt;verb&gt; &lt;prep&gt; &lt;noun phrase&gt;
+&lt;article&gt; &lt;noun&gt; &lt;verb&gt; &lt;prep&gt; &lt;article&gt; &lt;noun&gt;
+the       cow    jumped over   the       moon
+</pre>
+</div>
+
+<p>
+That is, a representation of our congnitive process.  And if we
+squint, we can see something that hierarchical, something that looks a
+bit like the parse tree in the introduction to this chapter.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-tree">S
+├───────┐
+│       VP
+│       ├──────┐
+│       │      PP
+│       │      ├────┐
+NP      │      │    NP
+├───┐   │      │    ├───┐
+A   N   V      P    A   N
+│   │   │      │    │   │
+the cow jumped over the moon
+</pre>
+</div>
+
+<p>
+A <b>formal grammar</b> is meant to model this cognitive process of
+classifying a sentence as grammatical by verifying that it has the
+"right" hierarchical structure.
+</p>
+
+<div id="outline-container-orgb4ac19c" class="outline-2">
+<h2 id="orgb4ac19c">Definitions</h2>
+<div class="outline-text-2" id="text-orgb4ac19c">
+<p>
+In defining a formal grammar, we have to fix ourselves to a collection of symbols.
+These symbols are divided into two disjoint groups: the <b><b>terminal symbols</b></b> and the <b><b>non-terminal symbols</b></b>.
+In what follows (and as above) we will always notate a non-terminal symbol by something of the form `&lt;non-term&gt;` (where we replace `non-term` with something more descriptive) and terminal symbols by sequence of (typically) alphanumeric symbols.
+</p>
+
+<p>
+&gt; <b><b>Remark.</b></b> We almost never state outright what the underlying symbols of a grammar are.
+&gt; It should always be possible to determine what terminal and non-terminal symbols we are considering by looking at the BNF specification itself.
+</p>
+
+<p>
+In the "proof" that we gave that `the cow jumped over the moon` was grammatical, we built a sequence of not-quite sentences, until the very last one which was an actual sentences. We call these not-quite sentences <b>sentential forms</b>.
+</p>
+
+<p>
+&gt; <b><b>Definition.</b></b>
+&gt; A <b><b>sentential form</b></b> is a sequence of symbols (terminal or non-terminal).
+&gt; A <b><b>sentence</b></b> is a sequence of terminal symbols.
+</p>
+
+<p>
+We notate a sequences of symbols by white space separation.
+For example, `the dog jumped` is a sentence and `the &lt;noun&gt; jumped` is a sentential form.
+But it is important to note that <b>this is just notation</b>.
+If it helps, it may be useful to imagine `[the, &lt;noun&gt;, jumped]` when thinking about what a sentential form is.
+</p>
+
+
+
+<p>
+In the (reversed) process of building sentential forms, we replaced non-terminal symbols with sentential forms, e.g., we replaced `&lt;noun phrase&gt;` with `&lt;article&gt; &lt;noun&gt;`.
+A grammar is determined by what replacements we are allowed to do.
+&gt; <b><b>Definition.</b></b> A <b><b>production rule</b></b> is an equation of the form
+&gt; ```
+&gt; &lt;non-term&gt; ::= SENTENTIAL-FORM
+&gt; ```
+&gt; where the left-hand side of the `::=` is a non-terminal symbol, and the right-hand side is a sentential form.
+</p>
+
+<p>
+We read a production rule as saying: "the non-terminal symbol on the left-hand side can be replaced with the sentential form on the right hand side."
+In a sense, production rules, <b>define</b> the non-terminal symbols: e.g., a sentence is a noun phrase followed by a verb phrase.
+</p>
+
+<p>
+&gt; <b><b>Definition.</b></b> A <b><b>BNF specification</b></b> is a collection of production rules, together with a designated the <b><b>starting symbol</b></b>.
+</p>
+
+<p>
+In these notes, the start symbol will be designated as the left-hand side of the <b>first</b> rule appearing in a specification.
+The following is an example of a grammar which we will show to <b>recognize</b> the sentence above.
+```
+&lt;sentence&gt;    ::= &lt;noun-phrase&gt; &lt;verb-phrase&gt;
+&lt;verb-phrase&gt; ::= &lt;verb&gt; &lt;prep-phrase&gt;
+&lt;verb-phrase&gt; ::= &lt;verb&gt;
+&lt;prep-phrase&gt; ::= &lt;prep&gt; &lt;noun-phrase&gt;
+&lt;noun-phrase&gt; ::= &lt;article&gt; &lt;noun&gt;
+&lt;article&gt;     ::= the
+&lt;noun&gt;        ::= cow
+&lt;noun&gt;        ::= moon
+&lt;verb&gt;        ::= jumped
+&lt;prep&gt;        ::= over
+```
+</p>
+
+<p>
+Note that a non-terminal symbol can have multiple associated production rules.
+This is common enough that we have special syntax for this.
+</p>
+
+<p>
+&gt; <b><b>Notation.</b></b> We will write
+&gt; ```
+&gt; &lt;non-term&gt; ::= SENT-FORM-1 | SENT-FORM-2 | &#x2026; | SENT-FORM-n
+&gt; ```
+&gt; as shorthand for
+&gt; ```
+&gt; &lt;non-term&gt; ::= SENT-FORM-1
+&gt; &lt;non-term&gt; ::= SENT-FORM-2
+&gt; &#x2026;
+&gt; &lt;non-term&gt; ::= SENT-FORM-n
+&gt; ```
+With this shorthand, we can simply the above grammar:
+```
+&lt;sentence&gt;    ::= &lt;noun-phrase&gt; &lt;verb-phrase&gt;
+&lt;verb-phrase&gt; ::= &lt;verb&gt; | &lt;verb&gt; &lt;prep-phrase&gt;
+&lt;prep-phrase&gt; ::= &lt;prep&gt; &lt;noun-phrase&gt;
+&lt;noun-phrase&gt; ::= &lt;article&gt; &lt;noun&gt;
+&lt;article&gt;     ::= the
+&lt;noun&gt;        ::= cow | moon
+&lt;verb&gt;        ::= jumped
+&lt;prep&gt;        ::= over
+```
+</p>
+
+<p>
+The last piece of the thought experiment above is the "proof" that the given sentence was grammatical.
+We codify this in the notion of a <b>derivation</b>.
+</p>
+
+<p>
+&gt; <b><b>Definition.</b></b> A <b><b>derivation</b></b> of a sentence `S` in a BNF grammar is a sequence of sentential forms with the following properties:
+&gt; * it beginning with the designated start symbol;
+&gt; * it ends in the sentence `S`;
+&gt; * each sentential form is a the result of replacing <b>one of</b> the non-terminal symbols in the preceding sentence with a sentential form according to a production rule of the grammar.
+&gt;
+&gt; We say that a grammar <b><b>recognizes</b></b> a sentence `S` if there is a derivation of `S` in the grammar.
+</p>
+
+<p>
+A bit of a mouthful, but this essentially restates the process from the thought experiment in a formal way.
+That said, it deviates in one way which makes the definition easier to state: in the thought experiment, we allowed ourselves to replace multiple non-terminal symbols simultaneously.
+This is not allowed in the above notion of a derivation. A "correct" derivation (correct according to the above definition) would look like:
+</p>
+
+<p>
+```
+&lt;sentence&gt;!
+&lt;noun-phrase&gt;!     &lt;verb-phrase&gt;
+&lt;noun-phrase&gt;      &lt;verb&gt;  &lt;prep-phrase&gt;!
+&lt;noun-phrase&gt;!     &lt;verb&gt;  &lt;prep&gt;  &lt;noun-phrase&gt;
+&lt;article&gt;  &lt;noun&gt;  &lt;verb&gt;  &lt;prep&gt;  &lt;noun-phrase&gt;!
+&lt;article&gt;! &lt;noun&gt;  &lt;verb&gt;  &lt;prep&gt;  &lt;article&gt;  &lt;noun&gt;
+the        &lt;noun&gt;! &lt;verb&gt;  &lt;prep&gt;  &lt;article&gt;  &lt;noun&gt;
+the        cow     &lt;verb&gt;! &lt;prep&gt;  &lt;article&gt;  &lt;noun&gt;
+the        cow     jumped  &lt;prep&gt;! &lt;article&gt;  &lt;noun&gt;
+the        cow     jumped  over    &lt;article&gt;! &lt;noun&gt;
+the        cow     jumped  over    the        &lt;noun&gt;!
+the        cow     jumped  over    the        moon
+```
+</p>
+
+<p>
+For emphasis I've appended an exclamation point to the non-terminal symbol which is replaced at each step (this is <b><b>just</b></b> for emphasis, they are <b><b>not</b></b> a part of the derivation, and will not be included in latter derivations).
+</p>
+
+<p>
+This derivation also indicates that there are many possible derivations.
+</p>
+
+<p>
+&gt; <b><b>Definition.</b></b>
+&gt; A <b><b>leftmost derivation</b></b> of a sentence is one in which the leftmost nonterminal symbol is expanded in each step.
+&gt; A <b><b>rightmost derivation</b></b> is one in which the rightmost nonterminal symbol is expanded in each step.
+</p>
+
+<p>
+Note that the above derivation is neither the leftmost derivation or the rightmost derivation.
+</p>
+
+<p>
+&gt; <b><b>Exercise.</b></b>
+&gt; Write leftmost and rightmost derivations for the sentence `the cow jumped over the moon` in the above grammar.
+</p>
+
+<p>
+## A More Interesting Example
+</p>
+
+<p>
+The following is a BNF specification for a fragment of a simple imperative programming language.
+</p>
+
+<p>
+```
+&lt;program&gt; ::= &lt;stmts&gt;
+&lt;stmts&gt;   ::= &lt;stmt&gt; | &lt;stmt&gt; ; &lt;stmts&gt;
+&lt;stmt&gt;    ::= &lt;var&gt; = &lt;stmt&gt;
+&lt;var&gt;     ::= a | b | c | d
+&lt;expr&gt;    ::= &lt;term&gt; | &lt;term&gt; + &lt;term&gt; | &lt;term&gt; - &lt;term&gt;
+&lt;term&gt;    ::= &lt;var&gt; | const
+```
+</p>
+
+<p>
+In English, we would read this specification as:
+</p>
+
+<p>
+&gt; A <b>program</b> is a <b>sequence of statements</b>.
+&gt; A <b>sequence of statements</b> is either a <b>single statement</b>, or a <b>single statement</b> followed a semicolon, followed by a <b>sequence of statements</b>&#x2026;
+</p>
+
+<p>
+And so on.
+This second rule highlights something interesting which we can do in BNF specifications: rules are allowed to be <b>recursive</b>.
+The production rule for `&lt;stmts&gt;` allows us to replace it with a sentential form which <b>contains</b> the non-terminal symbol `&lt;stmts&gt;`.
+This is quite powerful, particularly because it means it is possible to derive an infinite number of sentences in a given grammar.
+</p>
+
+<p>
+&gt; <b><b>Exercise.</b></b> Determine the number of sentences that can be derived in the grammar for sentences above (i.e., the number of sentences which can be derived from `&lt;sentence&gt;`).
+</p>
+
+<p>
+Consider the following program.
+</p>
+
+<p>
+```
+a = const ;
+a = a + const ;
+b = a
+```
+</p>
+
+<p>
+We can verify that this program is recognized by the above grammar by finding a (leftmost) derivation.
+</p>
+
+<p>
+```
+&lt;program&gt;
+&lt;stmts&gt;
+&lt;stmt&gt; ; &lt;stmts&gt;
+&lt;var&gt; = &lt;expr&gt; ; &lt;stmts&gt;
+a = &lt;expr&gt; ; &lt;stmts&gt;
+a = &lt;term&gt; ; &lt;stmts&gt;
+a = const ; &lt;stmts&gt;
+a = const ; &lt;stmt&gt; ; &lt;stmts&gt;
+a = const ; &lt;var&gt; = &lt;expr&gt; ; &lt;stmts&gt;
+a = const ; a = &lt;expr&gt; ; &lt;stmts&gt;
+a = const ; a = &lt;term&gt; + &lt;term&gt; ; &lt;stmts&gt;
+a = const ; a = &lt;var&gt; + &lt;term&gt; ; &lt;stmts&gt;
+a = const ; a = a + &lt;term&gt; ; &lt;stmts&gt;
+a = const ; a = a + const ; &lt;stmts&gt;
+a = const ; a = a + const ; &lt;var&gt; = &lt;expr&gt;
+a = const ; a = a + const ; b = &lt;expr&gt;
+a = const ; a = a + const ; b = &lt;term&gt;
+a = const ; a = a + const ; b = &lt;var&gt;
+a = const ; a = a + const ; b = a
+```
+</p>
+
+<p>
+&gt; <b><b>Remark.</b></b> As a reminder, we're not interested in white space when we consider whether or not a sentence is recognized by a grammar.
+&gt; The choice to present the sentences in three lines was for readability, and the choice to present it in a single line in the derivation was for convenience.
+</p>
+
+<p>
+It may also be worthwhile to point out a feature of the last three four lines of the above derivation: even if a nonterminal symbol is replaced by a <b>single</b> nonterminal symbol in succession, <b>we have to include each step</b>.
+We're only allowed to apply one production rule at a time, e.g., we cannot immedatiely replace `&lt;expr&gt;` with `&lt;var&gt;` because that is not one of our production rules.
+</p>
+
+<p>
+&gt; <b><b>Exercise.</b></b> Does the above program have a rightmost derivation? Why or why not?
+</p>
+
+<p>
+&gt; <b><b>Exercise.</b></b> Verify that
+&gt; ```
+&gt; a = a + a ; b = b
+&gt; ```
+&gt; is recognized by the above grammar.
+</p>
+
+<p>
+## Parse Trees
+</p>
+
+<p>
+Grammars imbue sentences with hierarchical structure.
+This structure is represented graphically as a <b>parse tree</b>.
+We've seen a couple examples of English grammar parse trees so far, but we can also build parse trees for sentences recognized by <b>any</b> grammar with a BNF specification.
+</p>
+
+<p>
+&gt; <b><b>Definition.</b></b> A <b><b>parse tree</b></b> for a sentence `S` in a grammar is a (ordered) tree `T` with the following properties:
+&gt;
+&gt; * every leaf of `T` has a terminal symbol;
+&gt; * every non-leaf node `n` has a nonterminal symbol (we write `val(n)` for the value at `n`);
+&gt; * if a node `n` with has children `[t1, t2, &#x2026;, tk]` then
+&gt;   ```
+&gt;	val(n) ::= root(t1) root(t2) &#x2026; root(tk)
+&gt;	```
+&gt;	is a production rule in the grammar (where `root(t)` denotes the value at the root of the tree `t`);
+&gt; * The leaves (in order) (i.e., the <b>frontier</b> of `T`) form the sentence `S`.
+</p>
+
+<p>
+The details of the above definition are not important, as long as you have the right picture in your head.
+For example, the sentence `a = b + const` has the following derivation.
+</p>
+
+<p>
+```
+&lt;program&gt;
+&lt;stmts&gt;
+&lt;stmt&gt;
+&lt;var&gt; = &lt;expr&gt;
+a = &lt;expr&gt;
+a = &lt;term&gt; + &lt;term&gt;
+a = &lt;var&gt; + &lt;term&gt;
+a = b + &lt;term&gt;
+a = b + const
+```
+And has the following parse tree.
+</p>
+
+<p>
+![A simple parse tree](images/parse-tree-3.png)
+</p>
+
+<p>
+&gt; <b><b>Exercise.</b></b> Given the ADT
+&gt; ```ocaml
+&gt; type 'a tree
+&gt;    = Leaf of 'a
+&gt;    | Node of 'a * 'a tree list
+&gt; ```
+&gt; Write the OCaml function `frontier` which, given
+&gt;
+&gt; * `t` : `'a tree`
+&gt;
+&gt; returns the list of leaves of `t` in order from left to right.
+</p>
+
+<p>
+Every derivation can be converted into a parse tree, and vice versa, but multiple derivations may correspond to the same parse tree.
+This will be important when we cover ambiguity in the next section.
+</p>
+
+<p>
+&gt; <b><b>Exercise.</b></b> Write a derivation corresponding to the above parse tree when is neither leftmost nor rightmost.
+</p>
+</div>
+</div>
+</div>
+</body>
+</html>
