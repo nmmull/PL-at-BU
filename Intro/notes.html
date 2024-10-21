@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2024-10-13 Sun 12:48 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Interpretation Pipeline</title>
+<meta name="author" content="Nathan  Mull" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="../myStyle.css" />
+</head>
+<body>
+<div id="org-div-home-and-up"><a href="../toc.html">↩</a></div><div id="content" class="content">
+<h1 class="title">The Interpretation Pipeline</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org7d7c42d">Interpretation vs. Compilation</a></li>
+<li><a href="#org77231a9">Pure Interpretation Pipeline</a></li>
+<li><a href="#orga272edc">What's Next</a></li>
+</ul>
+</div>
+</div>
+<p>
+When we write a program in our favorite programming language<sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup> we fill a file with a
+bunch of symbols and text.  This is one of the beauties of
+programming: looking past the bells and whistles provided by editors
+and IDEs, a program is just a stream of characters.
+</p>
+
+<p>
+At some point in our programming workflow (hopefully not the very end)
+we want to verify that what we've written thus far actually works, so
+we <i>run</i> our program.  In some IDEs, this literally means pressing a
+play button.  For more down-to-earth setups, this might mean opening
+up a terminal and typing out a few commands.
+</p>
+
+<p>
+In either case, we are running a <i>different</i> program in order to run
+the program we've written (huh).  Our goal is to understand what's
+going on here. <i>What is this program doing? How does it do it? What
+sorts of data structures does this program use?</i> etc., etc.
+</p>
+
+<p>
+Our intuition should probably tell us this program is doing something
+fairly complicated.  Just imagine how hard it is for us as humans
+(and, more specifically, students) to follow directions.<sup><a id="fnr.2" class="footref" href="#fn.2" role="doc-backlink">2</a></sup>
+</p>
+
+<p>
+So, our basic question is: <i>How do we get from that stream of symbols
+to the <b>output</b> of our program?</i>
+</p>
+
+<div id="outline-container-org7d7c42d" class="outline-2">
+<h2 id="org7d7c42d">Interpretation vs. Compilation</h2>
+<div class="outline-text-2" id="text-org7d7c42d">
+<p>
+We start by making a loose but ultimately important distinction, that
+of <b>interpretation</b> versus <b>compilation</b>.  At the risk of
+oversimplifying, we will use the following definitions to distinguish
+between these two processes.
+</p>
+
+<ul class="org-ul">
+<li><b>Interpretation</b> is the process of of taking a source program and
+its input, and then running it immediately to get its output.</li>
+<li><b>Compilation</b> is the process of taking a source program in a
+high-level language and then <i>translating it</i> into a program in a
+low-level language which can be given input and run separately.</li>
+</ul>
+
+<p>
+These processes are often represented by the following (somewhat
+unreasonably) simple diagrams.
+</p>
+
+<ul class="org-ul">
+<li><p>
+Interpretation:
+</p>
+<div class="org-src-container">
+<pre class="src src-ascii">char stream ────►┌─────────────┐
+                 │ INTERPRETER │────► output
+      input ────►└─────────────┘
+</pre>
+</div></li>
+
+<li><p>
+Compilation:
+</p>
+<div class="org-src-container">
+<pre class="src src-ascii">                 ┌──────────┐
+char stream ────►│ COMPILER │─╮
+                 └──────────┘ │
+          ╭─low-level program─╯
+          │
+          ╰─────►┌──────────┐
+                 │  TARGET  │───► output
+      input ────►└──────────┘
+</pre>
+</div></li>
+</ul>
+
+<p>
+Again, this is a loose distinction. There may be intermediate
+translations in the process of interpretation (this is what OCaml
+does).  We'll look briefly at compilation but we'll focus
+primarily on interpretation.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org77231a9" class="outline-2">
+<h2 id="org77231a9">Pure Interpretation Pipeline</h2>
+<div class="outline-text-2" id="text-org77231a9">
+<p>
+So, <i>what's happening inside an interpreter?</i> We start with a diagram.
+We can think of this image as providing a window into the
+<code>INTERPRETER</code> box above.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-ascii">                 +----------------------------+
+                 |   ┌────────────────────┐   |
+char stream ────────►│  LEXICAL ANALYSIS  │─╮ |
+                 |   └────────────────────┘ │ |
+                 | ╭──────token stream──────╯ |
+                 | │ ┌────────────────────┐   |
+                 | ╰►│ SYNTACTIC ANALYSIS │─╮ |
+                 |   └────────────────────┘ │ |
+                 | ╭───────parse tree───────╯ |
+                 | │ ┌────────────────────┐   |
+                 | ╰►│  SEMANTIC ANALYSIS │─╮ |
+                 |   └────────────────────┘ │ |
+                 | ╭─────────AST/IR─────────╯ |
+                 | ╰►┌────────────────────┐   |
+      input ────────►│     EVALUATION     │────────► output
+                 |   └────────────────────┘   |
+                 +----------------------------+
+</pre>
+</div>
+
+<p>
+There's a lot to parse here (pun intended), but this also gives us an outline
+of what is to come:
+</p>
+
+<ul class="org-ul">
+<li>The first two boxes turn a stream of characters we've typed up into
+something that we can evaluate, i.e., that we can "run".  This part
+of interpretation is about the <i>form</i> (or <i>syntax</i>) of the program.
+We will use <b>formal grammars</b> to represent this form mathematically
+and we use <b>parser generators</b> to set up the code for these two
+boxes.  Just like natural language, programming languages are
+hierarchical, and making that heirarchical structure
+explicit will make it easier to evaluate.</li>
+
+<li>The next box is where we do <b>type checking</b> and/or <b>type inference</b>.
+It's during this part of the pipeline that we verify if the
+programming we're planning on evaluating actually makes sense.  If
+it does, then we can pass it onto the evaluator, perhaps in a
+simpler form called an <b>abstract syntax tree (AST)</b> or occassionally
+some other <b>intermediate reprentation (IR)</b>.</li>
+
+<li>The last box actually runs our program to get its output a.k.a. its
+<i>value</i>.  This part of intperetation is about the <i>meaning</i> (or
+<i>semantics</i>) of the program.  We use <b>formal semantics</b> to
+describe what it means to give a program this meaning.</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orga272edc" class="outline-2">
+<h2 id="orga272edc">What's Next</h2>
+<div class="outline-text-2" id="text-orga272edc">
+<p>
+Programming languages form is one of these topics that has incredibly
+deep implication both in theory and in practice.  It will be important
+to us not just to think about how to implement an interpreter, but
+also about the underlying logical frameworks we need for programming
+languages to make sense.
+</p>
+
+<p>
+So there will be a frequent give-and-take here between theory and
+practice.  Be prepared to do handwritten work (not quite proofs, but
+something akin to them) as well as programming (i.e., building the
+components interpreter).
+</p>
+
+<p>
+We begin with the study of <a href="file:///Users/NathanM/Developer/Repositories/nmmull.github.io/PL-at-BU/Formal-Grammar/notes.html">Formal Grammar</a>, the basis of parsing
+(and also of theoretical linguistics).
+</p>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink">1</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">I
+presume at this point that yours is OCaml.</p></div></div>
+
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2" role="doc-backlink">2</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">Just think of how often do
+we find ourselves wishing we had read <i>all</i> the instructions before
+starting on some task (like we were told to do).</p></div></div>
+
+
+</div>
+</div></div>
+</body>
+</html>

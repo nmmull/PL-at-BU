@@ -1,0 +1,136 @@
+#+title: The Interpretation Pipeline
+#+HTML_MATHJAX: align: left indent: 2em
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../myStyle.css" />
+#+OPTIONS: html-style:nil H:3 toc:2 num:nil tasks:nil
+#+HTML_LINK_HOME: ../toc.html
+When we write a program in our favorite programming language[fn::I
+presume at this point that yours is OCaml.] we fill a file with a
+bunch of symbols and text.  This is one of the beauties of
+programming: looking past the bells and whistles provided by editors
+and IDEs, a program is just a stream of characters.
+
+At some point in our programming workflow (hopefully not the very end)
+we want to verify that what we've written thus far actually works, so
+we /run/ our program.  In some IDEs, this literally means pressing a
+play button.  For more down-to-earth setups, this might mean opening
+up a terminal and typing out a few commands.
+
+In either case, we are running a /different/ program in order to run
+the program we've written (huh).  Our goal is to understand what's
+going on here. /What is this program doing? How does it do it? What
+sorts of data structures does this program use?/ etc., etc.
+
+Our intuition should probably tell us this program is doing something
+fairly complicated.  Just imagine how hard it is for us as humans
+(and, more specifically, students) to follow directions.[fn::Just think of how often do
+we find ourselves wishing we had read /all/ the instructions before
+starting on some task (like we were told to do).]
+
+So, our basic question is: /How do we get from that stream of symbols
+to the *output* of our program?/
+
+* Interpretation vs. Compilation
+
+We start by making a loose but ultimately important distinction, that
+of *interpretation* versus *compilation*.  At the risk of
+oversimplifying, we will use the following definitions to distinguish
+between these two processes.
+
++ *Interpretation* is the process of of taking a source program and
+  its input, and then running it immediately to get its output.
++ *Compilation* is the process of taking a source program in a
+  high-level language and then /translating it/ into a program in a
+  low-level language which can be given input and run separately.
+
+These processes are often represented by the following (somewhat
+unreasonably) simple diagrams.
+
++ Interpretation:
+  #+begin_src ascii
+    char stream ────►┌─────────────┐
+                     │ INTERPRETER │────► output
+          input ────►└─────────────┘
+  #+end_src
+
++ Compilation:
+   #+begin_src ascii
+                      ┌──────────┐
+     char stream ────►│ COMPILER │─╮
+                      └──────────┘ │
+               ╭─low-level program─╯
+               │
+               ╰─────►┌──────────┐
+                      │  TARGET  │───► output
+           input ────►└──────────┘
+   #+end_src
+
+Again, this is a loose distinction. There may be intermediate
+translations in the process of interpretation (this is what OCaml
+does).  We'll look briefly at compilation but we'll focus
+primarily on interpretation.
+
+* Pure Interpretation Pipeline
+
+So, /what's happening inside an interpreter?/ We start with a diagram.
+We can think of this image as providing a window into the
+~INTERPRETER~ box above.
+
+#+begin_src ascii
+                    +----------------------------+
+                    |   ┌────────────────────┐   |
+   char stream ────────►│  LEXICAL ANALYSIS  │─╮ |
+		    |   └────────────────────┘ │ |
+		    | ╭──────token stream──────╯ |
+		    | │ ┌────────────────────┐   |
+		    | ╰►│ SYNTACTIC ANALYSIS │─╮ |
+                    |   └────────────────────┘ │ |
+		    | ╭───────parse tree───────╯ |
+		    | │ ┌────────────────────┐   |
+		    | ╰►│  SEMANTIC ANALYSIS │─╮ |
+                    |   └────────────────────┘ │ |
+		    | ╭─────────AST/IR─────────╯ |
+		    | ╰►┌────────────────────┐   |
+	 input ────────►│     EVALUATION     │────────► output
+		    |   └────────────────────┘   |
+		    +----------------------------+
+#+end_src
+
+There's a lot to parse here (pun intended), but this also gives us an outline
+of what is to come:
+
++ The first two boxes turn a stream of characters we've typed up into
+  something that we can evaluate, i.e., that we can "run".  This part
+  of interpretation is about the /form/ (or /syntax/) of the program.
+  We will use *formal grammars* to represent this form mathematically
+  and we use *parser generators* to set up the code for these two
+  boxes.  Just like natural language, programming languages are
+  hierarchical, and making that heirarchical structure
+  explicit will make it easier to evaluate.
+
++ The next box is where we do *type checking* and/or *type inference*.
+  It's during this part of the pipeline that we verify if the
+  programming we're planning on evaluating actually makes sense.  If
+  it does, then we can pass it onto the evaluator, perhaps in a
+  simpler form called an *abstract syntax tree (AST)* or occassionally
+  some other *intermediate reprentation (IR)*.
+
++ The last box actually runs our program to get its output a.k.a. its
+  /value/.  This part of intperetation is about the /meaning/ (or
+  /semantics/) of the program.  We use *formal semantics* to
+  describe what it means to give a program this meaning.
+
+* What's Next
+
+Programming languages form is one of these topics that has incredibly
+deep implication both in theory and in practice.  It will be important
+to us not just to think about how to implement an interpreter, but
+also about the underlying logical frameworks we need for programming
+languages to make sense.
+
+So there will be a frequent give-and-take here between theory and
+practice.  Be prepared to do handwritten work (not quite proofs, but
+something akin to them) as well as programming (i.e., building the
+components interpreter).
+
+We begin with the study of [[file:~/Developer/Repositories/nmmull.github.io/PL-at-BU/Formal-Grammar/notes.org][Formal Grammar]], the basis of parsing
+(and also of theoretical linguistics).

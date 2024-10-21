@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-10-11 Fri 14:05 -->
+<!-- 2024-10-21 Mon 14:46 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Formal Grammar</title>
@@ -50,27 +50,27 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orgfbac7f3">Introduction</a></li>
-<li><a href="#orgf85d07e">Backus-Naur Form</a>
+<li><a href="#org875928f">Introduction</a></li>
+<li><a href="#org5b43dca">Backus-Naur Form</a>
 <ul>
-<li><a href="#org331e421">Definitions</a></li>
-<li><a href="#org6a743a8">A More Interesting Example</a></li>
-<li><a href="#org42053d1">Parse Trees</a></li>
+<li><a href="#orgb464740">Definitions</a></li>
+<li><a href="#orga46734b">A More Interesting Example</a></li>
+<li><a href="#org3f3d53d">Parse Trees</a></li>
 </ul>
 </li>
-<li><a href="#org662199b">Ambiguity</a>
+<li><a href="#org92cc265">Ambiguity</a>
 <ul>
-<li><a href="#orga064027">Avoiding Ambiguity</a></li>
-<li><a href="#org3bba9c9">Associativity</a></li>
-<li><a href="#org69d774a">Precedence</a></li>
-<li><a href="#orgc35cd0b">Parentheses (Again)</a></li>
+<li><a href="#orgc040f0f">Avoiding Ambiguity</a></li>
+<li><a href="#orgc550ed5">Associativity</a></li>
+<li><a href="#orgf000be4">Precedence</a></li>
+<li><a href="#org3348eb1">Parentheses (Again)</a></li>
 </ul>
 </li>
-<li><a href="#orgdf95748">Extended BNF</a>
+<li><a href="#org9f37264">Extended BNF</a>
 <ul>
-<li><a href="#orga15dc4a">Optional</a></li>
-<li><a href="#org18d5e4c">Alternative</a></li>
-<li><a href="#orgcef9df6">Repetition</a></li>
+<li><a href="#org3c33293">Optional</a></li>
+<li><a href="#orgaf5667b">Alternative</a></li>
+<li><a href="#org8672d52">Repetition</a></li>
 </ul>
 </li>
 </ul>
@@ -96,9 +96,9 @@ But, logistically speaking, in this course you will be <i>given</i> a
 grammar, from which you will generate a parser.
 </p>
 
-<div id="outline-container-orgfbac7f3" class="outline-2">
-<h2 id="orgfbac7f3">Introduction</h2>
-<div class="outline-text-2" id="text-orgfbac7f3">
+<div id="outline-container-org875928f" class="outline-2">
+<h2 id="org875928f">Introduction</h2>
+<div class="outline-text-2" id="text-org875928f">
 <p>
 Most of us are familiar with grammar in the context of natural
 language.  In English class, we learn that we should use the article
@@ -257,9 +257,9 @@ specifying programming languages.</li>
 </div>
 </div>
 
-<div id="outline-container-orgf85d07e" class="outline-2">
-<h2 id="orgf85d07e">Backus-Naur Form</h2>
-<div class="outline-text-2" id="text-orgf85d07e">
+<div id="outline-container-org5b43dca" class="outline-2">
+<h2 id="org5b43dca">Backus-Naur Form</h2>
+<div class="outline-text-2" id="text-org5b43dca">
 <p>
 Backus-Naur Form (BNF) specifications are used to describe what are
 called <b>context-free grammars</b>.  Context-free grammars form a class of
@@ -289,7 +289,7 @@ being influenced by what is to come).
 </p>
 
 <div class="org-src-container">
-<pre class="src src-sentence">&lt;article&gt; &lt;noun&gt; &lt;verb&gt; &lt;prep&gt; &lt;article&gt; &lt;noun&gt;
+<pre class="src src-bnf">&lt;<span style="color: #483d8b;">article</span>&gt; &lt;<span style="color: #483d8b;">noun</span>&gt; &lt;<span style="color: #483d8b;">verb</span>&gt; &lt;<span style="color: #483d8b;">prep</span>&gt; &lt;<span style="color: #483d8b;">article</span>&gt; &lt;<span style="color: #483d8b;">noun</span>&gt;
 </pre>
 </div>
 
@@ -301,7 +301,7 @@ phrases</b> or <b>noun phrases</b>) and represent them by a new symbol:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-sentence">&lt;noun-phrase&gt; &lt;verb&gt; &lt;prep&gt; &lt;noun-phrase&gt;
+<pre class="src src-bnf">&lt;<span style="color: #483d8b;">noun-phrase</span>&gt; &lt;<span style="color: #483d8b;">verb</span>&gt; &lt;<span style="color: #483d8b;">prep</span>&gt; &lt;<span style="color: #483d8b;">noun-phrase</span>&gt;
 </pre>
 </div>
 
@@ -313,7 +313,7 @@ structure of the entire sentence may be represented as
 </p>
 
 <div class="org-src-container">
-<pre class="src src-sentence">&lt;noun-phrase&gt; &lt;verb&gt; &lt;prep-phrase&gt;
+<pre class="src src-bnf">&lt;<span style="color: #483d8b;">noun-phrase</span>&gt; &lt;<span style="color: #483d8b;">verb</span>&gt; &lt;<span style="color: #483d8b;">prep-phrase</span>&gt;
 </pre>
 </div>
 
@@ -324,7 +324,7 @@ bed") leaving us with something like
 </p>
 
 <div class="org-src-container">
-<pre class="src src-sentence">&lt;noun-phrase&gt; &lt;verb-phrase&gt;
+<pre class="src src-bnf">&lt;<span style="color: #483d8b;">noun-phrase</span>&gt; &lt;<span style="color: #483d8b;">verb-phrase</span>&gt;
 </pre>
 </div>
 
@@ -343,11 +343,11 @@ symbol <code>&lt;sentence&gt;</code>) we get something that looks like a <i>proo
 
 
 <div class="org-src-container">
-<pre class="src src-deriv">&lt;sentence&gt;
-&lt;noun phrase&gt;    &lt;verb phrase&gt;
-&lt;noun phrase&gt;    &lt;verb&gt; &lt;prep phrase&gt;
-&lt;noun phrase&gt;    &lt;verb&gt; &lt;prep&gt; &lt;noun phrase&gt;
-&lt;article&gt; &lt;noun&gt; &lt;verb&gt; &lt;prep&gt; &lt;article&gt; &lt;noun&gt;
+<pre class="src src-bnf">&lt;<span style="color: #483d8b;">sentence</span>&gt;
+&lt;<span style="color: #483d8b;">noun phrase</span>&gt;    &lt;<span style="color: #483d8b;">verb phrase</span>&gt;
+&lt;<span style="color: #483d8b;">noun phrase</span>&gt;    &lt;<span style="color: #483d8b;">verb</span>&gt; &lt;<span style="color: #483d8b;">prep phrase</span>&gt;
+&lt;<span style="color: #483d8b;">noun phrase</span>&gt;    &lt;<span style="color: #483d8b;">verb</span>&gt; &lt;<span style="color: #483d8b;">prep</span>&gt; &lt;<span style="color: #483d8b;">noun phrase</span>&gt;
+&lt;<span style="color: #483d8b;">article</span>&gt; &lt;<span style="color: #483d8b;">noun</span>&gt; &lt;<span style="color: #483d8b;">verb</span>&gt; &lt;<span style="color: #483d8b;">prep</span>&gt; &lt;<span style="color: #483d8b;">article</span>&gt; &lt;<span style="color: #483d8b;">noun</span>&gt;
 the       cow    jumped over   the       moon
 </pre>
 </div>
@@ -380,9 +380,9 @@ classifying a sentence as grammatical by verifying that it has the
 </p>
 </div>
 
-<div id="outline-container-org331e421" class="outline-3">
-<h3 id="org331e421">Definitions</h3>
-<div class="outline-text-3" id="text-org331e421">
+<div id="outline-container-orgb464740" class="outline-3">
+<h3 id="orgb464740">Definitions</h3>
+<div class="outline-text-3" id="text-orgb464740">
 <p>
 When defining a formal grammar, we fix ourselves to a collection of
 symbols.  These symbols are divided into two disjoint groups: the
@@ -431,7 +431,7 @@ is a sentence and
 </p>
 
 <div class="org-src-container">
-<pre class="src src-sent">the &lt;noun&gt; jumped
+<pre class="src src-bnf">the &lt;<span style="color: #483d8b;">noun</span>&gt; jumped
 </pre>
 </div>
 
@@ -463,7 +463,7 @@ are allowed to do.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-prod">&lt;non-term&gt; ::= SENTENTIAL-FORM
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">non-term</span>&gt; <span style="color: #008b8b;">::=</span> SENTENTIAL-FORM
 </pre>
 </div>
 
@@ -500,16 +500,16 @@ the sentence above.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bnf">&lt;sentence&gt;    ::= &lt;noun-phrase&gt; &lt;verb-phrase&gt;
-&lt;verb-phrase&gt; ::= &lt;verb&gt; &lt;prep-phrase&gt;
-&lt;verb-phrase&gt; ::= &lt;verb&gt;
-&lt;prep-phrase&gt; ::= &lt;prep&gt; &lt;noun-phrase&gt;
-&lt;noun-phrase&gt; ::= &lt;article&gt; &lt;noun&gt;
-&lt;article&gt;     ::= the
-&lt;noun&gt;        ::= cow
-&lt;noun&gt;        ::= moon
-&lt;verb&gt;        ::= jumped
-&lt;prep&gt;        ::= over
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">sentence</span>&gt;    <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">noun-phrase</span>&gt; &lt;<span style="color: #483d8b;">verb-phrase</span>&gt;
+&lt;<span style="color: #0000ff;">verb-phrase</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">verb</span>&gt; &lt;<span style="color: #483d8b;">prep-phrase</span>&gt;
+&lt;<span style="color: #0000ff;">verb-phrase</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">verb</span>&gt;
+&lt;<span style="color: #0000ff;">prep-phrase</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">prep</span>&gt; &lt;<span style="color: #483d8b;">noun-phrase</span>&gt;
+&lt;<span style="color: #0000ff;">noun-phrase</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">article</span>&gt; &lt;<span style="color: #483d8b;">noun</span>&gt;
+&lt;<span style="color: #0000ff;">article</span>&gt;     <span style="color: #008b8b;">::=</span> the
+&lt;<span style="color: #0000ff;">noun</span>&gt;        <span style="color: #008b8b;">::=</span> cow
+&lt;<span style="color: #0000ff;">noun</span>&gt;        <span style="color: #008b8b;">::=</span> moon
+&lt;<span style="color: #0000ff;">verb</span>&gt;        <span style="color: #008b8b;">::=</span> jumped
+&lt;<span style="color: #0000ff;">prep</span>&gt;        <span style="color: #008b8b;">::=</span> over
 </pre>
 </div>
 
@@ -531,7 +531,7 @@ for this.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bnf">&lt;non-term&gt; ::= SENT-FORM-1 | SENT-FORM-2 | ... | SENT-FORM-n
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">non-term</span>&gt; <span style="color: #008b8b;">::=</span> SENT-FORM-1 <span style="color: #ff0000; font-weight: bold;">|</span> SENT-FORM-2 <span style="color: #ff0000; font-weight: bold;">|</span> ... <span style="color: #ff0000; font-weight: bold;">|</span> SENT-FORM-n
 </pre>
 </div>
 
@@ -540,10 +540,10 @@ as shorthand for
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bnf">&lt;non-term&gt; ::= SENT-FORM-1
-&lt;non-term&gt; ::= SENT-FORM-2
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">non-term</span>&gt; <span style="color: #008b8b;">::=</span> SENT-FORM-1
+&lt;<span style="color: #0000ff;">non-term</span>&gt; <span style="color: #008b8b;">::=</span> SENT-FORM-2
 ...
-&lt;non-term&gt; ::= SENT-FORM-n
+&lt;<span style="color: #0000ff;">non-term</span>&gt; <span style="color: #008b8b;">::=</span> SENT-FORM-n
 </pre>
 </div>
 </blockquote>
@@ -553,14 +553,14 @@ With this shorthand, we can write the above grammar as:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bnf">&lt;sentence&gt;    ::= &lt;noun-phrase&gt; &lt;verb-phrase&gt;
-&lt;verb-phrase&gt; ::= &lt;verb&gt; | &lt;verb&gt; &lt;prep-phrase&gt;
-&lt;prep-phrase&gt; ::= &lt;prep&gt; &lt;noun-phrase&gt;
-&lt;noun-phrase&gt; ::= &lt;article&gt; &lt;noun&gt;
-&lt;article&gt;     ::= the
-&lt;noun&gt;        ::= cow | moon
-&lt;verb&gt;        ::= jumped
-&lt;prep&gt;        ::= over
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">sentence</span>&gt;    <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">noun-phrase</span>&gt; &lt;<span style="color: #483d8b;">verb-phrase</span>&gt;
+&lt;<span style="color: #0000ff;">verb-phrase</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">verb</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">verb</span>&gt; &lt;<span style="color: #483d8b;">prep-phrase</span>&gt;
+&lt;<span style="color: #0000ff;">prep-phrase</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">prep</span>&gt; &lt;<span style="color: #483d8b;">noun-phrase</span>&gt;
+&lt;<span style="color: #0000ff;">noun-phrase</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">article</span>&gt; &lt;<span style="color: #483d8b;">noun</span>&gt;
+&lt;<span style="color: #0000ff;">article</span>&gt;     <span style="color: #008b8b;">::=</span> the
+&lt;<span style="color: #0000ff;">noun</span>&gt;        <span style="color: #008b8b;">::=</span> cow <span style="color: #ff0000; font-weight: bold;">|</span> moon
+&lt;<span style="color: #0000ff;">verb</span>&gt;        <span style="color: #008b8b;">::=</span> jumped
+&lt;<span style="color: #0000ff;">prep</span>&gt;        <span style="color: #008b8b;">::=</span> over
 </pre>
 </div>
 
@@ -600,17 +600,17 @@ derivation would look like:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-deriv">&lt;sentence&gt;
-&lt;noun-phrase&gt;    &lt;verb-phrase&gt;
-&lt;noun-phrase&gt;    &lt;verb&gt; &lt;prep-phrase&gt;
-&lt;noun-phrase&gt;    &lt;verb&gt; &lt;prep&gt; &lt;noun-phrase&gt;
-&lt;article&gt; &lt;noun&gt; &lt;verb&gt; &lt;prep&gt; &lt;noun-phrase&gt;
-&lt;article&gt; &lt;noun&gt; &lt;verb&gt; &lt;prep&gt; &lt;article&gt; &lt;noun&gt;
-the       &lt;noun&gt; &lt;verb&gt; &lt;prep&gt; &lt;article&gt; &lt;noun&gt;
-the       cow    &lt;verb&gt; &lt;prep&gt; &lt;article&gt; &lt;noun&gt;
-the       cow    jumped &lt;prep&gt; &lt;article&gt; &lt;noun&gt;
-the       cow    jumped over   &lt;article&gt; &lt;noun&gt;
-the       cow    jumped over   the       &lt;noun&gt;
+<pre class="src src-bnf">&lt;<span style="color: #483d8b;">sentence</span>&gt;
+&lt;<span style="color: #483d8b;">noun-phrase</span>&gt;    &lt;<span style="color: #483d8b;">verb-phrase</span>&gt;
+&lt;<span style="color: #483d8b;">noun-phrase</span>&gt;    &lt;<span style="color: #483d8b;">verb</span>&gt; &lt;<span style="color: #483d8b;">prep-phrase</span>&gt;
+&lt;<span style="color: #483d8b;">noun-phrase</span>&gt;    &lt;<span style="color: #483d8b;">verb</span>&gt; &lt;<span style="color: #483d8b;">prep</span>&gt; &lt;<span style="color: #483d8b;">noun-phrase</span>&gt;
+&lt;<span style="color: #483d8b;">article</span>&gt; &lt;<span style="color: #483d8b;">noun</span>&gt; &lt;<span style="color: #483d8b;">verb</span>&gt; &lt;<span style="color: #483d8b;">prep</span>&gt; &lt;<span style="color: #483d8b;">noun-phrase</span>&gt;
+&lt;<span style="color: #483d8b;">article</span>&gt; &lt;<span style="color: #483d8b;">noun</span>&gt; &lt;<span style="color: #483d8b;">verb</span>&gt; &lt;<span style="color: #483d8b;">prep</span>&gt; &lt;<span style="color: #483d8b;">article</span>&gt; &lt;<span style="color: #483d8b;">noun</span>&gt;
+the       &lt;<span style="color: #483d8b;">noun</span>&gt; &lt;<span style="color: #483d8b;">verb</span>&gt; &lt;<span style="color: #483d8b;">prep</span>&gt; &lt;<span style="color: #483d8b;">article</span>&gt; &lt;<span style="color: #483d8b;">noun</span>&gt;
+the       cow    &lt;<span style="color: #483d8b;">verb</span>&gt; &lt;<span style="color: #483d8b;">prep</span>&gt; &lt;<span style="color: #483d8b;">article</span>&gt; &lt;<span style="color: #483d8b;">noun</span>&gt;
+the       cow    jumped &lt;<span style="color: #483d8b;">prep</span>&gt; &lt;<span style="color: #483d8b;">article</span>&gt; &lt;<span style="color: #483d8b;">noun</span>&gt;
+the       cow    jumped over   &lt;<span style="color: #483d8b;">article</span>&gt; &lt;<span style="color: #483d8b;">noun</span>&gt;
+the       cow    jumped over   the       &lt;<span style="color: #483d8b;">noun</span>&gt;
 the       cow    jumped over   the       moon
 </pre>
 </div>
@@ -659,21 +659,21 @@ in the above grammar.
 </div>
 </div>
 
-<div id="outline-container-org6a743a8" class="outline-3">
-<h3 id="org6a743a8">A More Interesting Example</h3>
-<div class="outline-text-3" id="text-org6a743a8">
+<div id="outline-container-orga46734b" class="outline-3">
+<h3 id="orga46734b">A More Interesting Example</h3>
+<div class="outline-text-3" id="text-orga46734b">
 <p>
 The following is a BNF specification for a fragment of a simple
 imperative programming language.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bnf">&lt;program&gt; ::= &lt;stmts&gt;
-&lt;stmts&gt;   ::= &lt;stmt&gt; | &lt;stmt&gt; ; &lt;stmts&gt;
-&lt;stmt&gt;    ::= &lt;var&gt; = &lt;expr&gt;
-&lt;var&gt;     ::= a | b | c | d
-&lt;expr&gt;    ::= &lt;term&gt; | &lt;term&gt; + &lt;term&gt; | &lt;term&gt; - &lt;term&gt;
-&lt;term&gt;    ::= &lt;var&gt; | const
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">program</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">stmts</span>&gt;
+&lt;<span style="color: #0000ff;">stmts</span>&gt;   <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">stmt</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">stmt</span>&gt; <span style="color: #b22222;">; &lt;stmts&gt;</span>
+&lt;<span style="color: #0000ff;">stmt</span>&gt;    <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">var</span>&gt; = &lt;<span style="color: #483d8b;">expr</span>&gt;
+&lt;<span style="color: #0000ff;">var</span>&gt;     <span style="color: #008b8b;">::=</span> a <span style="color: #ff0000; font-weight: bold;">|</span> b <span style="color: #ff0000; font-weight: bold;">|</span> c <span style="color: #ff0000; font-weight: bold;">|</span> d
+&lt;<span style="color: #0000ff;">expr</span>&gt;    <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">term</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">term</span>&gt; + &lt;<span style="color: #483d8b;">term</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">term</span>&gt; - &lt;<span style="color: #483d8b;">term</span>&gt;
+&lt;<span style="color: #0000ff;">term</span>&gt;    <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">var</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> const
 </pre>
 </div>
 
@@ -792,9 +792,9 @@ is recognized by the above grammar.
 </div>
 </div>
 
-<div id="outline-container-org42053d1" class="outline-3">
-<h3 id="org42053d1">Parse Trees</h3>
-<div class="outline-text-3" id="text-org42053d1">
+<div id="outline-container-org3f3d53d" class="outline-3">
+<h3 id="org3f3d53d">Parse Trees</h3>
+<div class="outline-text-3" id="text-org3f3d53d">
 <p>
 Grammars imbue sentences with hierarchical structure.  This structure
 is represented graphically as a <b>parse tree</b>.  We've seen a couple
@@ -839,14 +839,14 @@ you have the right picture in your head.  For example, the sentence <code>a
 </p>
 
 <div class="org-src-container">
-<pre class="src src-deriv">&lt;program&gt;
-&lt;stmts&gt;
-&lt;stmt&gt;
-&lt;var&gt; = &lt;expr&gt;
-a = &lt;expr&gt;
-a = &lt;term&gt; + &lt;term&gt;
-a = &lt;var&gt; + &lt;term&gt;
-a = b + &lt;term&gt;
+<pre class="src src-bnf">&lt;<span style="color: #483d8b;">program</span>&gt;
+&lt;<span style="color: #483d8b;">stmts</span>&gt;
+&lt;<span style="color: #483d8b;">stmt</span>&gt;
+&lt;<span style="color: #483d8b;">var</span>&gt; = &lt;<span style="color: #483d8b;">expr</span>&gt;
+a = &lt;<span style="color: #483d8b;">expr</span>&gt;
+a = &lt;<span style="color: #483d8b;">term</span>&gt; + &lt;<span style="color: #483d8b;">term</span>&gt;
+a = &lt;<span style="color: #483d8b;">var</span>&gt; + &lt;<span style="color: #483d8b;">term</span>&gt;
+a = b + &lt;<span style="color: #483d8b;">term</span>&gt;
 a = b + const
 </pre>
 </div>
@@ -856,18 +856,18 @@ And has the following parse tree.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-ascii">&lt;program&gt;
-│
-&lt;stmts&gt;
-│
-&lt;stmt&gt;
-├─────┬───┐
-&lt;var&gt; │   &lt;expr&gt;
-│     │   ├──────┬─┐
-│     │   &lt;term&gt; │ &lt;term&gt;
-│     │   │      │ │
-│     │   &lt;var&gt;  │ │
-│     │   │      │ │
+<pre class="src src-bnf">&lt;<span style="color: #483d8b;">program</span>&gt;
+&#9474;
+&lt;<span style="color: #483d8b;">stmts</span>&gt;
+&#9474;
+&lt;<span style="color: #483d8b;">stmt</span>&gt;
+&#9500;&#9472;&#9472;&#9472;&#9472;&#9472;&#9516;&#9472;&#9472;&#9472;&#9488;
+&lt;<span style="color: #483d8b;">var</span>&gt; &#9474;   &lt;<span style="color: #483d8b;">expr</span>&gt;
+&#9474;     &#9474;   &#9500;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9516;&#9472;&#9488;
+&#9474;     &#9474;   &lt;<span style="color: #483d8b;">term</span>&gt; &#9474; &lt;<span style="color: #483d8b;">term</span>&gt;
+&#9474;     &#9474;   &#9474;      &#9474; &#9474;
+&#9474;     &#9474;   &lt;<span style="color: #483d8b;">var</span>&gt;  &#9474; &#9474;
+&#9474;     &#9474;   &#9474;      &#9474; &#9474;
 a     =   b      + const
 </pre>
 </div>
@@ -922,9 +922,9 @@ will be important when we cover ambiguity in the next section.
 </div>
 </div>
 
-<div id="outline-container-org662199b" class="outline-2">
-<h2 id="org662199b">Ambiguity</h2>
-<div class="outline-text-2" id="text-org662199b">
+<div id="outline-container-org92cc265" class="outline-2">
+<h2 id="org92cc265">Ambiguity</h2>
+<div class="outline-text-2" id="text-org92cc265">
 <p>
 As participants of language, we are no strangers to grammatical
 ambiguity.  Take, for instance, the following sentence:<sup><a id="fnr.2" class="footref" href="#fn.2" role="doc-backlink">2</a></sup>
@@ -942,22 +942,24 @@ Are the multiple mountains, one of which has a telescope on it?
 
 <p>
 The ambiguity exists because it is not clear <i>which</i> hierarchical
-structure should scaffold the sentence.  Here are two options for the
-verb phrase in the sentence.
+structure should scaffold the sentence.  Here's a possible parse
+trees for the sentence.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-ascii">VP
-├───┬───────────────────────┐
-V   NP                      PP
-│   ├───────┐               │
-│   NP      PP              │
-│   │       ├──┐            ├────┐
-│   │       P  NP           P    NP
-│   ├───┐   │  ├───┐        │    ├───┐
-│   A   N   │  A   N        │    A   N
-│   │   │   │  │   │        │    │   │
-saw the man on the mountain with the telescope
+<pre class="src src-ascii">S
+├────┐
+NP   VP
+│    ├───┬───────────────────────┐
+N    V   NP                      PP
+│    │   ├───────┐               │
+│    │   NP      PP              │
+│    │   │       ├──┐            ├────┐
+│    │   │       P  NP           P    NP
+│    │   ├───┐   │  ├───┐        │    ├───┐
+│    │   A   N   │  A   N        │    A   N
+│    │   │   │   │  │   │        │    │   │
+John saw the man on the mountain with the telescope
 </pre>
 </div>
 
@@ -969,21 +971,23 @@ telescope.  Another option:
 
 
 <div class="org-src-container">
-<pre class="src src-ascii">VP
-├───┐
-V   NP
-│   ├───────┐
-│   NP      PP
-│   ├───┐   ├──┐
-│   A   N   P  NP
-│   │   │   │  ├────────────┐
-│   │   │   │  NP           PP
-│   │   │   │  ├───┐        ├────┐
-│   │   │   │  A   N        P    NP
-│   │   │   │  │   │        │    ├───┐
-│   │   │   │  │   │        │    A   N
-│   │   │   │  │   │        │    │   │
-saw the man on the mountain with the telescope
+<pre class="src src-ascii">S
+├────┐
+NP   VP
+│    ├───┐
+N    V   NP
+│    │   ├───────┐
+│    │   NP      PP
+│    │   ├───┐   ├──┐
+│    │   A   N   P  NP
+│    │   │   │   │  ├────────────┐
+│    │   │   │   │  NP           PP
+│    │   │   │   │  ├───┐        ├────┐
+│    │   │   │   │  A   N        P    NP
+│    │   │   │   │  │   │        │    ├───┐
+│    │   │   │   │  │   │        │    A   N
+│    │   │   │   │  │   │        │    │   │
+John saw the man on the mountain with the telescope
 </pre>
 </div>
 
@@ -1009,14 +1013,14 @@ natural-enough looking grammar which recognizes the above sentence.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bnf">&lt;s&gt;  ::= &lt;np&gt; &lt;vp&gt;
-&lt;vp&gt; ::= &lt;v&gt; | &lt;v&gt; &lt;np&gt; | &lt;v&gt; &lt;np&gt; &lt;pp&gt;
-&lt;pp&gt; ::= &lt;p&gt; &lt;np&gt;
-&lt;np&gt; ::= &lt;n&gt; | &lt;d&gt; &lt;n&gt; | &lt;np&gt; &lt;pp&gt;
-&lt;n&gt;  ::= John | man | mountain | telescope
-&lt;v&gt;  ::= saw
-&lt;d&gt;  ::= the
-&lt;p&gt;  ::= on | with
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">s</span>&gt;  <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">np</span>&gt; &lt;<span style="color: #483d8b;">vp</span>&gt;
+&lt;<span style="color: #0000ff;">vp</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">v</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">v</span>&gt; &lt;<span style="color: #483d8b;">np</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">v</span>&gt; &lt;<span style="color: #483d8b;">np</span>&gt; &lt;<span style="color: #483d8b;">pp</span>&gt;
+&lt;<span style="color: #0000ff;">pp</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">p</span>&gt; &lt;<span style="color: #483d8b;">np</span>&gt;
+&lt;<span style="color: #0000ff;">np</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">n</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">d</span>&gt; &lt;<span style="color: #483d8b;">n</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">np</span>&gt; &lt;<span style="color: #483d8b;">pp</span>&gt;
+&lt;<span style="color: #0000ff;">n</span>&gt;  <span style="color: #008b8b;">::=</span> John <span style="color: #ff0000; font-weight: bold;">|</span> man <span style="color: #ff0000; font-weight: bold;">|</span> mountain <span style="color: #ff0000; font-weight: bold;">|</span> telescope
+&lt;<span style="color: #0000ff;">v</span>&gt;  <span style="color: #008b8b;">::=</span> saw
+&lt;<span style="color: #0000ff;">d</span>&gt;  <span style="color: #008b8b;">::=</span> the
+&lt;<span style="color: #0000ff;">p</span>&gt;  <span style="color: #008b8b;">::=</span> on <span style="color: #ff0000; font-weight: bold;">|</span> with
 </pre>
 </div>
 
@@ -1067,9 +1071,9 @@ probably want if we're to give a grammar for a programming language).
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bnf">&lt;expr&gt; ::= &lt;var&gt; | &lt;expr&gt; &lt;op&gt; &lt;expr&gt;
-&lt;op&gt;   ::= + | - | * | /
-&lt;var&gt;  ::= x
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">var</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">expr</span>&gt; &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
+&lt;<span style="color: #0000ff;">op</span>&gt;   <span style="color: #008b8b;">::=</span> + <span style="color: #ff0000; font-weight: bold;">|</span> - <span style="color: #ff0000; font-weight: bold;">|</span> * <span style="color: #ff0000; font-weight: bold;">|</span> /
+&lt;<span style="color: #0000ff;">var</span>&gt;  <span style="color: #008b8b;">::=</span> x
 </pre>
 </div>
 
@@ -1094,9 +1098,9 @@ alternative of) the first production rule twice we have the partial derivation:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bnf">&lt;expr&gt;
-&lt;expr&gt; &lt;op&gt; &lt;expr&gt;
-&lt;expr&gt; &lt;op&gt; &lt;expr&gt; &lt;op&gt; &lt;expr&gt;
+<pre class="src src-bnf">&lt;<span style="color: #483d8b;">expr</span>&gt;
+&lt;<span style="color: #483d8b;">expr</span>&gt; &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
+&lt;<span style="color: #483d8b;">expr</span>&gt; &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt; &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
 </pre>
 </div>
 
@@ -1107,14 +1111,14 @@ x + x</code>.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-tree">&lt;expr&gt;                                &lt;expr&gt;
-├──────┬────┐                         ├──────────────────┬────┐
-&lt;expr&gt; &lt;op&gt; &lt;expr&gt;                    &lt;expr&gt;             &lt;op&gt; &lt;expr&gt;
-│      │    ├──────┬────┐             ├──────┬────┐      │    │
-&lt;var&gt;  │    &lt;expr&gt; &lt;op&gt; &lt;expr&gt;        &lt;expr&gt; &lt;op&gt; &lt;expr&gt; │    &lt;var&gt;
-│      │    │      │    │             │      │    │      │    │
-│      │    &lt;var&gt;  │    &lt;var&gt;         &lt;var&gt;  │    &lt;var&gt;  │    │
-│      │    │      │    │             │      │    │      │    │
+<pre class="src src-bnf">&lt;<span style="color: #483d8b;">expr</span>&gt;                                &lt;<span style="color: #483d8b;">expr</span>&gt;
+&#9500;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9516;&#9472;&#9472;&#9472;&#9472;&#9488;                         &#9500;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9516;&#9472;&#9472;&#9472;&#9472;&#9488;
+&lt;<span style="color: #483d8b;">expr</span>&gt; &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;                    &lt;<span style="color: #483d8b;">expr</span>&gt;             &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
+&#9474;      &#9474;    &#9500;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9516;&#9472;&#9472;&#9472;&#9472;&#9488;             &#9500;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9516;&#9472;&#9472;&#9472;&#9472;&#9488;      &#9474;    &#9474;
+&lt;<span style="color: #483d8b;">var</span>&gt;  &#9474;    &lt;<span style="color: #483d8b;">expr</span>&gt; &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;        &lt;<span style="color: #483d8b;">expr</span>&gt; &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt; &#9474;    &lt;<span style="color: #483d8b;">var</span>&gt;
+&#9474;      &#9474;    &#9474;      &#9474;    &#9474;             &#9474;      &#9474;    &#9474;      &#9474;    &#9474;
+&#9474;      &#9474;    &lt;<span style="color: #483d8b;">var</span>&gt;  &#9474;    &lt;<span style="color: #483d8b;">var</span>&gt;         &lt;<span style="color: #483d8b;">var</span>&gt;  &#9474;    &lt;<span style="color: #483d8b;">var</span>&gt;  &#9474;    &#9474;
+&#9474;      &#9474;    &#9474;      &#9474;    &#9474;             &#9474;      &#9474;    &#9474;      &#9474;    &#9474;
 x      +    x      +    x             x      +    x      +    x
 </pre>
 </div>
@@ -1126,28 +1130,28 @@ tree on the right).
 </p>
 
 <div class="org-src-container">
-<pre class="src src-deriv">&lt;expr&gt;
-&lt;expr&gt; &lt;op&gt; &lt;expr&gt;
-&lt;var&gt; &lt;op&gt; &lt;expr&gt;
-x &lt;op&gt; &lt;expr&gt;
-x + &lt;expr&gt;
-x + &lt;expr&gt; &lt;op&gt; &lt;expr&gt;
-x + &lt;var&gt; &lt;op&gt; &lt;expr&gt;
-x + x &lt;op&gt; &lt;expr&gt;
-x + x + &lt;expr&gt;
-x + x + &lt;var&gt;
+<pre class="src src-bnf">&lt;<span style="color: #483d8b;">expr</span>&gt;
+&lt;<span style="color: #483d8b;">expr</span>&gt; &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
+&lt;<span style="color: #483d8b;">var</span>&gt; &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
+x &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
+x + &lt;<span style="color: #483d8b;">expr</span>&gt;
+x + &lt;<span style="color: #483d8b;">expr</span>&gt; &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
+x + &lt;<span style="color: #483d8b;">var</span>&gt; &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
+x + x &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
+x + x + &lt;<span style="color: #483d8b;">expr</span>&gt;
+x + x + &lt;<span style="color: #483d8b;">var</span>&gt;
 x + x + x
 
-&lt;expr&gt;
-&lt;expr&gt; &lt;op&gt; &lt;expr&gt;
-&lt;expr&gt; &lt;op&gt; &lt;expr&gt; &lt;op&gt; &lt;expr&gt;
-&lt;var&gt; &lt;op&gt; &lt;expr&gt; &lt;op&gt; &lt;expr&gt;
-x &lt;op&gt; &lt;expr&gt; &lt;op&gt; &lt;expr&gt;
-x + &lt;expr&gt; &lt;op&gt; &lt;expr&gt;
-x + &lt;var&gt; &lt;op&gt; &lt;expr&gt;
-x + x &lt;op&gt; &lt;expr&gt;
-x + x + &lt;expr&gt;
-x + x + &lt;var&gt;
+&lt;<span style="color: #483d8b;">expr</span>&gt;
+&lt;<span style="color: #483d8b;">expr</span>&gt; &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
+&lt;<span style="color: #483d8b;">expr</span>&gt; &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt; &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
+&lt;<span style="color: #483d8b;">var</span>&gt; &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt; &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
+x &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt; &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
+x + &lt;<span style="color: #483d8b;">expr</span>&gt; &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
+x + &lt;<span style="color: #483d8b;">var</span>&gt; &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
+x + x &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
+x + x + &lt;<span style="color: #483d8b;">expr</span>&gt;
+x + x + &lt;<span style="color: #483d8b;">var</span>&gt;
 x + x + x
 </pre>
 </div>
@@ -1171,9 +1175,9 @@ interest).
 </blockquote>
 </div>
 
-<div id="outline-container-orga064027" class="outline-3">
-<h3 id="orga064027">Avoiding Ambiguity</h3>
-<div class="outline-text-3" id="text-orga064027">
+<div id="outline-container-orgc040f0f" class="outline-3">
+<h3 id="orgc040f0f">Avoiding Ambiguity</h3>
+<div class="outline-text-3" id="text-orgc040f0f">
 <p>
 Our next task it to determine how to avoid this ambiguity, but first,
 <i>why should we care?</i> Natural language is ambiguous and we get along
@@ -1200,22 +1204,21 @@ multiple meanings.
 </blockquote>
 </div>
 
-<div id="outline-container-org4714d33" class="outline-4">
-<h4 id="org4714d33">(Reverse) Polish Notation</h4>
-<div class="outline-text-4" id="text-org4714d33">
+<div id="outline-container-orgffbd23e" class="outline-4">
+<h4 id="orgffbd23e">(Reverse) Polish Notation</h4>
+<div class="outline-text-4" id="text-orgffbd23e">
 <p>
 If our only concern is avoiding ambiguity, we can use <b>Polish
 notation</b> or <b>reverse polish notation</b>.  In Polish notation, operators
 appear <b>before</b> all their arguments, e.g.
 </p>
 
-<p>
-<code>~</code>
-&lt;expr&gt; ::= &lt;var&gt; | &lt;op&gt; &lt;expr&gt; &lt;expr&gt;
-&lt;op&gt;   ::= + | - | * | /
-&lt;var&gt;  ::= x
-<code>~</code>
-</p>
+<div class="org-src-container">
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">var</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
+&lt;<span style="color: #0000ff;">op</span>&gt;   <span style="color: #008b8b;">::=</span> + <span style="color: #ff0000; font-weight: bold;">|</span> - <span style="color: #ff0000; font-weight: bold;">|</span> * <span style="color: #ff0000; font-weight: bold;">|</span> /
+&lt;<span style="color: #0000ff;">var</span>&gt;  <span style="color: #008b8b;">::=</span> x
+</pre>
+</div>
 
 <p>
 We won't dwell on this but it turns out this gives us an unambiguous
@@ -1332,18 +1335,18 @@ polish notation) then we have to work to avoid ambiguity.
 </div>
 </div>
 
-<div id="outline-container-org8d80fdd" class="outline-4">
-<h4 id="org8d80fdd">Parentheses</h4>
-<div class="outline-text-4" id="text-org8d80fdd">
+<div id="outline-container-org236c5ea" class="outline-4">
+<h4 id="org236c5ea">Parentheses</h4>
+<div class="outline-text-4" id="text-org236c5ea">
 <p>
 Another simple solution is to surround applications of operations with
 parentheses:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bnf">&lt;expr&gt; ::= &lt;var&gt; | ( &lt;expr&gt; &lt;op&gt; &lt;expr&gt; )
-&lt;op&gt;   ::= + | - | * | /
-&lt;var&gt;  ::= x
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">var</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> ( &lt;<span style="color: #483d8b;">expr</span>&gt; &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt; )
+&lt;<span style="color: #0000ff;">op</span>&gt;   <span style="color: #008b8b;">::=</span> + <span style="color: #ff0000; font-weight: bold;">|</span> - <span style="color: #ff0000; font-weight: bold;">|</span> * <span style="color: #ff0000; font-weight: bold;">|</span> /
+&lt;<span style="color: #0000ff;">var</span>&gt;  <span style="color: #008b8b;">::=</span> x
 </pre>
 </div>
 
@@ -1352,9 +1355,9 @@ It then becomes very clear in a derivation like
 </p>
 
 <div class="org-src-container">
-<pre class="src src-deriv">&lt;expr&gt;
-( &lt;expr&gt; &lt;op&gt; &lt;expr&gt; )
-( ( &lt;expr&gt; &lt;op&gt; &lt;expr&gt; ) &lt;op&gt; &lt;expr&gt; )
+<pre class="src src-bnf">&lt;<span style="color: #483d8b;">expr</span>&gt;
+( &lt;<span style="color: #483d8b;">expr</span>&gt; &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt; )
+( ( &lt;<span style="color: #483d8b;">expr</span>&gt; &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt; ) &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt; )
 </pre>
 </div>
 
@@ -1399,9 +1402,9 @@ contending with two things: <b>associativity</b> and <b>precedence</b>.
 </div>
 </div>
 
-<div id="outline-container-org3bba9c9" class="outline-3">
-<h3 id="org3bba9c9">Associativity</h3>
-<div class="outline-text-3" id="text-org3bba9c9">
+<div id="outline-container-orgc550ed5" class="outline-3">
+<h3 id="orgc550ed5">Associativity</h3>
+<div class="outline-text-3" id="text-orgc550ed5">
 <p>
 Associativity refers to how arguments are grouped when we are given a
 sequence of applications of an infix operator in the absence of
@@ -1531,8 +1534,8 @@ is the one for function types.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bnf">&lt;fun-type&gt; ::= &lt;int-type&gt; | &lt;fun-type&gt; -&gt; &lt;fun-type&gt;
-&lt;int-type&gt; ::= int
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">fun-type</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">int-type</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">fun-type</span>&gt; -&gt; &lt;<span style="color: #483d8b;">fun-type</span>&gt;
+&lt;<span style="color: #0000ff;">int-type</span>&gt; <span style="color: #008b8b;">::=</span> int
 </pre>
 </div>
 </blockquote>
@@ -1576,7 +1579,7 @@ The problem, as it stands, is that because of the production rule
 </p>
 
 <div class="org-src-container">
-<pre class="src src-rule">&lt;fun-type&gt; ::= &lt;fun-type&gt; -&gt; &lt;fun-type&gt;
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">fun-type</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">fun-type</span>&gt; -&gt; &lt;<span style="color: #483d8b;">fun-type</span>&gt;
 </pre>
 </div>
 
@@ -1589,8 +1592,8 @@ might consider the following updated grammar.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bnf">&lt;fun-type&gt; ::= &lt;int-type&gt; | &lt;int-type&gt; -&gt; &lt;fun-type&gt;
-&lt;int-type&gt; ::= int
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">fun-type</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">int-type</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">int-type</span>&gt; -&gt; &lt;<span style="color: #483d8b;">fun-type</span>&gt;
+&lt;<span style="color: #0000ff;">int-type</span>&gt; <span style="color: #008b8b;">::=</span> int
 </pre>
 </div>
 
@@ -1621,9 +1624,9 @@ in the above grammar, along with its parse tree.
 </div>
 </div>
 
-<div id="outline-container-org69d774a" class="outline-3">
-<h3 id="org69d774a">Precedence</h3>
-<div class="outline-text-3" id="text-org69d774a">
+<div id="outline-container-orgf000be4" class="outline-3">
+<h3 id="orgf000be4">Precedence</h3>
+<div class="outline-text-3" id="text-orgf000be4">
 <p>
 In the examples from the previous section, there was only one operator.
 In the presence of multiple operators we have new issues to deal with.
@@ -1757,9 +1760,13 @@ deal with precedence in the grammar itself.
 In the case of arithmetic expressions, we use similar observations:
 </p>
 <ul class="org-ul">
-<li>because of associativity, the right argument of multiplication or division must be a variable <code>x</code>;</li>
-<li>because of precedence, the left argument of multiplication or division must contain only multiplications and divisions;</li>
-<li>because of associativity, the right argument of addition or subtraction must be an expression with only multiplications and divisions.</li>
+<li>because of associativity, the right argument of multiplication or
+division must be a variable <code>x</code>;</li>
+<li>because of precedence, the left argument of multiplication or
+division must contain only multiplications and divisions;</li>
+<li>because of associativity, the right argument of addition or
+subtraction must be an expression with only multiplications and
+divisions.</li>
 </ul>
 
 <p>
@@ -1768,11 +1775,11 @@ suggestive names to indicate how the three points above manifest.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bnf">&lt;expr&gt;         ::= &lt;only-mul-div&gt; | &lt;expr&gt; &lt;add-sub&gt; &lt;only-mul-div&gt;
-&lt;only-mul-div&gt; ::= &lt;var&gt; | &lt;only-mul-div&gt; &lt;mul-div&gt; &lt;var&gt;
-&lt;add-sub&gt;      ::= + | -
-&lt;mul-div&gt;      ::= * | /
-&lt;var&gt;          ::= x
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt;         <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">only-mul-div</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">expr</span>&gt; &lt;<span style="color: #483d8b;">add-sub</span>&gt; &lt;<span style="color: #483d8b;">only-mul-div</span>&gt;
+&lt;<span style="color: #0000ff;">only-mul-div</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">var</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">only-mul-div</span>&gt; &lt;<span style="color: #483d8b;">mul-div</span>&gt; &lt;<span style="color: #483d8b;">var</span>&gt;
+&lt;<span style="color: #0000ff;">add-sub</span>&gt;      <span style="color: #008b8b;">::=</span> + <span style="color: #ff0000; font-weight: bold;">|</span> -
+&lt;<span style="color: #0000ff;">mul-div</span>&gt;      <span style="color: #008b8b;">::=</span> * <span style="color: #ff0000; font-weight: bold;">|</span> /
+&lt;<span style="color: #0000ff;">var</span>&gt;          <span style="color: #008b8b;">::=</span> x
 </pre>
 </div>
 </blockquote>
@@ -1802,9 +1809,9 @@ seem to be ambiguous.
 </div>
 </div>
 
-<div id="outline-container-orgc35cd0b" class="outline-3">
-<h3 id="orgc35cd0b">Parentheses (Again)</h3>
-<div class="outline-text-3" id="text-orgc35cd0b">
+<div id="outline-container-org3348eb1" class="outline-3">
+<h3 id="org3348eb1">Parentheses (Again)</h3>
+<div class="outline-text-3" id="text-org3348eb1">
 <p>
 We're not quite done.  Without parentheses, we can't derive all
 expressions we might want to write down.  This is important:
@@ -1838,11 +1845,11 @@ be any expression wrapped in parentheses.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bnf">&lt;expr&gt;          ::= &lt;only-mul-div&gt; | &lt;expr&gt; &lt;add-sub&gt; &lt;only-mul-div&gt;
-&lt;only-mul-div&gt;  ::= &lt;var-or-parens&gt; | &lt;only-mul-div&gt; &lt;mul-div&gt; &lt;var-or-parens&gt;
-&lt;add-sub&gt;       ::= + | -
-&lt;mul-div&gt;       ::= * | /
-&lt;var-or-parens&gt; ::= x | ( &lt;expr&gt; )
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt;          <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">only-mul-div</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">expr</span>&gt; &lt;<span style="color: #483d8b;">add-sub</span>&gt; &lt;<span style="color: #483d8b;">only-mul-div</span>&gt;
+&lt;<span style="color: #0000ff;">only-mul-div</span>&gt;  <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">var-or-parens</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">only-mul-div</span>&gt; &lt;<span style="color: #483d8b;">mul-div</span>&gt; &lt;<span style="color: #483d8b;">var-or-parens</span>&gt;
+&lt;<span style="color: #0000ff;">add-sub</span>&gt;       <span style="color: #008b8b;">::=</span> + <span style="color: #ff0000; font-weight: bold;">|</span> -
+&lt;<span style="color: #0000ff;">mul-div</span>&gt;       <span style="color: #008b8b;">::=</span> * <span style="color: #ff0000; font-weight: bold;">|</span> /
+&lt;<span style="color: #0000ff;">var-or-parens</span>&gt; <span style="color: #008b8b;">::=</span> x <span style="color: #ff0000; font-weight: bold;">|</span> ( &lt;<span style="color: #483d8b;">expr</span>&gt; )
 </pre>
 </div>
 
@@ -1926,9 +1933,9 @@ interpreter.
 </div>
 </div>
 
-<div id="outline-container-orgdf95748" class="outline-2">
-<h2 id="orgdf95748">Extended BNF</h2>
-<div class="outline-text-2" id="text-orgdf95748">
+<div id="outline-container-org9f37264" class="outline-2">
+<h2 id="org9f37264">Extended BNF</h2>
+<div class="outline-text-2" id="text-org9f37264">
 <p>
 There are a number of extensions to the BNF (meta-)syntax which make
 it more usable.  If you go digging around the Internet for Extended
@@ -1939,9 +1946,9 @@ available in the parser generator we use in the next chapter.
 </p>
 </div>
 
-<div id="outline-container-orga15dc4a" class="outline-3">
-<h3 id="orga15dc4a">Optional</h3>
-<div class="outline-text-3" id="text-orga15dc4a">
+<div id="outline-container-org3c33293" class="outline-3">
+<h3 id="org3c33293">Optional</h3>
+<div class="outline-text-3" id="text-org3c33293">
 <p>
 We use <code>[ SENT-FORM ]</code> to notate part of a production rule which is
 optional.  We may, for instance, want to write a language which has
@@ -1950,7 +1957,7 @@ production rules
 </p>
 
 <div class="org-src-container">
-<pre class="src src-rule">&lt;if-expr&gt; ::= if &lt;expr&gt; then &lt;expr&gt; | if &lt;expr&gt; then &lt;expr&gt; else &lt;expr&gt;
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">if-expr</span>&gt; <span style="color: #008b8b;">::=</span> if &lt;<span style="color: #483d8b;">expr</span>&gt; then &lt;<span style="color: #483d8b;">expr</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> if &lt;<span style="color: #483d8b;">expr</span>&gt; then &lt;<span style="color: #483d8b;">expr</span>&gt; else &lt;<span style="color: #483d8b;">expr</span>&gt;
 </pre>
 </div>
 
@@ -1959,7 +1966,7 @@ we can use the EBNF production rule
 </p>
 
 <div class="org-src-container">
-<pre class="src src-rule">&lt;if-expr&gt; ::= if &lt;expr&gt; then &lt;expr&gt; [ else &lt;expr&gt; ]
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">if-expr</span>&gt; <span style="color: #008b8b;">::=</span> if &lt;<span style="color: #483d8b;">expr</span>&gt; then &lt;<span style="color: #483d8b;">expr</span>&gt; [ else &lt;<span style="color: #483d8b;">expr</span>&gt; ]
 </pre>
 </div>
 
@@ -1975,7 +1982,7 @@ can be rewritten as a collection of BNF production rules.</i>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-rule">&lt;a&gt; ::= a [ &lt;b&gt; ] [ a ]
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">a</span>&gt; <span style="color: #008b8b;">::=</span> a [ &lt;<span style="color: #483d8b;">b</span>&gt; ] [ a ]
 </pre>
 </div>
 </blockquote>
@@ -1993,9 +2000,9 @@ grammar.
 </div>
 </div>
 
-<div id="outline-container-org18d5e4c" class="outline-3">
-<h3 id="org18d5e4c">Alternative</h3>
-<div class="outline-text-3" id="text-org18d5e4c">
+<div id="outline-container-orgaf5667b" class="outline-3">
+<h3 id="orgaf5667b">Alternative</h3>
+<div class="outline-text-3" id="text-orgaf5667b">
 <p>
 We use <code>( SENT-FORM₁ | SENT-FORM₂ | ... | SENT-FORMₖ )</code> to notate the
 choice of multiple sentential forms as <i>part</i> of a production rule.
@@ -2004,11 +2011,11 @@ expressions with multiple rules for the choice of operation.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bnf">&lt;expr&gt;          ::= &lt;only-mul-div&gt; | &lt;expr&gt; &lt;add-sub&gt; &lt;only-mul-div&gt;
-&lt;only-mul-div&gt;  ::= &lt;var-or-parens&gt; | &lt;only-mul-div&gt; &lt;mul-div&gt; &lt;var-or-parens&gt;
-&lt;add-sub&gt;       ::= + | -
-&lt;mul-div&gt;       ::= * | /
-&lt;var-or-parens&gt; ::= x | ( &lt;expr&gt; )
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt;          <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">only-mul-div</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">expr</span>&gt; &lt;<span style="color: #483d8b;">add-sub</span>&gt; &lt;<span style="color: #483d8b;">only-mul-div</span>&gt;
+&lt;<span style="color: #0000ff;">only-mul-div</span>&gt;  <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">var-or-parens</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">only-mul-div</span>&gt; &lt;<span style="color: #483d8b;">mul-div</span>&gt; &lt;<span style="color: #483d8b;">var-or-parens</span>&gt;
+&lt;<span style="color: #0000ff;">add-sub</span>&gt;       <span style="color: #008b8b;">::=</span> + <span style="color: #ff0000; font-weight: bold;">|</span> -
+&lt;<span style="color: #0000ff;">mul-div</span>&gt;       <span style="color: #008b8b;">::=</span> * <span style="color: #ff0000; font-weight: bold;">|</span> /
+&lt;<span style="color: #0000ff;">var-or-parens</span>&gt; <span style="color: #008b8b;">::=</span> x <span style="color: #ff0000; font-weight: bold;">|</span> ( &lt;<span style="color: #483d8b;">expr</span>&gt; )
 </pre>
 </div>
 
@@ -2017,17 +2024,17 @@ We can simplify this in EBNF by removing the production rules for operators.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bnf">&lt;expr&gt;          ::= &lt;only-mul-div&gt; | &lt;expr&gt; (+ | -)  &lt;only-mul-div&gt;
-&lt;only-mul-div&gt;  ::= &lt;var-or-parens&gt; | &lt;only-mul-div&gt; (* | /) &lt;var-or-parens&gt;
-&lt;var-or-parens&gt; ::= x | ( &lt;expr&gt; )
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt;          <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">only-mul-div</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">expr</span>&gt; (+ <span style="color: #ff0000; font-weight: bold;">|</span> -)  &lt;<span style="color: #483d8b;">only-mul-div</span>&gt;
+&lt;<span style="color: #0000ff;">only-mul-div</span>&gt;  <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">var-or-parens</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">only-mul-div</span>&gt; (* <span style="color: #ff0000; font-weight: bold;">|</span> /) &lt;<span style="color: #483d8b;">var-or-parens</span>&gt;
+&lt;<span style="color: #0000ff;">var-or-parens</span>&gt; <span style="color: #008b8b;">::=</span> x <span style="color: #ff0000; font-weight: bold;">|</span> ( &lt;<span style="color: #483d8b;">expr</span>&gt; )
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgcef9df6" class="outline-3">
-<h3 id="orgcef9df6">Repetition</h3>
-<div class="outline-text-3" id="text-orgcef9df6">
+<div id="outline-container-org8672d52" class="outline-3">
+<h3 id="org8672d52">Repetition</h3>
+<div class="outline-text-3" id="text-org8672d52">
 <p>
 We use <code>{ SENT-FORM }</code> to notate a part of a production rule which can
 be repeated as many times as we want.  We can also combine this with
@@ -2035,7 +2042,7 @@ the alternative notation to as
 </p>
 
 <div class="org-src-container">
-<pre class="src src-sent">{ SENT-FORM₁ | SENT-FORM₂ | ... | SENT-FORMₖ }
+<pre class="src src-bnf">{ SENT-FORM&#8321; <span style="color: #ff0000; font-weight: bold;">|</span> SENT-FORM&#8322; <span style="color: #ff0000; font-weight: bold;">|</span> ... <span style="color: #ff0000; font-weight: bold;">|</span> SENT-FORM&#8342; }
 </pre>
 </div>
 
@@ -2050,9 +2057,9 @@ rules in terms of repetition.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-bnf">&lt;expr&gt;          ::= &lt;only-mul-div&gt; { (+ | -) &lt;only-mul-div&gt; }
-&lt;only-mul-div&gt;  ::= &lt;var-or-parens&gt; { (* | /) &lt;var-or-parens&gt; }
-&lt;var-or-parens&gt; ::= x | ( &lt;expr&gt; )
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt;          <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">only-mul-div</span>&gt; { (+ <span style="color: #ff0000; font-weight: bold;">|</span> -) &lt;<span style="color: #483d8b;">only-mul-div</span>&gt; }
+&lt;<span style="color: #0000ff;">only-mul-div</span>&gt;  <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">var-or-parens</span>&gt; { (* <span style="color: #ff0000; font-weight: bold;">|</span> /) &lt;<span style="color: #483d8b;">var-or-parens</span>&gt; }
+&lt;<span style="color: #0000ff;">var-or-parens</span>&gt; <span style="color: #008b8b;">::=</span> x <span style="color: #ff0000; font-weight: bold;">|</span> ( &lt;<span style="color: #483d8b;">expr</span>&gt; )
 </pre>
 </div>
 

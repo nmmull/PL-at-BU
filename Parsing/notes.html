@@ -1,0 +1,1088 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2024-10-21 Mon 15:09 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Parser Generators</title>
+<meta name="author" content="Nathan  Mull" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="../myStyle.css" />
+<script>
+  window.MathJax = {
+    tex: {
+      ams: {
+        multlineWidth: '85%'
+      },
+      tags: 'ams',
+      tagSide: 'right',
+      tagIndent: '.8em'
+    },
+    chtml: {
+      scale: 1.0,
+      displayAlign: 'left',
+      displayIndent: '2em'
+    },
+    svg: {
+      scale: 1.0,
+      displayAlign: 'left',
+      displayIndent: '2em'
+    },
+    output: {
+      font: 'mathjax-modern',
+      displayOverflow: 'overflow'
+    }
+  };
+</script>
+
+<script
+  id="MathJax-script"
+  async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+</head>
+<body>
+<div id="org-div-home-and-up"><a href="../toc.html">↩</a></div><div id="content" class="content">
+<h1 class="title">Parser Generators</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org4938ee5">Lexing vs. Parsing</a></li>
+<li><a href="#orgcaf3b03">Using Menhir</a>
+<ul>
+<li><a href="#org44b22a6">Step 0: The Project File</a></li>
+<li><a href="#org059e78b">Step 1: Setting Up</a></li>
+<li><a href="#orgb4d97d4">Step 2: AST</a></li>
+<li><a href="#orgb9b7bde">Step 3: Tokens</a></li>
+<li><a href="#org76fdbbb">Step 5: Rules</a></li>
+<li><a href="#orga34781c">Step 4: Lexing</a></li>
+<li><a href="#org7afe57c">Step 5: Running</a></li>
+</ul>
+</li>
+<li><a href="#org985174b">Closing Remarks</a></li>
+</ul>
+</div>
+</div>
+<p>
+In the terminology of formal language theory, the general parsing problem is easy
+to state.<sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup>
+</p>
+
+
+<blockquote>
+<p>
+<b>Definition.</b> The <b>(context-free) parsing problem</b> is: given a
+(context-free) grammar \(\mathcal G\) and a sentence \(S\) over the
+terminal symbols of \(\mathcal G\), determine if \(\mathcal G\) recognizes
+\(S\).
+</p>
+</blockquote>
+
+
+<p>
+There's some very interesting algorithmic theory regarding this
+problem, including the <a href="https://en.wikipedia.org/wiki/CYK_algorithm">Cocke-Younger-Kasami (CYK) algorithm</a>, a
+beautiful example of dynamic programming.
+</p>
+
+<p>
+We will <i>not</i> be covering this.  We won't be implementing parsers at
+all. Instead, we'll be <i>specifying</i> our programming languages and then
+<i>generating</i> parsers for them, no coding necessary (at least, no OCaml
+programming).
+</p>
+
+<p>
+In broad strokes, a parser generator is a program which, given an EBNF
+grammar (or a similar specification language), generates the <i>code</i>
+which implements a parser for that grammar.<sup><a id="fnr.2" class="footref" href="#fn.2" role="doc-backlink">2</a></sup>  We'll be using a parser generator for OCaml called
+<a href="https://gallium.inria.fr/~fpottier/menhir/">Menhir</a>.  This page is essentially a tutorial on using Menhir.
+</p>
+
+<p>
+But parser generators are like streaming services, there are more that
+exist than we'll ever need and people are still making new
+ones.<sup><a id="fnr.3" class="footref" href="#fn.3" role="doc-backlink">3</a></sup>  <a href="https://www.antlr.org">ANTLR</a>, for example, is a popular parser generator
+for Python.
+</p>
+
+<blockquote>
+<p>
+<b>Remark.</b> Before continuing I'd also like to point out that there are
+other ways of building parsers.
+</p>
+
+<ul class="org-ul">
+<li>Obviously you can handroll your own parser using any of the
+algorithms out there.  <a href="https://www.lua.org">Lua</a> has what's called a
+<a href="https://en.wikipedia.org/wiki/Recursive_descent_parser">recursive
+descent parser</a> which was implemented in-house.  They argue it's
+more efficient and more portable than using a generator.</li>
+<li><a href="https://elm-lang.org">Elm</a> (a very fun functional language for building web-apps which has
+interoperability with JavaScript) uses what are called <a href="https://en.wikipedia.org/wiki/Parser_combinator">parser
+combinators</a> to build its parser in a modular fashion.  This
+implementation is very slick, and has interesting connections to
+monads.<sup><a id="fnr.4" class="footref" href="#fn.4" role="doc-backlink">4</a></sup></li>
+</ul>
+
+<p>
+This is just to say, if you're interested, there are a lot of avenues
+to explore.  It's also to say that, like any interesting engineering
+problem, building a parser takes a bit of artistry.  There's no best
+choice, and you'll have to make some choices based on your aesthetic
+inclinations as well as domain-specific considerations (also your
+gut).
+</p>
+</blockquote>
+<div id="outline-container-org4938ee5" class="outline-2">
+<h2 id="org4938ee5">Lexing vs. Parsing</h2>
+<div class="outline-text-2" id="text-org4938ee5">
+<p>
+The last bit of preamble we need before we can start using Menhir: we
+need to distinguish between <b>lexing</b> and <b>parsing</b>.  Recall from the
+chapter on <a href="file:///Users/NathanM/Developer/Repositories/nmmull.github.io/PL-at-BU/Intro/notes.html">the interpretation pipeline</a> that there were <i>two</i> boxes
+which were necessary for parsing. The first was for <b>lexical analysis</b>
+and the second was for <b>syntactic analysis</b>. Lexing is, as you might
+expected, the first of these two boxes.
+</p>
+
+<p>
+At the beginning, we're given a string.  Lexing is the process of
+taking that string and grouping together the characters that
+correspond to a single <i>unit</i> in our programming language.  When we
+parse a program, we'd like to know if the <code>'l'</code> we're looking at is
+part of a string, part of a variable name, or part of the keyword
+<code>let</code>.  Grouping these <i>beforehand</i> will make parsing much simpler.
+</p>
+
+<p>
+We call the abstract units of a program <b>tokens</b> and we call their
+associated strings <b>lexemes</b>.
+</p>
+
+<blockquote>
+<p>
+<b>Example.</b> Here is a short list of lexemes and tokens that will appear
+in the languages we consider.  It is standard (at least in Menhir) to
+represent tokens with ALLCAPS.
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Lexeme</th>
+<th scope="col" class="org-left">Token</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">"let"</td>
+<td class="org-left">LET</td>
+</tr>
+
+<tr>
+<td class="org-left">"if"</td>
+<td class="org-left">IF</td>
+</tr>
+
+<tr>
+<td class="org-left">"123"</td>
+<td class="org-left">NUM 123</td>
+</tr>
+
+<tr>
+<td class="org-left">"-123"</td>
+<td class="org-left">NUM (-123)</td>
+</tr>
+
+<tr>
+<td class="org-left">"("</td>
+<td class="org-left">LPAREN</td>
+</tr>
+
+<tr>
+<td class="org-left">"-&gt;"</td>
+<td class="org-left">ARROW</td>
+</tr>
+
+<tr>
+<td class="org-left">"xy"</td>
+<td class="org-left">VAR "xy"</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+We have to define tokens all the way down to the symbols we use, like
+the function arrow and the left parentheses symbol.  Also note that
+some tokens may not be defined as a <i>single</i> collection of characters,
+but as a collection of characters "with a particular shape." In Menhir
+(and many other parser generators) we use <i>regular expressions</i> to
+describe more complex tokens.
+</p>
+</blockquote>
+
+<p>
+In short, lexing is the process of converting a <code>string</code> to <code>token
+list</code>, if possible.
+</p>
+<div class="org-src-container">
+<pre class="src src-ocaml"><span style="color: #000000; font-weight: bold;">val</span> <span style="color: #0000ff;">lex</span> : string -&gt; token list option
+</pre>
+</div>
+
+<p>
+The type <code>token</code> is an ADT that <i>we define</i> which contains abstract
+represtations of the units of our language.  This may fail (e.g., if
+there are unrecognized symbols) which is why it returns a <code>token list
+option</code>.
+</p>
+
+<p>
+Parsing is the process of converting a list of tokens to an <code>expr</code>, if possible
+</p>
+<div class="org-src-container">
+<pre class="src src-ocaml"><span style="color: #000000; font-weight: bold;">val</span> <span style="color: #0000ff;">parse</span> : token list -&gt; expr option
+</pre>
+</div>
+
+<p>
+The type <code>expr</code> is an ADT that <i>we define</i> which we use to represent
+expressions in our language.  This may fail (e.g., if the program is
+not well-formed) which is why it returns an <code>expr option</code>.  When
+parsing fails, good interpreters will display a <b>syntax error</b>
+message, which might give you more information about <i>why</i> parsing
+fails (in which case we'd have to return something more sophisticated
+than an <code>expr option</code>.
+</p>
+
+<blockquote>
+<p>
+<b>Terminology.</b> We call the output of parsing a <b>parse tree</b> or a
+<b>concrete syntax tree</b>.  Occasionally we will also use the term
+<b>abstract syntax tree</b> (AST) because the output of parsing represents
+the syntax of the program we want to evaluate abstractly as a data.
+For more complex interpreters, we draw a stronger distinction
+between these two things.  It is not necessarily the case that the
+structure of our syntactic program exactly matches the object we will
+ultimately will evaluate.  For now, we will use the term AST for the
+output of parsing.
+</p>
+</blockquote>
+
+<blockquote>
+<p>
+<b>Remark.</b> There are a couple reasons for separating these two
+processes, we won't dwell on it in this course.  But, in rougth terms:
+</p>
+
+<ul class="org-ul">
+<li>It makes the parsing task easier.  There are fewer low-level
+concerns we need to deal with for parsing.</li>
+<li>It makes this part of the interpretation pipeline more portable.
+Different operating systems have different ways of dealing with
+text, e.g., the <a href="https://en.wikipedia.org/wiki/Newline#Issues_with_different_newline_formats">CR vs. LF vs. CRLF</a> issue that still plagues us
+today).  If we separate the concerns, we can insulate the parser
+from these concerns.</li>
+</ul>
+
+<p>
+Recall that, when we covered grammars, we said nothing about
+whitespace, or about complex kinds of objects like integers or
+variable names.  This is because these are not parsing issues.<sup><a id="fnr.5" class="footref" href="#fn.5" role="doc-backlink">5</a></sup>
+</p>
+</blockquote>
+</div>
+</div>
+
+<div id="outline-container-orgcaf3b03" class="outline-2">
+<h2 id="orgcaf3b03">Using Menhir</h2>
+<div class="outline-text-2" id="text-orgcaf3b03">
+<p>
+With that business out of the way, we go to generating a parser for a
+simple expression language using Menhir.  We always start with a
+grammar, and a table which tells us the precedence of the operators
+represented in the grammar.
+</p>
+
+<p>
+This will be our working example, a language for arithmetic
+expressions with local variables.
+</p>
+
+<blockquote>
+<p>
+The grammar:
+</p>
+<div class="org-src-container">
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">prog</span>&gt;  <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">expr</span>&gt; EOF
+
+&lt;<span style="color: #0000ff;">expr</span>&gt;  <span style="color: #008b8b;">::=</span> let &lt;<span style="color: #483d8b;">var</span>&gt; = &lt;<span style="color: #483d8b;">expr</span>&gt; in &lt;<span style="color: #483d8b;">expr</span>&gt;
+          <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">expr1</span>&gt;
+
+&lt;<span style="color: #0000ff;">expr1</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">expr1</span>&gt; + &lt;<span style="color: #483d8b;">expr1</span>&gt;
+          <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">expr1</span>&gt; - &lt;<span style="color: #483d8b;">expr1</span>&gt;
+          <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">expr1</span>&gt; * &lt;<span style="color: #483d8b;">expr1</span>&gt;
+          <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">expr1</span>&gt; / &lt;<span style="color: #483d8b;">expr1</span>&gt;
+          <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">num</span>&gt;
+          <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">var</span>&gt;
+          <span style="color: #ff0000; font-weight: bold;">|</span> ( &lt;<span style="color: #483d8b;">expr</span>&gt; )
+
+&lt;<span style="color: #0000ff;">num</span>&gt;   <span style="color: #008b8b;">::=</span> 0 <span style="color: #b22222;">; DUMMY VALUE</span>
+&lt;<span style="color: #0000ff;">var</span>&gt;   <span style="color: #008b8b;">::=</span> x <span style="color: #b22222;">; DUMMY VALUE</span>
+
+<span style="color: #b22222;">; </span><span style="color: #b22222;">In lex.mll:</span>
+<span style="color: #b22222;">;</span>
+<span style="color: #b22222;">; </span><span style="color: #b22222;">let num = '-'? ['0'-'9']+</span>
+<span style="color: #b22222;">; </span><span style="color: #b22222;">let var = ['a'-'z' '_'] ['a'-'z' 'A'-'Z' '0'-'9' '_' '\'']*</span>
+</pre>
+</div>
+
+<p>
+Operators in order of increasing precedence:
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Operator</th>
+<th scope="col" class="org-left">Associativity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>+</code>, <code>-</code></td>
+<td class="org-left">left</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>*</code>, <code>/</code></td>
+<td class="org-left">left</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Output type of parsing (the AST):
+</p>
+
+<div class="org-src-container">
+<pre class="src src-ocaml"><span style="color: #000000; font-weight: bold;">type</span> <span style="color: #228b22;">expr</span> =
+  | <span style="color: #000000; background-color: #ffffff;">Var</span> <span style="color: #a020f0;">of</span> string
+  | <span style="color: #000000; background-color: #ffffff;">Num</span> <span style="color: #a020f0;">of</span> int
+  | <span style="color: #000000; background-color: #ffffff;">Let</span> <span style="color: #a020f0;">of</span> string * expr * expr
+  | <span style="color: #000000; background-color: #ffffff;">Add</span> <span style="color: #a020f0;">of</span> expr * expr
+  | <span style="color: #000000; background-color: #ffffff;">Sub</span> <span style="color: #a020f0;">of</span> expr * expr
+  | <span style="color: #000000; background-color: #ffffff;">Mul</span> <span style="color: #a020f0;">of</span> expr * expr
+  | <span style="color: #000000; background-color: #ffffff;">Div</span> <span style="color: #a020f0;">of</span> expr * expr
+</pre>
+</div>
+</blockquote>
+
+<p>
+A couple notes on the everything above.
+</p>
+<ul class="org-ul">
+<li>We will almost always take a program to be an expression followed by
+the <a href="https://en.wikipedia.org/wiki/End-of-file">end-of-file</a> character.  As we will see, Menhir deals with this
+in a particular way.</li>
+<li>In the above grammar, we use dummy terminal symbols for variables
+and numbers because, again, these are handled by the <i>lexer</i> not the
+parser.  We've also included the regular expressions used for <code>NUM</code>
+and <code>VAR</code> tokens in our lexer.</li>
+<li>Note that there are no parentheses in the expression type itself,
+even though they are in the language.  By the time we're
+representing the syntax abstractly, the parentheses are represented
+implicitly.</li>
+</ul>
+
+
+<p>
+In what follows, we describe the steps to generate an OCaml function
+which, given the contents of a file with:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-ocaml"><span style="color: #000000; font-weight: bold;">let</span> <span style="color: #a0522d;">x</span> = 2 <span style="color: #000000; font-weight: bold;">in</span>
+<span style="color: #000000; font-weight: bold;">let</span> <span style="color: #a0522d;">y</span> = -3 <span style="color: #000000; font-weight: bold;">in</span>
+<span style="color: #000000; font-weight: bold;">let</span> <span style="color: #a0522d;">x_squared</span> = x * x <span style="color: #000000; font-weight: bold;">in</span>
+<span style="color: #000000; font-weight: bold;">let</span> <span style="color: #a0522d;">y_squared</span> = y * y <span style="color: #000000; font-weight: bold;">in</span>
+x_squared + y_squared
+</pre>
+</div>
+
+<p>
+returns <code>Some e</code> where <code>e</code> is the expression
+</p>
+
+<div class="org-src-container">
+<pre class="src src-ocaml"><span style="color: #000000; background-color: #ffffff;">Let</span>
+  (<span style="color: #8b2252;">"x"</span>
+  , <span style="color: #000000; background-color: #ffffff;">Num</span> 2
+  , <span style="color: #000000; background-color: #ffffff;">Let</span>
+      ( <span style="color: #8b2252;">"y"</span>
+      , <span style="color: #000000; background-color: #ffffff;">Num</span> (-3)
+      , <span style="color: #000000; background-color: #ffffff;">Let</span>
+          ( <span style="color: #8b2252;">"x_squared"</span>
+          , <span style="color: #000000; background-color: #ffffff;">Mul</span> (<span style="color: #000000; background-color: #ffffff;">Var</span> <span style="color: #8b2252;">"x"</span>, <span style="color: #000000; background-color: #ffffff;">Var</span> <span style="color: #8b2252;">"x"</span>)
+          , <span style="color: #000000; background-color: #ffffff;">Let</span>
+              ( <span style="color: #8b2252;">"y_squared"</span>
+              , <span style="color: #000000; background-color: #ffffff;">Mul</span> (<span style="color: #000000; background-color: #ffffff;">Var</span> <span style="color: #8b2252;">"y"</span>, <span style="color: #000000; background-color: #ffffff;">Var</span> <span style="color: #8b2252;">"y"</span>)
+              , <span style="color: #000000; background-color: #ffffff;">Add</span> (<span style="color: #000000; background-color: #ffffff;">Var</span> <span style="color: #8b2252;">"x_squared"</span>, <span style="color: #000000; background-color: #ffffff;">Var</span> <span style="color: #8b2252;">"y_squared"</span>)
+              )
+          )
+      )
+  )
+</pre>
+</div>
+
+<p>
+We will assume that you have a dune project set up (if not, you can
+run <code>dune init project parser_example</code> to create one).
+</p>
+</div>
+
+<div id="outline-container-org44b22a6" class="outline-3">
+<h3 id="org44b22a6">Step 0: The Project File</h3>
+<div class="outline-text-3" id="text-org44b22a6">
+<p>
+If we want to use Menhir, we have to tell dune that.  First, add the
+stanza
+</p>
+
+<div class="org-src-container">
+<pre class="src src-dune">(using menhir 2.1)
+</pre>
+</div>
+
+<p>
+to the end of the file <code>dune-project</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-org059e78b" class="outline-3">
+<h3 id="org059e78b">Step 1: Setting Up</h3>
+<div class="outline-text-3" id="text-org059e78b">
+<p>
+You need to create five files with the following file structure in the
+<code>lib</code> directory of your project.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-ascii">lib
+└──parser
+   ├──ast.ml
+   ├──dune
+   ├──lex.mll
+   ├──my_parser.ml
+   └──par.mly
+</pre>
+</div>
+
+<p>
+We use the name <code>My_parser</code> because the module <code>Parser</code> already exists
+in the standard library.  For us, the <code>dune</code> file and <code>my_parser.ml</code> file
+are fixed:
+</p>
+
+<p>
+<code>dune</code>:
+</p>
+<div class="org-src-container">
+<pre class="src src-dune">(library (name my_parser))
+(menhir (modules par))
+(ocamllex lex)
+</pre>
+</div>
+
+<p>
+<code>my_parser.ml:</code>
+</p>
+<div class="org-src-container">
+<pre class="src src-ocaml"><span style="color: #000000; font-weight: bold;">let</span> <span style="color: #0000ff;">parse</span> <span style="color: #a0522d;">s</span> =
+  <span style="color: #a020f0;">try</span> <span style="color: #000000; background-color: #ffffff;">Some</span> (<span style="color: #228b22;">Parser.</span>prog <span style="color: #228b22;">Lexer.</span>read (<span style="color: #228b22;">Lexing.</span>from_string s))
+  <span style="color: #a020f0;">with</span> _ -&gt; None
+</pre>
+</div>
+
+<blockquote>
+<p>
+<b>Remark.</b> One of the benefits of using a parser generator is better
+error messages.  We will <i>not</i> be using this feature in this course.
+If you were to use Menhir in a personal project, you would need to
+update the <code>parse</code> function to make use of the exceptions produced by
+<code>Parser.prog</code>.
+</p>
+</blockquote>
+
+<p>
+The last three files are where the work happens.  We can start with
+the following dummy files.
+</p>
+
+<p>
+<code>ast.ml</code>:
+</p>
+<div class="org-src-container">
+<pre class="src src-ocaml"><span style="color: #000000; font-weight: bold;">type</span> <span style="color: #228b22;">prog</span> = unit
+</pre>
+</div>
+
+<p>
+<code>lex.mll</code>:
+</p>
+<div class="org-src-container">
+<pre class="src src-mll">{
+open Par
+}
+
+let whitespace = [' ' '\t' '\n' '\r']
+
+rule read =
+  parse
+  | whitespace { read lexbuf }
+  | eof { EOF }
+</pre>
+</div>
+
+<p>
+<code>par.mly</code>
+</p>
+<div class="org-src-container">
+<pre class="src src-mly">%{
+open Ast
+%}
+
+%token EOF
+
+%start &lt;Ast.prog&gt; { prog }
+
+%%
+
+prog:
+  | EOF { () }
+</pre>
+</div>
+
+<p>
+At this point, you should be able to <code>dune build</code> your project.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgb4d97d4" class="outline-3">
+<h3 id="orgb4d97d4">Step 2: AST</h3>
+<div class="outline-text-3" id="text-orgb4d97d4">
+<p>
+The next thing we need to do is define the abstract representation we
+want to target. This means putting the <code>expr</code> type into our <code>ast.ml</code>
+file.
+</p>
+
+<p>
+Update <code>ast.ml</code>:
+</p>
+<div class="org-src-container">
+<pre class="src src-ocaml"><span style="color: #000000; font-weight: bold;">type</span> <span style="color: #228b22;">prog</span> = expr
+
+<span style="color: #000000; font-weight: bold;">type</span> <span style="color: #228b22;">expr</span> =
+| <span style="color: #000000; background-color: #ffffff;">Var</span> <span style="color: #a020f0;">of</span> string
+| <span style="color: #000000; background-color: #ffffff;">Num</span> <span style="color: #a020f0;">of</span> int
+| <span style="color: #000000; background-color: #ffffff;">Let</span> <span style="color: #a020f0;">of</span> string * expr * expr
+| <span style="color: #000000; background-color: #ffffff;">Add</span> <span style="color: #a020f0;">of</span> expr * expr
+| <span style="color: #000000; background-color: #ffffff;">Sub</span> <span style="color: #a020f0;">of</span> expr * expr
+| <span style="color: #000000; background-color: #ffffff;">Mul</span> <span style="color: #a020f0;">of</span> expr * expr
+| <span style="color: #000000; background-color: #ffffff;">Div</span> <span style="color: #a020f0;">of</span> expr * expr
+</pre>
+</div>
+<p>
+The type <code>expr</code> is something you are either given, or which you should
+have determined <i>before</i> you started building a parser.<sup><a id="fnr.6" class="footref" href="#fn.6" role="doc-backlink">6</a></sup>
+</p>
+
+<p>
+If you try to <code>dune build</code> at this point, you should get an error.
+This is because we changed the definition of <code>prog</code>, which means we're
+getting a type error in <code>par.mly</code>.  More on this in a moment, but for
+now, we can give a dummy value to our parser.
+</p>
+
+<p>
+Updated <code>par.mly</code>:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-mly">%{
+open Ast
+%}
+
+%token EOF
+
+%start &lt;Ast.prog&gt; { prog }
+
+%%
+
+prog:
+  | EOF { Num 0 }
+</pre>
+</div>
+
+<p>
+At this point, you should be able to <code>dune build</code> your project.
+</p>
+</div>
+</div>
+<div id="outline-container-orgb9b7bde" class="outline-3">
+<h3 id="orgb9b7bde">Step 3: Tokens</h3>
+<div class="outline-text-3" id="text-orgb9b7bde">
+<p>
+Now we need to populate our parser with the tokens of our language.
+We also need to discuss the anatomy of the <code>par.mly</code> file.
+</p>
+
+<p>
+Our file begins with a header that can include arbitary OCaml code.
+For now we just open the module <code>Ast</code> so that we can refer to the
+<code>expr</code> type in this file:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-mly">%{
+open Ast
+%}
+</pre>
+</div>
+
+<p>
+Next follows a collection of <i>declarations</i>.  This is where we will
+specify <b>tokens</b> and <b>precedence</b>.  We also declare our <b>start</b>
+production rule here (this is already done):
+</p>
+<div class="org-src-container">
+<pre class="src src-mly">%token EOF
+
+%start &lt;Ast.prog&gt; { prog }
+
+%%
+</pre>
+</div>
+<p>
+Our declarations end with the symbol <code>%%</code>.  Everything that follows
+are <b>rules</b>, i.e., the production rules of our grammar.  We will cover
+this in the next section.
+</p>
+
+<p>
+For now, we'll populate the top of our file with token declarations,
+one for each terminal symbol in our grammar.  The syntax is <code>%token
+NAME</code>, and it is typical to choose an ALLCAPS name.  There is already
+a token that we are using the represent the end of a file, which will
+appear in every parser we build.  In the case of complex tokens, like
+numbers and variables, we also specify the type of thing the lexer
+will give us with the syntax <code>%token &lt;type&gt; NAME</code>.
+</p>
+
+<p>
+Updated <code>par.mly</code>:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-mly">%{
+open Ast
+%}
+
+%token LET
+%token EQUALS
+%token IN
+%token PLUS
+%token MINUS
+%token TIMES
+%token DIVIDE
+%token &lt;int&gt; NUM
+%token &lt;string&gt; VAR
+%token LPAREN
+%token RPAREN
+%token EOF
+
+%start &lt;Ast.prog&gt; { prog }
+
+%%
+
+prog:
+  | EOF { Num 0 }
+</pre>
+</div>
+
+<p>
+Determining the tokens you need to create is a matter of looking
+through the list of rules in the grammar, picking out all the
+terminal symbols and giving them names.
+</p>
+
+<p>
+At this point, if you try to <code>dune build</code>, you will see many warnings
+about unused tokens.  This is because we haven't used any of the
+tokens in the rules of the grammar. We'll handle this in the
+next section.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org76fdbbb" class="outline-3">
+<h3 id="org76fdbbb">Step 5: Rules</h3>
+<div class="outline-text-3" id="text-org76fdbbb">
+<p>
+Onto the most important part, describing the <b>rules</b> of the grammar.
+Menhir is designed so that its rules looks <i>a whole lot</i> like EBNF
+production rules.  Let's look at the first two rules.
+</p>
+
+<p>
+In EBNF:
+</p>
+<div class="org-src-container">
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">prog</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">expr</span>&gt; EOF
+
+&lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> let &lt;<span style="color: #483d8b;">var</span>&gt; = &lt;<span style="color: #483d8b;">expr</span>&gt; in &lt;<span style="color: #483d8b;">expr</span>&gt;
+         <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">expr1</span>&gt;
+</pre>
+</div>
+
+<p>
+in Menhir syntax:
+</p>
+<div class="org-src-container">
+<pre class="src src-mly">prog:
+  | e = expr; EOF { e }
+
+expr:
+  | LET; x = var; EQUALS; e1 = expr; IN; e2 = expr { Let(x, e1, e2) }
+  | e = expr1 { e }
+</pre>
+</div>
+
+<p>
+If we squint, we can see the similarities.  The main differences in
+the Menhir syntax:
+</p>
+
+<ul class="org-ul">
+<li>symbols are separated by semicolons<sup><a id="fnr.7" class="footref" href="#fn.7" role="doc-backlink">7</a></sup></li>
+<li>terminal symbols are replaced with their associated tokens</li>
+<li>alternatives are followed by the <i>values</i> which should be returned if
+they are matched with (the parts in the curly braces)</li>
+<li>nonterminal symbols are given <i>names</i> which can be used in these
+returned values (like <code>e1 = expr</code>)</li>
+</ul>
+
+<p>
+For example, we read the first alternative of the <code>expr</code> rule as:
+</p>
+
+<ul class="org-ul">
+<li>if I see the keyword <code>let</code></li>
+<li>and then I see a variable <code>x</code></li>
+<li>and then I see the symbol <code>=</code></li>
+<li>and then I see a whole expression which parses to <code>e1</code></li>
+<li>and then I see the keyword <code>in</code></li>
+<li>and then I see a whole expression which parses to <code>e2</code></li>
+<li>then the result of parsing should be <code>Let(x, e1, e2)</code>.</li>
+</ul>
+
+<p>
+Implementing the parser is a matter of translating these rules into
+Menhir syntax.
+</p>
+
+<p>
+We also need to provide precedence and associativity declarations for
+our operators.  The syntax is <code>%left TOKEN</code> or <code>%right TOKEN</code>,
+depending on whether <code>TOKEN</code> should be left associative or right
+associative, and precendence is handled by <i>the order the declarations
+are presented</i> (just like in our precedence table).
+</p>
+
+<p>
+Updated <code>par.mly</code>:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-mly">%{
+open Ast
+%}
+
+%token LET
+%token EQUALS
+%token IN
+%token PLUS
+%token MINUS
+%token TIMES
+%token DIVIDE
+%token &lt;int&gt; NUM
+%token &lt;string&gt; VAR
+%token LPAREN
+%token RPAREN
+%token EOF
+
+%left PLUS, MINUS
+%left TIMES, DIVIDE
+
+%start &lt;Ast.prog&gt; { prog }
+
+%%
+
+prog:
+  | e = expr; EOF { e }
+
+expr:
+  | LET; x = var; EQUALS; e1 = expr; IN; e2 = expr { Let(x, e1, e2) }
+  | e = expr1 { e }
+
+expr1:
+  | e1 = expr1; PLUS; e2 = expr2 { Add(e1, e2) }
+  | e1 = expr1; MINUS; e2 = expr2 { Sub(e1, e2) }
+  | e1 = expr1; TIMES; e2 = expr2 { Mul(e1, e2) }
+  | e1 = expr1; DIVIDE; e2 = expr2 { Div(e1, e2) }
+  | e = num { e }
+  | e = var { e }
+  | LPAREN; e = expr; RPAREN { e }
+
+num:
+  | n = NUM { Num n }
+
+var:
+  | x = VAR { Var x }
+</pre>
+</div>
+
+<p>
+At this point, you should be able to <code>dune build</code> your project.  That
+said, if you try to use it, it won't do anything because we haven't
+specified the lexer, we haven't said which strings correspond to which
+tokens.  We will deal with this in the next section.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orga34781c" class="outline-3">
+<h3 id="orga34781c">Step 4: Lexing</h3>
+<div class="outline-text-3" id="text-orga34781c">
+<p>
+The last thing we need to do: populate the lexer.  We won't discuss
+the anatomy of the <code>lex.mll</code> file in too much detail because it will
+stay fairly fixed for us in this course.
+</p>
+
+<ul class="org-ul">
+<li><p>
+There is a header (it will always be the same):
+</p>
+
+<div class="org-src-container">
+<pre class="src src-mll">{
+open Par
+}
+</pre>
+</div></li>
+
+<li><p>
+There are <b>identifiers</b>, which are regular expressions for defining
+the structure of more complex tokens.<sup><a id="fnr.8" class="footref" href="#fn.8" role="doc-backlink">8</a></sup> These were included in the definition of the
+grammar above:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-mll">let whitespace = [' ' '\t' '\n' '\r']
+let num = '-'? ['0'-'9']+
+let var = ['a'-'z' '_'] ['a'-'z' 'A'-'Z' '0'-'9' '_' '\'']*
+</pre>
+</div></li>
+
+<li><p>
+There is a <b>rule</b> which describes which strings correspond to which
+tokens:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-mll">rule read =
+  parse
+  | "let" { LET }
+  | "=" { EQUALS }
+  | "+" { PLUS }
+  | "-" { MINUS }
+  | "*" { TIMES }
+  | "/" { DIVIDE }
+  | num { NUM (int_of_string (Lexing.lexeme lexbuf)) }
+  | var { VAR (Lexing.lexeme lexbuf) }
+  | "(" { LPAREN }
+  | ")" { RPAREN }
+  | whitespace { read lexbuf }
+  | eof { EOF }
+</pre>
+</div>
+
+<p>
+Without going into too much detail, what's going on with <code>num</code> and
+<code>var</code>: the expression <code>Lexing.lexeme lexbuf</code> is the lexeme (i.e.,
+the string) which corresponds to the complex token being read.  For
+example, if <code>"123 abc"</code> is given, then <code>"123"</code> is the lexeme
+<code>Lexing.lexeme lexbuf</code> when <code>"123"</code> is grouped by the lexer.  We
+want to give the parser a <i>number</i> not a string so we convert it
+with <code>string_of_int</code>.
+</p></li>
+</ul>
+
+<p>
+All together, the updated <code>lex.mll</code>:
+</p>
+<div class="org-src-container">
+<pre class="src src-mll">{
+open Par
+}
+
+let whitespace = [' ' '\t' '\n' '\r']
+let num = '-'? ['0'-'9']+
+let var = ['a'-'z' '_'] ['a'-'z' 'A'-'Z' '0'-'9' '_' '\'']*
+
+rule read =
+  parse
+  | "let" { LET }
+  | "=" { EQUALS }
+  | "+" { PLUS }
+  | "-" { MINUS }
+  | "*" { TIMES }
+  | "/" { DIVIDE }
+  | num { NUM (int_of_string (Lexing.lexeme lexbuf)) }
+  | var { VAR (Lexing.lexeme lexbuf) }
+  | "(" { LPAREN }
+  | ")" { RPAREN }
+  | whitespace { read lexbuf }
+  | eof { EOF }
+</pre>
+</div>
+
+<p>
+At this point, you should be able to <code>dune build</code> your project.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org7afe57c" class="outline-3">
+<h3 id="org7afe57c">Step 5: Running</h3>
+<div class="outline-text-3" id="text-org7afe57c">
+<p>
+If all goes well you should be able to open <code>dune utop</code> and evaluate
+</p>
+
+<div class="org-src-container">
+<pre class="src src-ocaml"><span style="color: #228b22;">My_parser.</span>parse <span style="color: #8b2252;">"let x = 2 in let y = 3 in x + y"</span>
+</pre>
+</div>
+
+<p>
+and see that it has the value
+</p>
+
+<div class="org-src-container">
+<pre class="src src-ocaml"><span style="color: #000000; background-color: #ffffff;">Let</span>
+  (<span style="color: #8b2252;">"x"</span>
+  , <span style="color: #000000; background-color: #ffffff;">Num</span> 2
+  , <span style="color: #000000; background-color: #ffffff;">Let</span>
+      ( <span style="color: #8b2252;">"y"</span>
+      , <span style="color: #000000; background-color: #ffffff;">Num</span> 3
+      , <span style="color: #000000; background-color: #ffffff;">Add</span> (<span style="color: #000000; background-color: #ffffff;">Var</span> <span style="color: #8b2252;">"x"</span>, <span style="color: #000000; background-color: #ffffff;">Var</span> <span style="color: #8b2252;">"y"</span>)
+      )
+  )
+</pre>
+</div>
+
+<p>
+You'll use <code>My_parser.parse</code> as your parser for the mini-projects.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org985174b" class="outline-2">
+<h2 id="org985174b">Closing Remarks</h2>
+<div class="outline-text-2" id="text-org985174b">
+<ul class="org-ul">
+<li>Menhir is it's own beast, there's a lot we're not covering.  You may
+occassionally have to look at documentation to see how things work
+(gasp).  The hope is that this is a starting point from which you
+can troubleshoot.</li>
+
+<li>In general, you're going to want to work more incrementally than
+we've done here.  Since you'll be given the specification, it's
+<i>maybe</i> fine for this course to try to sprint to the end and build a
+parser in one shot, but if you're worried about making mistakes, you
+should include one new token at a time and one new rule at a time,
+and test frequently.</li>
+
+<li>You will have the luxury of being given <i>unambiguous</i> grammars.  In
+the case that you try to generate a parser for an ambiguous grammar,
+<b>Menhir will warn you.</b> So, if you're getting strange warnings about
+ambiguity or shifting, make sure to double check all your rules (it
+shouldn't be happening).</li>
+</ul>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink">1</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">To be clear, this is a definition of parsing used for <i>theoretical
+purposes</i>.  It ignores many concerns about parsing that are incredibly
+important when it comes to practical parsing, e.g., error messages and
+portability.</p></div></div>
+
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2" role="doc-backlink">2</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">It's worth taking a
+moment to appreciate how cool this is. And also to note that this is
+really an example of <i>compilation</i>, i.e., of taking a high-level
+language (EBNF specifications) and translating it into a low-level
+language (OCaml).</p></div></div>
+
+<div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3" role="doc-backlink">3</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">See the wikipedia page on <a href="https://en.wikipedia.org/wiki/Comparison_of_parser_generators">comparing parser generators</a>
+for more details.</p></div></div>
+
+<div class="footdef"><sup><a id="fn.4" class="footnum" href="#fnr.4" role="doc-backlink">4</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">We used to teach parser combinators in this course, but
+have since decided to spare you all.</p></div></div>
+
+<div class="footdef"><sup><a id="fn.5" class="footnum" href="#fnr.5" role="doc-backlink">5</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">As
+usual, this is not strictly true, but I hope y'all can accept this
+fairly innocuous pedagogically motivated lie.</p></div></div>
+
+<div class="footdef"><sup><a id="fn.6" class="footnum" href="#fnr.6" role="doc-backlink">6</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">It's generally
+not a good idea to try to build a parser before you know what abstract
+representation you're targeting.</p></div></div>
+
+<div class="footdef"><sup><a id="fn.7" class="footnum" href="#fnr.7" role="doc-backlink">7</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">Actually this isn't
+necessary, but I'd recommend doing it for a while to get used to the
+syntax.</p></div></div>
+
+<div class="footdef"><sup><a id="fn.8" class="footnum" href="#fnr.8" role="doc-backlink">8</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">Since we likely won't have
+time to cover regular expressions, we'll give you these identifiers
+in a specification.</p></div></div>
+
+
+</div>
+</div></div>
+</body>
+</html>

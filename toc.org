@@ -5,7 +5,7 @@
 #+HTML_LINK_HOME: https://nmmull.github.io
 This is a set of notes for /CAS CS 320: Principles of Programming
 Langauges/ at Boston Univeristy.  They are based on material created
-by several members of the Principles of Programming and Verification
+by several members of the [[https://www.bu.edu/cs/research-groups/popv/][Principles of Programming and Verification]]
 (POPV) group.
 
 These notes are *incredibly incredibly rough*. They are likely rife
@@ -15,9 +15,9 @@ sections, missing explanations, etc. To students: we appreciate your
 a error, you are encouraged to post an issue to the associated GitHub
 repository.
 
-* The Interpretation Pipeline
+* [[file:Intro/notes.org][The Interpretation Pipeline]]
 * [[file:Formal-Grammar/notes.org][Formal Grammar]]
-* Parser Generators
+* [[file:Parsing/notes.org][Parser Generators]]
 * Formal Semantics
 * Type Checking
 * Type Inference

@@ -164,7 +164,7 @@ step of the process by replacing each word in the sentence with a
 symbol /standing for/ each figure of speech (the choice of symbol
 being influenced by what is to come).
 
-#+begin_src sentence
+#+begin_src bnf
   <article> <noun> <verb> <prep> <article> <noun>
 #+end_src
 
@@ -173,7 +173,7 @@ captures the determination or quantification of an object, so we might
 mentally group these symbols (into what grammaticists call *nominal
 phrases* or *noun phrases*) and represent them by a new symbol:
 
-#+begin_src sentence
+#+begin_src bnf
   <noun-phrase> <verb> <prep> <noun-phrase>
 #+end_src
 
@@ -182,7 +182,7 @@ is also single unit ("over the moon", "through the woods", and "behind
 the wall" are examples of *prepositional phrases*) so that the
 structure of the entire sentence may be represented as
 
-#+begin_src sentence
+#+begin_src bnf
   <noun-phrase> <verb> <prep-phrase>
 #+end_src
 
@@ -190,7 +190,7 @@ Then we might recognize that prepositional phrases can modify verbs,
 again creating a single unit (e.g., "ran to the car", "arose from
 bed") leaving us with something like
 
-#+begin_src sentence
+#+begin_src bnf
   <noun-phrase> <verb-phrase>
 #+end_src
 
@@ -204,7 +204,7 @@ symbol ~<sentence>~) we get something that looks like a /proof/ that
 ~the cow jumped over the moon~ is a grammatical sentence.
 
 
-#+begin_src deriv
+#+begin_src bnf
   <sentence>
   <noun phrase>    <verb phrase>
   <noun phrase>    <verb> <prep phrase>
@@ -271,7 +271,7 @@ the dog jumped
 
 is a sentence and
 
-#+begin_src sent
+#+begin_src bnf
 the <noun> jumped
 #+end_src
 
@@ -293,7 +293,7 @@ are allowed to do.
 #+begin_quote
 *Definition.* A *production rule* is an equation of the form
 
-#+begin_src prod
+#+begin_src bnf
 <non-term> ::= SENTENTIAL-FORM
 #+end_src
 
@@ -396,7 +396,7 @@ ourselves to replace multiple non-terminal symbols simultaneously.
 This is not allowed in the above notion of a derivation. A /correct/
 derivation would look like:
 
-#+begin_src deriv
+#+begin_src bnf
 <sentence>
 <noun-phrase>    <verb-phrase>
 <noun-phrase>    <verb> <prep-phrase>
@@ -572,7 +572,7 @@ The details of the above definition are not so important, as long as
 you have the right picture in your head.  For example, the sentence ~a
 = b + const~ has the following derivation.
 
-#+begin_src deriv
+#+begin_src bnf
 <program>
 <stmts>
 <stmt>
@@ -586,7 +586,7 @@ a = b + const
 
 And has the following parse tree.
 
-#+begin_src ascii
+#+begin_src bnf
   <program>
   │
   <stmts>
@@ -648,21 +648,23 @@ Was John using the telescope?  Was the man carrying the telescope?
 Are the multiple mountains, one of which has a telescope on it?
 
 The ambiguity exists because it is not clear /which/ hierarchical
-structure should scaffold the sentence.  Here are two options for the
-verb phrase in the sentence.
+structure should scaffold the sentence.  Here's a possible parse
+trees for the sentence.
 
 #+begin_src ascii
-  VP
-  ├───┬───────────────────────┐
-  V   NP                      PP
-  │   ├───────┐               │
-  │   NP      PP              │
-  │   │       ├──┐            ├────┐
-  │   │       P  NP           P    NP
-  │   ├───┐   │  ├───┐        │    ├───┐
-  │   A   N   │  A   N        │    A   N
-  │   │   │   │  │   │        │    │   │
-  saw the man on the mountain with the telescope
+  S
+  ├────┐
+  NP   VP
+  │    ├───┬───────────────────────┐
+  N    V   NP                      PP
+  │    │   ├───────┐               │
+  │    │   NP      PP              │
+  │    │   │       ├──┐            ├────┐
+  │    │   │       P  NP           P    NP
+  │    │   ├───┐   │  ├───┐        │    ├───┐
+  │    │   A   N   │  A   N        │    A   N
+  │    │   │   │   │  │   │        │    │   │
+  John saw the man on the mountain with the telescope
 #+end_src
 
 The propositional phrase ~with the telescope~ is grouped alongside the
@@ -671,21 +673,23 @@ telescope.  Another option:
 
 
 #+begin_src ascii
-  VP
-  ├───┐
-  V   NP
-  │   ├───────┐
-  │   NP      PP
-  │   ├───┐   ├──┐
-  │   A   N   P  NP
-  │   │   │   │  ├────────────┐
-  │   │   │   │  NP           PP
-  │   │   │   │  ├───┐        ├────┐
-  │   │   │   │  A   N        P    NP
-  │   │   │   │  │   │        │    ├───┐
-  │   │   │   │  │   │        │    A   N
-  │   │   │   │  │   │        │    │   │
-  saw the man on the mountain with the telescope
+  S
+  ├────┐
+  NP   VP
+  │    ├───┐
+  N    V   NP
+  │    │   ├───────┐
+  │    │   NP      PP
+  │    │   ├───┐   ├──┐
+  │    │   A   N   P  NP
+  │    │   │   │   │  ├────────────┐
+  │    │   │   │   │  NP           PP
+  │    │   │   │   │  ├───┐        ├────┐
+  │    │   │   │   │  A   N        P    NP
+  │    │   │   │   │  │   │        │    ├───┐
+  │    │   │   │   │  │   │        │    A   N
+  │    │   │   │   │  │   │        │    │   │
+  John saw the man on the mountain with the telescope
 #+end_src
 
 The prepositional phrase ~with the telescope~ is part of the noun
@@ -775,7 +779,7 @@ For the third line, /which of the two ~<expr>~ symbols did we expand?/
 To make this concrete, here are two parse trees for the sentence ~x +
 x + x~.
 
-#+begin_src tree
+#+begin_src bnf
   <expr>                                <expr>
   ├──────┬────┐                         ├──────────────────┬────┐
   <expr> <op> <expr>                    <expr>             <op> <expr>
@@ -791,7 +795,7 @@ These two parse trees correspond to the following two leftmost
 derivations (the first for the tree on the left, the second for the
 tree on the right).
 
-#+begin_src deriv
+#+begin_src bnf
 <expr>
 <expr> <op> <expr>
 <var> <op> <expr>
@@ -858,11 +862,11 @@ If our only concern is avoiding ambiguity, we can use *Polish
 notation* or *reverse polish notation*.  In Polish notation, operators
 appear *before* all their arguments, e.g.
 
-~~~
+#+begin_src bnf
 <expr> ::= <var> | <op> <expr> <expr>
 <op>   ::= + | - | * | /
 <var>  ::= x
-~~~
+#+end_src
 
 We won't dwell on this but it turns out this gives us an unambiguous
 grammar, we don't even need parentheses.
@@ -959,7 +963,7 @@ parentheses:
 
 It then becomes very clear in a derivation like
 
-#+begin_src deriv
+#+begin_src bnf
 <expr>
 ( <expr> <op> <expr> )
 ( ( <expr> <op> <expr> ) <op> <expr> )
@@ -1120,7 +1124,7 @@ int -> (int -> int)
 
 The problem, as it stands, is that because of the production rule
 
-#+begin_src rule
+#+begin_src bnf
 <fun-type> ::= <fun-type> -> <fun-type>
 #+end_src
 
@@ -1236,9 +1240,13 @@ the parser generator we use.  And, as with associativity, we can also
 deal with precedence in the grammar itself.
 
 In the case of arithmetic expressions, we use similar observations:
-+ because of associativity, the right argument of multiplication or division must be a variable ~x~;
-+ because of precedence, the left argument of multiplication or division must contain only multiplications and divisions;
-+ because of associativity, the right argument of addition or subtraction must be an expression with only multiplications and divisions.
++ because of associativity, the right argument of multiplication or
+  division must be a variable ~x~;
++ because of precedence, the left argument of multiplication or
+  division must contain only multiplications and divisions;
++ because of associativity, the right argument of addition or
+  subtraction must be an expression with only multiplications and
+  divisions.
 
 These observations yields the following grammar.  I've tried to use
 suggestive names to indicate how the three points above manifest.
@@ -1351,13 +1359,13 @@ optional.  We may, for instance, want to write a language which has
 both if-then and if-then-else expressions.  Rather than using the BNF
 production rules
 
-#+begin_src rule
+#+begin_src bnf
   <if-expr> ::= if <expr> then <expr> | if <expr> then <expr> else <expr>
 #+end_src
 
 we can use the EBNF production rule
 
-#+begin_src rule
+#+begin_src bnf
   <if-expr> ::= if <expr> then <expr> [ else <expr> ]
 #+end_src
 
@@ -1368,7 +1376,7 @@ can be rewritten as a collection of BNF production rules./
 #+begin_quote
 *Exercise.* Rewrite the following EBNF production rule as a collection of BNF production rules.
 
-#+begin_src rule
+#+begin_src bnf
   <a> ::= a [ <b> ] [ a ]
 #+end_src
 #+end_quote
@@ -1411,7 +1419,7 @@ We use ~{ SENT-FORM }~ to notate a part of a production rule which can
 be repeated as many times as we want.  We can also combine this with
 the alternative notation to as
 
-#+begin_src sent
+#+begin_src bnf
   { SENT-FORM₁ | SENT-FORM₂ | ... | SENT-FORMₖ }
 #+end_src
 
