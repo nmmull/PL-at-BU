@@ -12,8 +12,8 @@ These notes are *incredibly incredibly rough*. They are likely rife
 with typos, misspellings and grammatical errors, poorly written
 sections, missing explanations, etc. To students: we appreciate your
 (assumed) patience. To everyone: any comments are welcome. If you spot
-a error, you are encouraged to post an issue to the associated GitHub
-repository.
+a error, you are encouraged to post an issue to the associated [[https://github.com/nmmull/PL-at-BU][GitHub
+repository]].
 
 * [[file:Intro/notes.org][The Interpretation Pipeline]]
 * [[file:Formal-Grammar/notes.org][Formal Grammar]]
