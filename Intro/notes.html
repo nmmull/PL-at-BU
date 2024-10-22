@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-10-13 Sun 12:48 -->
+<!-- 2024-10-22 Tue 08:43 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>The Interpretation Pipeline</title>
@@ -18,9 +18,9 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org7d7c42d">Interpretation vs. Compilation</a></li>
-<li><a href="#org77231a9">Pure Interpretation Pipeline</a></li>
-<li><a href="#orga272edc">What's Next</a></li>
+<li><a href="#orgb63ec93">Interpretation vs. Compilation</a></li>
+<li><a href="#org0e81be7">Pure Interpretation Pipeline</a></li>
+<li><a href="#orge920708">What's Next</a></li>
 </ul>
 </div>
 </div>
@@ -57,9 +57,9 @@ So, our basic question is: <i>How do we get from that stream of symbols
 to the <b>output</b> of our program?</i>
 </p>
 
-<div id="outline-container-org7d7c42d" class="outline-2">
-<h2 id="org7d7c42d">Interpretation vs. Compilation</h2>
-<div class="outline-text-2" id="text-org7d7c42d">
+<div id="outline-container-orgb63ec93" class="outline-2">
+<h2 id="orgb63ec93">Interpretation vs. Compilation</h2>
+<div class="outline-text-2" id="text-orgb63ec93">
 <p>
 We start by making a loose but ultimately important distinction, that
 of <b>interpretation</b> versus <b>compilation</b>.  At the risk of
@@ -68,7 +68,7 @@ between these two processes.
 </p>
 
 <ul class="org-ul">
-<li><b>Interpretation</b> is the process of of taking a source program and
+<li><b>Interpretation</b> is the process of taking a source program and
 its input, and then running it immediately to get its output.</li>
 <li><b>Compilation</b> is the process of taking a source program in a
 high-level language and then <i>translating it</i> into a program in a
@@ -116,9 +116,9 @@ primarily on interpretation.
 </div>
 </div>
 
-<div id="outline-container-org77231a9" class="outline-2">
-<h2 id="org77231a9">Pure Interpretation Pipeline</h2>
-<div class="outline-text-2" id="text-org77231a9">
+<div id="outline-container-org0e81be7" class="outline-2">
+<h2 id="org0e81be7">Pure Interpretation Pipeline</h2>
+<div class="outline-text-2" id="text-org0e81be7">
 <p>
 So, <i>what's happening inside an interpreter?</i> We start with a diagram.
 We can think of this image as providing a window into the
@@ -156,10 +156,10 @@ of what is to come:
 something that we can evaluate, i.e., that we can "run".  This part
 of interpretation is about the <i>form</i> (or <i>syntax</i>) of the program.
 We will use <b>formal grammars</b> to represent this form mathematically
-and we use <b>parser generators</b> to set up the code for these two
+and we will use <b>parser generators</b> to set up the code for these two
 boxes.  Just like natural language, programming languages are
-hierarchical, and making that heirarchical structure
-explicit will make it easier to evaluate.</li>
+hierarchical, and making that heirarchical structure explicit will
+make it easier to evaluate.</li>
 
 <li>The next box is where we do <b>type checking</b> and/or <b>type inference</b>.
 It's during this part of the pipeline that we verify if the
@@ -168,20 +168,20 @@ it does, then we can pass it onto the evaluator, perhaps in a
 simpler form called an <b>abstract syntax tree (AST)</b> or occassionally
 some other <b>intermediate reprentation (IR)</b>.</li>
 
-<li>The last box actually runs our program to get its output a.k.a. its
-<i>value</i>.  This part of intperetation is about the <i>meaning</i> (or
+<li>The last box actually runs our program to get its output, its
+<i>value</i>.  This part of interpetation is about the <i>meaning</i> (or
 <i>semantics</i>) of the program.  We use <b>formal semantics</b> to
 describe what it means to give a program this meaning.</li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orga272edc" class="outline-2">
-<h2 id="orga272edc">What's Next</h2>
-<div class="outline-text-2" id="text-orga272edc">
+<div id="outline-container-orge920708" class="outline-2">
+<h2 id="orge920708">What's Next</h2>
+<div class="outline-text-2" id="text-orge920708">
 <p>
-Programming languages form is one of these topics that has incredibly
-deep implication both in theory and in practice.  It will be important
+Programming languages is one of these topics that has incredibly
+deep implications both in theory and in practice.  It will be important
 to us not just to think about how to implement an interpreter, but
 also about the underlying logical frameworks we need for programming
 languages to make sense.

@@ -36,7 +36,7 @@ of *interpretation* versus *compilation*.  At the risk of
 oversimplifying, we will use the following definitions to distinguish
 between these two processes.
 
-+ *Interpretation* is the process of of taking a source program and
++ *Interpretation* is the process of taking a source program and
   its input, and then running it immediately to get its output.
 + *Compilation* is the process of taking a source program in a
   high-level language and then /translating it/ into a program in a
@@ -102,10 +102,10 @@ of what is to come:
   something that we can evaluate, i.e., that we can "run".  This part
   of interpretation is about the /form/ (or /syntax/) of the program.
   We will use *formal grammars* to represent this form mathematically
-  and we use *parser generators* to set up the code for these two
+  and we will use *parser generators* to set up the code for these two
   boxes.  Just like natural language, programming languages are
-  hierarchical, and making that heirarchical structure
-  explicit will make it easier to evaluate.
+  hierarchical, and making that heirarchical structure explicit will
+  make it easier to evaluate.
 
 + The next box is where we do *type checking* and/or *type inference*.
   It's during this part of the pipeline that we verify if the
@@ -114,15 +114,15 @@ of what is to come:
   simpler form called an *abstract syntax tree (AST)* or occassionally
   some other *intermediate reprentation (IR)*.
 
-+ The last box actually runs our program to get its output a.k.a. its
-  /value/.  This part of intperetation is about the /meaning/ (or
++ The last box actually runs our program to get its output, its
+  /value/.  This part of interpetation is about the /meaning/ (or
   /semantics/) of the program.  We use *formal semantics* to
   describe what it means to give a program this meaning.
 
 * What's Next
 
-Programming languages form is one of these topics that has incredibly
-deep implication both in theory and in practice.  It will be important
+Programming languages is one of these topics that has incredibly
+deep implications both in theory and in practice.  It will be important
 to us not just to think about how to implement an interpreter, but
 also about the underlying logical frameworks we need for programming
 languages to make sense.
