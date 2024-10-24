@@ -174,15 +174,14 @@ expressions with local variables.
 #+begin_quote
 The grammar:
 #+begin_src bnf
-  <prog>  ::= <expr> EOF
+  <prog>  ::= <expr>
 
   <expr>  ::= let <var> = <expr> in <expr>
 	    | <expr1>
 
-  <expr1> ::= <expr1> + <expr1>
-	    | <expr1> - <expr1>
-	    | <expr1> * <expr1>
-	    | <expr1> / <expr1>
+  <bop>   ::= + | - | * | /
+
+  <expr1> ::= <expr1> <bop> <expr1>
 	    | <num>
 	    | <var>
 	    | ( <expr> )
@@ -206,21 +205,19 @@ Operators in order of increasing precedence:
 Output type of parsing (the AST):
 
 #+begin_src ocaml
+  type bop = Add | Sub | Mul | Div
+
   type expr =
     | Var of string
     | Num of int
     | Let of string * expr * expr
-    | Add of expr * expr
-    | Sub of expr * expr
-    | Mul of expr * expr
-    | Div of expr * expr
+    | Bop of bop * expr * expr
+
+  type prog = expr
 #+end_src
 #+end_quote
 
 A couple notes on the everything above.
-+ We will almost always take a program to be an expression followed by
-  the [[https://en.wikipedia.org/wiki/End-of-file][end-of-file]] character.  As we will see, Menhir deals with this
-  in a particular way.
 + In the above grammar, we use dummy terminal symbols for variables
   and numbers because, again, these are handled by the /lexer/ not the
   parser.  We've also included the regular expressions used for ~NUM~
@@ -265,7 +262,10 @@ returns ~Some e~ where ~e~ is the expression
 #+end_src
 
 We will assume that you have a dune project set up (if not, you can
-run ~dune init project parser_example~ to create one).
+run ~dune init project parser_example~ to create one).  We will also
+assume (as we do in the projects) that you have access to a library
+called ~Utils~, which contains the AST for the language (among other
+things).
 
 ** Step 0: The Project File
 If we want to use Menhir, we have to tell dune that.  First, add the
@@ -278,13 +278,12 @@ stanza
 to the end of the file ~dune-project~.
 ** Step 1: Setting Up
 
-You need to create five files with the following file structure in the
+You need to create four files with the following file structure in the
 ~lib~ directory of your project.
 
 #+begin_src ascii
   lib
   └──parser
-     ├──ast.ml
      ├──dune
      ├──lex.mll
      ├──my_parser.ml
@@ -297,7 +296,7 @@ are fixed:
 
 ~dune~:
 #+begin_src dune
-  (library (name my_parser))
+  (library (name my_parser) (libraries utils))
   (menhir (modules par))
   (ocamllex lex)
 #+end_src
@@ -317,13 +316,8 @@ update the ~parse~ function to make use of the exceptions produced by
 ~Parser.prog~.
 #+end_quote
 
-The last three files are where the work happens.  We can start with
+The last two files are where the work happens.  We can start with
 the following dummy files.
-
-~ast.ml~:
-#+begin_src ocaml
-  type prog = unit
-#+end_src
 
 ~lex.mll~:
 #+begin_src mll
@@ -331,7 +325,7 @@ the following dummy files.
   open Par
   }
 
-  let whitespace = [' ' '\t' '\n' '\r']
+  let whitespace = [' ' '\t' '\n' '\r']+
 
   rule read =
     parse
@@ -342,54 +336,7 @@ the following dummy files.
 ~par.mly~
 #+begin_src mly
   %{
-  open Ast
-  %}
-
-  %token EOF
-
-  %start <Ast.prog> { prog }
-
-  %%
-
-  prog:
-    | EOF { () }
-#+end_src
-
-At this point, you should be able to ~dune build~ your project.
-
-** Step 2: AST
-The next thing we need to do is define the abstract representation we
-want to target. This means putting the ~expr~ type into our ~ast.ml~
-file.
-
-Update ~ast.ml~:
-#+begin_src ocaml
-  type prog = expr
-
-  type expr =
-  | Var of string
-  | Num of int
-  | Let of string * expr * expr
-  | Add of expr * expr
-  | Sub of expr * expr
-  | Mul of expr * expr
-  | Div of expr * expr
-#+end_src
-The type ~expr~ is something you are either given, or which you should
-have determined /before/ you started building a parser.[fn::It's generally
-not a good idea to try to build a parser before you know what abstract
-representation you're targeting.]
-
-If you try to ~dune build~ at this point, you should get an error.
-This is because we changed the definition of ~prog~, which means we're
-getting a type error in ~par.mly~.  More on this in a moment, but for
-now, we can give a dummy value to our parser.
-
-Updated ~par.mly~:
-
-#+begin_src mly
-  %{
-  open Ast
+  open Utils
   %}
 
   %token EOF
@@ -403,7 +350,19 @@ Updated ~par.mly~:
 #+end_src
 
 At this point, you should be able to ~dune build~ your project.
-** Step 3: Tokens
+
+#+begin_quote
+*Note.* We will presume that the abstract representation (in this
+case, ~prog~ as above) we want to target is in a file
+~lib/utils/utils.ml~.
+
+The type ~prog~ is something you are either given, or which you should
+have determined /before/ you started building a parser.[fn::It's generally
+not a good idea to try to build a parser before you know what abstract
+representation you're targeting.]
+#+end_quote
+
+** Step 2: Tokens
 
 Now we need to populate our parser with the tokens of our language.
 We also need to discuss the anatomy of the ~par.mly~ file.
@@ -477,14 +436,14 @@ about unused tokens.  This is because we haven't used any of the
 tokens in the rules of the grammar. We'll handle this in the
 next section.
 
-** Step 5: Rules
+** Step 3: Rules
 Onto the most important part, describing the *rules* of the grammar.
 Menhir is designed so that its rules looks /a whole lot/ like EBNF
 production rules.  Let's look at the first two rules.
 
 In EBNF:
 #+begin_src bnf
-  <prog> ::= <expr> EOF
+  <prog> ::= <expr>
 
   <expr> ::= let <var> = <expr> in <expr>
 	   | <expr1>
@@ -503,6 +462,9 @@ in Menhir syntax:
 If we squint, we can see the similarities.  The main differences in
 the Menhir syntax:
 
++ The starting symbol should be followed with the special ~EOF~
+  (end-of-file) token.  This ensures that Menhir knows that there is
+  nothing left to parse after parsing an expression.
 + symbols are separated by semicolons[fn::Actually this isn't
   necessary, but I'd recommend doing it for a while to get used to the
   syntax.]
@@ -565,11 +527,14 @@ Updated ~par.mly~:
     | LET; x = var; EQUALS; e1 = expr; IN; e2 = expr { Let(x, e1, e2) }
     | e = expr1 { e }
 
+  %inline bop:
+    | PLUS { Add }
+    | MINUS { Sub }
+    | TIMES { Mul }
+    | DIVIDE { Div }
+
   expr1:
-    | e1 = expr1; PLUS; e2 = expr2 { Add(e1, e2) }
-    | e1 = expr1; MINUS; e2 = expr2 { Sub(e1, e2) }
-    | e1 = expr1; TIMES; e2 = expr2 { Mul(e1, e2) }
-    | e1 = expr1; DIVIDE; e2 = expr2 { Div(e1, e2) }
+    | e1 = expr1; op = bop; e2 = expr2 { Bop(op, e1, e2) }
     | e = num { e }
     | e = var { e }
     | LPAREN; e = expr; RPAREN { e }
@@ -581,6 +546,28 @@ Updated ~par.mly~:
     | x = VAR { Var x }
 #+end_src
 
+#+begin_quote
+*Remark.* If we want to follow the grammar exactly, we have to use
+ what is called /inlining/ for the binary operators.  Menhir is not
+ smart enough to recognize that ~bop~ expands to operators with
+ declared precendence.  We use the keyword ~%inline~ to tell Menhir
+ essentially to immediately substitute ~bop~ in the grammar itself.
+
+ It's equivalent to having the rule:
+
+ #+begin_src lex
+  expr1:
+    | e1 = expr1; PLUS; e2 = expr2 { Bop(Add, e1, e2) }
+    | e1 = expr1; MINUS; e2 = expr2 { Bop(Sub, e1, e2) }
+    | e1 = expr1; TIMES; e2 = expr2 { Bop(Mul, e1, e2) }
+    | e1 = expr1; DIVIDE; e2 = expr2 { Bop(Div, e1, e2) }
+    | e = num { e }
+    | e = var { e }
+    | LPAREN; e = expr; RPAREN { e }
+ #+end_src
+
+ but with far less typing.
+#+end_quote
 At this point, you should be able to ~dune build~ your project.  That
 said, if you try to use it, it won't do anything because we haven't
 specified the lexer, we haven't said which strings correspond to which
@@ -607,7 +594,7 @@ stay fairly fixed for us in this course.
   grammar above:
 
   #+begin_src mll
-    let whitespace = [' ' '\t' '\n' '\r']
+    let whitespace = [' ' '\t' '\n' '\r']+
     let num = '-'? ['0'-'9']+
     let var = ['a'-'z' '_'] ['a'-'z' 'A'-'Z' '0'-'9' '_' '\'']*
   #+end_src

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-10-21 Mon 15:09 -->
+<!-- 2024-10-24 Thu 08:56 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Parser Generators</title>
@@ -50,19 +50,18 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org4938ee5">Lexing vs. Parsing</a></li>
-<li><a href="#orgcaf3b03">Using Menhir</a>
+<li><a href="#org473741e">Lexing vs. Parsing</a></li>
+<li><a href="#org7ee87ba">Using Menhir</a>
 <ul>
-<li><a href="#org44b22a6">Step 0: The Project File</a></li>
-<li><a href="#org059e78b">Step 1: Setting Up</a></li>
-<li><a href="#orgb4d97d4">Step 2: AST</a></li>
-<li><a href="#orgb9b7bde">Step 3: Tokens</a></li>
-<li><a href="#org76fdbbb">Step 5: Rules</a></li>
-<li><a href="#orga34781c">Step 4: Lexing</a></li>
-<li><a href="#org7afe57c">Step 5: Running</a></li>
+<li><a href="#orgf1105c9">Step 0: The Project File</a></li>
+<li><a href="#org2d0f714">Step 1: Setting Up</a></li>
+<li><a href="#orgeeceeed">Step 2: Tokens</a></li>
+<li><a href="#org7efeb2f">Step 3: Rules</a></li>
+<li><a href="#orge158e0c">Step 4: Lexing</a></li>
+<li><a href="#org014d6d5">Step 5: Running</a></li>
 </ul>
 </li>
-<li><a href="#org985174b">Closing Remarks</a></li>
+<li><a href="#org1a83edb">Closing Remarks</a></li>
 </ul>
 </div>
 </div>
@@ -137,9 +136,9 @@ inclinations as well as domain-specific considerations (also your
 gut).
 </p>
 </blockquote>
-<div id="outline-container-org4938ee5" class="outline-2">
-<h2 id="org4938ee5">Lexing vs. Parsing</h2>
-<div class="outline-text-2" id="text-org4938ee5">
+<div id="outline-container-org473741e" class="outline-2">
+<h2 id="org473741e">Lexing vs. Parsing</h2>
+<div class="outline-text-2" id="text-org473741e">
 <p>
 The last bit of preamble we need before we can start using Menhir: we
 need to distinguish between <b>lexing</b> and <b>parsing</b>.  Recall from the
@@ -305,9 +304,9 @@ variable names.  This is because these are not parsing issues.<sup><a id="fnr.5"
 </div>
 </div>
 
-<div id="outline-container-orgcaf3b03" class="outline-2">
-<h2 id="orgcaf3b03">Using Menhir</h2>
-<div class="outline-text-2" id="text-orgcaf3b03">
+<div id="outline-container-org7ee87ba" class="outline-2">
+<h2 id="org7ee87ba">Using Menhir</h2>
+<div class="outline-text-2" id="text-org7ee87ba">
 <p>
 With that business out of the way, we go to generating a parser for a
 simple expression language using Menhir.  We always start with a
@@ -325,15 +324,14 @@ expressions with local variables.
 The grammar:
 </p>
 <div class="org-src-container">
-<pre class="src src-bnf">&lt;<span style="color: #0000ff;">prog</span>&gt;  <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">expr</span>&gt; EOF
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">prog</span>&gt;  <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">expr</span>&gt;
 
 &lt;<span style="color: #0000ff;">expr</span>&gt;  <span style="color: #008b8b;">::=</span> let &lt;<span style="color: #483d8b;">var</span>&gt; = &lt;<span style="color: #483d8b;">expr</span>&gt; in &lt;<span style="color: #483d8b;">expr</span>&gt;
           <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">expr1</span>&gt;
 
-&lt;<span style="color: #0000ff;">expr1</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">expr1</span>&gt; + &lt;<span style="color: #483d8b;">expr1</span>&gt;
-          <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">expr1</span>&gt; - &lt;<span style="color: #483d8b;">expr1</span>&gt;
-          <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">expr1</span>&gt; * &lt;<span style="color: #483d8b;">expr1</span>&gt;
-          <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">expr1</span>&gt; / &lt;<span style="color: #483d8b;">expr1</span>&gt;
+&lt;<span style="color: #0000ff;">bop</span>&gt;   <span style="color: #008b8b;">::=</span> + <span style="color: #ff0000; font-weight: bold;">|</span> - <span style="color: #ff0000; font-weight: bold;">|</span> * <span style="color: #ff0000; font-weight: bold;">|</span> /
+
+&lt;<span style="color: #0000ff;">expr1</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">expr1</span>&gt; &lt;<span style="color: #483d8b;">bop</span>&gt; &lt;<span style="color: #483d8b;">expr1</span>&gt;
           <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">num</span>&gt;
           <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">var</span>&gt;
           <span style="color: #ff0000; font-weight: bold;">|</span> ( &lt;<span style="color: #483d8b;">expr</span>&gt; )
@@ -384,14 +382,15 @@ Output type of parsing (the AST):
 </p>
 
 <div class="org-src-container">
-<pre class="src src-ocaml"><span style="color: #000000; font-weight: bold;">type</span> <span style="color: #228b22;">expr</span> =
+<pre class="src src-ocaml"><span style="color: #000000; font-weight: bold;">type</span> <span style="color: #228b22;">bop</span> = <span style="color: #000000; background-color: #ffffff;">Add</span> | <span style="color: #000000; background-color: #ffffff;">Sub</span> | <span style="color: #000000; background-color: #ffffff;">Mul</span> | <span style="color: #000000; background-color: #ffffff;">Div</span>
+
+<span style="color: #000000; font-weight: bold;">type</span> <span style="color: #228b22;">expr</span> =
   | <span style="color: #000000; background-color: #ffffff;">Var</span> <span style="color: #a020f0;">of</span> string
   | <span style="color: #000000; background-color: #ffffff;">Num</span> <span style="color: #a020f0;">of</span> int
   | <span style="color: #000000; background-color: #ffffff;">Let</span> <span style="color: #a020f0;">of</span> string * expr * expr
-  | <span style="color: #000000; background-color: #ffffff;">Add</span> <span style="color: #a020f0;">of</span> expr * expr
-  | <span style="color: #000000; background-color: #ffffff;">Sub</span> <span style="color: #a020f0;">of</span> expr * expr
-  | <span style="color: #000000; background-color: #ffffff;">Mul</span> <span style="color: #a020f0;">of</span> expr * expr
-  | <span style="color: #000000; background-color: #ffffff;">Div</span> <span style="color: #a020f0;">of</span> expr * expr
+  | <span style="color: #000000; background-color: #ffffff;">Bop</span> <span style="color: #a020f0;">of</span> bop * expr * expr
+
+<span style="color: #000000; font-weight: bold;">type</span> <span style="color: #228b22;">prog</span> = expr
 </pre>
 </div>
 </blockquote>
@@ -400,9 +399,6 @@ Output type of parsing (the AST):
 A couple notes on the everything above.
 </p>
 <ul class="org-ul">
-<li>We will almost always take a program to be an expression followed by
-the <a href="https://en.wikipedia.org/wiki/End-of-file">end-of-file</a> character.  As we will see, Menhir deals with this
-in a particular way.</li>
 <li>In the above grammar, we use dummy terminal symbols for variables
 and numbers because, again, these are handled by the <i>lexer</i> not the
 parser.  We've also included the regular expressions used for <code>NUM</code>
@@ -455,13 +451,16 @@ returns <code>Some e</code> where <code>e</code> is the expression
 
 <p>
 We will assume that you have a dune project set up (if not, you can
-run <code>dune init project parser_example</code> to create one).
+run <code>dune init project parser_example</code> to create one).  We will also
+assume (as we do in the projects) that you have access to a library
+called <code>Utils</code>, which contains the AST for the language (among other
+things).
 </p>
 </div>
 
-<div id="outline-container-org44b22a6" class="outline-3">
-<h3 id="org44b22a6">Step 0: The Project File</h3>
-<div class="outline-text-3" id="text-org44b22a6">
+<div id="outline-container-orgf1105c9" class="outline-3">
+<h3 id="orgf1105c9">Step 0: The Project File</h3>
+<div class="outline-text-3" id="text-orgf1105c9">
 <p>
 If we want to use Menhir, we have to tell dune that.  First, add the
 stanza
@@ -477,18 +476,17 @@ to the end of the file <code>dune-project</code>.
 </p>
 </div>
 </div>
-<div id="outline-container-org059e78b" class="outline-3">
-<h3 id="org059e78b">Step 1: Setting Up</h3>
-<div class="outline-text-3" id="text-org059e78b">
+<div id="outline-container-org2d0f714" class="outline-3">
+<h3 id="org2d0f714">Step 1: Setting Up</h3>
+<div class="outline-text-3" id="text-org2d0f714">
 <p>
-You need to create five files with the following file structure in the
+You need to create four files with the following file structure in the
 <code>lib</code> directory of your project.
 </p>
 
 <div class="org-src-container">
 <pre class="src src-ascii">lib
 └──parser
-   ├──ast.ml
    ├──dune
    ├──lex.mll
    ├──my_parser.ml
@@ -506,7 +504,7 @@ are fixed:
 <code>dune</code>:
 </p>
 <div class="org-src-container">
-<pre class="src src-dune">(library (name my_parser))
+<pre class="src src-dune">(library (name my_parser) (libraries utils))
 (menhir (modules par))
 (ocamllex lex)
 </pre>
@@ -533,17 +531,9 @@ update the <code>parse</code> function to make use of the exceptions produced by
 </blockquote>
 
 <p>
-The last three files are where the work happens.  We can start with
+The last two files are where the work happens.  We can start with
 the following dummy files.
 </p>
-
-<p>
-<code>ast.ml</code>:
-</p>
-<div class="org-src-container">
-<pre class="src src-ocaml"><span style="color: #000000; font-weight: bold;">type</span> <span style="color: #228b22;">prog</span> = unit
-</pre>
-</div>
 
 <p>
 <code>lex.mll</code>:
@@ -553,7 +543,7 @@ the following dummy files.
 open Par
 }
 
-let whitespace = [' ' '\t' '\n' '\r']
+let whitespace = [' ' '\t' '\n' '\r']+
 
 rule read =
   parse
@@ -567,70 +557,7 @@ rule read =
 </p>
 <div class="org-src-container">
 <pre class="src src-mly">%{
-open Ast
-%}
-
-%token EOF
-
-%start &lt;Ast.prog&gt; { prog }
-
-%%
-
-prog:
-  | EOF { () }
-</pre>
-</div>
-
-<p>
-At this point, you should be able to <code>dune build</code> your project.
-</p>
-</div>
-</div>
-
-<div id="outline-container-orgb4d97d4" class="outline-3">
-<h3 id="orgb4d97d4">Step 2: AST</h3>
-<div class="outline-text-3" id="text-orgb4d97d4">
-<p>
-The next thing we need to do is define the abstract representation we
-want to target. This means putting the <code>expr</code> type into our <code>ast.ml</code>
-file.
-</p>
-
-<p>
-Update <code>ast.ml</code>:
-</p>
-<div class="org-src-container">
-<pre class="src src-ocaml"><span style="color: #000000; font-weight: bold;">type</span> <span style="color: #228b22;">prog</span> = expr
-
-<span style="color: #000000; font-weight: bold;">type</span> <span style="color: #228b22;">expr</span> =
-| <span style="color: #000000; background-color: #ffffff;">Var</span> <span style="color: #a020f0;">of</span> string
-| <span style="color: #000000; background-color: #ffffff;">Num</span> <span style="color: #a020f0;">of</span> int
-| <span style="color: #000000; background-color: #ffffff;">Let</span> <span style="color: #a020f0;">of</span> string * expr * expr
-| <span style="color: #000000; background-color: #ffffff;">Add</span> <span style="color: #a020f0;">of</span> expr * expr
-| <span style="color: #000000; background-color: #ffffff;">Sub</span> <span style="color: #a020f0;">of</span> expr * expr
-| <span style="color: #000000; background-color: #ffffff;">Mul</span> <span style="color: #a020f0;">of</span> expr * expr
-| <span style="color: #000000; background-color: #ffffff;">Div</span> <span style="color: #a020f0;">of</span> expr * expr
-</pre>
-</div>
-<p>
-The type <code>expr</code> is something you are either given, or which you should
-have determined <i>before</i> you started building a parser.<sup><a id="fnr.6" class="footref" href="#fn.6" role="doc-backlink">6</a></sup>
-</p>
-
-<p>
-If you try to <code>dune build</code> at this point, you should get an error.
-This is because we changed the definition of <code>prog</code>, which means we're
-getting a type error in <code>par.mly</code>.  More on this in a moment, but for
-now, we can give a dummy value to our parser.
-</p>
-
-<p>
-Updated <code>par.mly</code>:
-</p>
-
-<div class="org-src-container">
-<pre class="src src-mly">%{
-open Ast
+open Utils
 %}
 
 %token EOF
@@ -647,11 +574,25 @@ prog:
 <p>
 At this point, you should be able to <code>dune build</code> your project.
 </p>
+
+<blockquote>
+<p>
+<b>Note.</b> We will presume that the abstract representation (in this
+case, <code>prog</code> as above) we want to target is in a file
+<code>lib/utils/utils.ml</code>.
+</p>
+
+<p>
+The type <code>prog</code> is something you are either given, or which you should
+have determined <i>before</i> you started building a parser.<sup><a id="fnr.6" class="footref" href="#fn.6" role="doc-backlink">6</a></sup>
+</p>
+</blockquote>
 </div>
 </div>
-<div id="outline-container-orgb9b7bde" class="outline-3">
-<h3 id="orgb9b7bde">Step 3: Tokens</h3>
-<div class="outline-text-3" id="text-orgb9b7bde">
+
+<div id="outline-container-orgeeceeed" class="outline-3">
+<h3 id="orgeeceeed">Step 2: Tokens</h3>
+<div class="outline-text-3" id="text-orgeeceeed">
 <p>
 Now we need to populate our parser with the tokens of our language.
 We also need to discuss the anatomy of the <code>par.mly</code> file.
@@ -745,9 +686,9 @@ next section.
 </div>
 </div>
 
-<div id="outline-container-org76fdbbb" class="outline-3">
-<h3 id="org76fdbbb">Step 5: Rules</h3>
-<div class="outline-text-3" id="text-org76fdbbb">
+<div id="outline-container-org7efeb2f" class="outline-3">
+<h3 id="org7efeb2f">Step 3: Rules</h3>
+<div class="outline-text-3" id="text-org7efeb2f">
 <p>
 Onto the most important part, describing the <b>rules</b> of the grammar.
 Menhir is designed so that its rules looks <i>a whole lot</i> like EBNF
@@ -758,7 +699,7 @@ production rules.  Let's look at the first two rules.
 In EBNF:
 </p>
 <div class="org-src-container">
-<pre class="src src-bnf">&lt;<span style="color: #0000ff;">prog</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">expr</span>&gt; EOF
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">prog</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">expr</span>&gt;
 
 &lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> let &lt;<span style="color: #483d8b;">var</span>&gt; = &lt;<span style="color: #483d8b;">expr</span>&gt; in &lt;<span style="color: #483d8b;">expr</span>&gt;
          <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">expr1</span>&gt;
@@ -784,6 +725,9 @@ the Menhir syntax:
 </p>
 
 <ul class="org-ul">
+<li>The starting symbol should be followed with the special <code>EOF</code>
+(end-of-file) token.  This ensures that Menhir knows that there is
+nothing left to parse after parsing an expression.</li>
 <li>symbols are separated by semicolons<sup><a id="fnr.7" class="footref" href="#fn.7" role="doc-backlink">7</a></sup></li>
 <li>terminal symbols are replaced with their associated tokens</li>
 <li>alternatives are followed by the <i>values</i> which should be returned if
@@ -855,11 +799,14 @@ expr:
   | LET; x = var; EQUALS; e1 = expr; IN; e2 = expr { Let(x, e1, e2) }
   | e = expr1 { e }
 
+%inline bop:
+  | PLUS { Add }
+  | MINUS { Sub }
+  | TIMES { Mul }
+  | DIVIDE { Div }
+
 expr1:
-  | e1 = expr1; PLUS; e2 = expr2 { Add(e1, e2) }
-  | e1 = expr1; MINUS; e2 = expr2 { Sub(e1, e2) }
-  | e1 = expr1; TIMES; e2 = expr2 { Mul(e1, e2) }
-  | e1 = expr1; DIVIDE; e2 = expr2 { Div(e1, e2) }
+  | e1 = expr1; op = bop; e2 = expr2 { Bop(op, e1, e2) }
   | e = num { e }
   | e = var { e }
   | LPAREN; e = expr; RPAREN { e }
@@ -872,6 +819,35 @@ var:
 </pre>
 </div>
 
+<blockquote>
+<p>
+<b>Remark.</b> If we want to follow the grammar exactly, we have to use
+ what is called <i>inlining</i> for the binary operators.  Menhir is not
+ smart enough to recognize that <code>bop</code> expands to operators with
+ declared precendence.  We use the keyword <code>%inline</code> to tell Menhir
+ essentially to immediately substitute <code>bop</code> in the grammar itself.
+</p>
+
+<p>
+It's equivalent to having the rule:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-lex">expr1:
+  | e1 = expr1; PLUS; e2 = expr2 { Bop(Add, e1, e2) }
+  | e1 = expr1; MINUS; e2 = expr2 { Bop(Sub, e1, e2) }
+  | e1 = expr1; TIMES; e2 = expr2 { Bop(Mul, e1, e2) }
+  | e1 = expr1; DIVIDE; e2 = expr2 { Bop(Div, e1, e2) }
+  | e = num { e }
+  | e = var { e }
+  | LPAREN; e = expr; RPAREN { e }
+</pre>
+</div>
+
+<p>
+but with far less typing.
+</p>
+</blockquote>
 <p>
 At this point, you should be able to <code>dune build</code> your project.  That
 said, if you try to use it, it won't do anything because we haven't
@@ -881,9 +857,9 @@ tokens.  We will deal with this in the next section.
 </div>
 </div>
 
-<div id="outline-container-orga34781c" class="outline-3">
-<h3 id="orga34781c">Step 4: Lexing</h3>
-<div class="outline-text-3" id="text-orga34781c">
+<div id="outline-container-orge158e0c" class="outline-3">
+<h3 id="orge158e0c">Step 4: Lexing</h3>
+<div class="outline-text-3" id="text-orge158e0c">
 <p>
 The last thing we need to do: populate the lexer.  We won't discuss
 the anatomy of the <code>lex.mll</code> file in too much detail because it will
@@ -984,9 +960,9 @@ At this point, you should be able to <code>dune build</code> your project.
 </div>
 </div>
 
-<div id="outline-container-org7afe57c" class="outline-3">
-<h3 id="org7afe57c">Step 5: Running</h3>
-<div class="outline-text-3" id="text-org7afe57c">
+<div id="outline-container-org014d6d5" class="outline-3">
+<h3 id="org014d6d5">Step 5: Running</h3>
+<div class="outline-text-3" id="text-org014d6d5">
 <p>
 If all goes well you should be able to open <code>dune utop</code> and evaluate
 </p>
@@ -1020,9 +996,9 @@ You'll use <code>My_parser.parse</code> as your parser for the mini-projects.
 </div>
 </div>
 
-<div id="outline-container-org985174b" class="outline-2">
-<h2 id="org985174b">Closing Remarks</h2>
-<div class="outline-text-2" id="text-org985174b">
+<div id="outline-container-org1a83edb" class="outline-2">
+<h2 id="org1a83edb">Closing Remarks</h2>
+<div class="outline-text-2" id="text-org1a83edb">
 <ul class="org-ul">
 <li>Menhir is it's own beast, there's a lot we're not covering.  You may
 occassionally have to look at documentation to see how things work
