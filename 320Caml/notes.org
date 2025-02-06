@@ -784,9 +784,10 @@ the context $\Gamma$.
 ** Semantics
 
 \[
-\bininf
+\triinf
 {\evj{e_1}{v_1}}
-{\evj{\subst{v_1}{x}{e_2}}{v}}
+{\side{\subst{v_1}{x}{e_2} = e'}}
+{\evj{e'}{v}}
 {\evj{\let{x}{e_1}{e_2}}{v}}
 {letEval}
 \]

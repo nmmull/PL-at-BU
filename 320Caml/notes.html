@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2025-02-05 Wed 22:36 -->
+<!-- 2025-02-06 Thu 13:47 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>320Caml Specification</title>
@@ -106,18 +106,18 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org226c962">Literals</a></li>
-<li><a href="#orge4daedb">Variables</a></li>
-<li><a href="#org589397e">Operators</a></li>
-<li><a href="#orgfc350ea">If-Expressions</a></li>
-<li><a href="#org38e45fe">Let-Expressions</a></li>
-<li><a href="#orgf48f24f">Functions</a></li>
-<li><a href="#org8cd164a">Application</a></li>
-<li><a href="#org165a297">Tuples</a></li>
-<li><a href="#orgeee92a4">Lists</a></li>
-<li><a href="#org317cf32">Tuple Matches</a></li>
-<li><a href="#orgbdf95ea">List Matches</a></li>
-<li><a href="#org178ace4">Extra</a></li>
+<li><a href="#org9431f26">Literals</a></li>
+<li><a href="#org0d76c1d">Variables</a></li>
+<li><a href="#orgeb0a29b">Operators</a></li>
+<li><a href="#orgd46c795">If-Expressions</a></li>
+<li><a href="#orgaa8df14">Let-Expressions</a></li>
+<li><a href="#orgfad9e0f">Functions</a></li>
+<li><a href="#org63aa365">Application</a></li>
+<li><a href="#org8b3abcd">Tuples</a></li>
+<li><a href="#org06df889">Lists</a></li>
+<li><a href="#org407e605">Tuple Matches</a></li>
+<li><a href="#org1916bf9">List Matches</a></li>
+<li><a href="#org5b26831">Extra</a></li>
 </ul>
 </div>
 </div>
@@ -126,13 +126,13 @@ The following is a specification of a subset of OCaml used throughout
 the course <i>CAS CS 320: Principles of Programming Languages</i> during
 the spring 2025 semester.
 </p>
-<div id="outline-container-org226c962" class="outline-2">
-<h2 id="org226c962">Literals</h2>
-<div class="outline-text-2" id="text-org226c962">
+<div id="outline-container-org9431f26" class="outline-2">
+<h2 id="org9431f26">Literals</h2>
+<div class="outline-text-2" id="text-org9431f26">
 </div>
-<div id="outline-container-org39e9b5c" class="outline-3">
-<h3 id="org39e9b5c">Syntax</h3>
-<div class="outline-text-3" id="text-org39e9b5c">
+<div id="outline-container-orga4cde2c" class="outline-3">
+<h3 id="orga4cde2c">Syntax</h3>
+<div class="outline-text-3" id="text-orga4cde2c">
 <div class="org-src-container">
 <pre class="src src-bnf">&lt;<span style="color: #0000ff;">int</span>&gt;    <span style="color: #008b8b;">::=</span> <span style="color: #b22222;">; see OCaml docs ;</span>
 &lt;<span style="color: #0000ff;">float</span>&gt;  <span style="color: #008b8b;">::=</span> <span style="color: #b22222;">; see OCaml docs ;</span>
@@ -166,9 +166,9 @@ expression.
 </div>
 </div>
 
-<div id="outline-container-org8920b8a" class="outline-3">
-<h3 id="org8920b8a">Typing</h3>
-<div class="outline-text-3" id="text-org8920b8a">
+<div id="outline-container-orgd254aa9" class="outline-3">
+<h3 id="orgd254aa9">Typing</h3>
+<div class="outline-text-3" id="text-orgd254aa9">
 <p>
 <b>Note:</b> The rules for literals (and variables) are <i>axioms</i>, i.e.,
 they have no premises.  When building a derivation you will always
@@ -250,9 +250,9 @@ following is a valid derivation.
 </div>
 </div>
 
-<div id="outline-container-orge0f8616" class="outline-3">
-<h3 id="orge0f8616">Semantics</h3>
-<div class="outline-text-3" id="text-orge0f8616">
+<div id="outline-container-org36d8c53" class="outline-3">
+<h3 id="org36d8c53">Semantics</h3>
+<div class="outline-text-3" id="text-org36d8c53">
 <p>
 \[
 \uniinf
@@ -319,13 +319,13 @@ following is a valid derivation.
 </div>
 </div>
 </div>
-<div id="outline-container-orge4daedb" class="outline-2">
-<h2 id="orge4daedb">Variables</h2>
-<div class="outline-text-2" id="text-orge4daedb">
+<div id="outline-container-org0d76c1d" class="outline-2">
+<h2 id="org0d76c1d">Variables</h2>
+<div class="outline-text-2" id="text-org0d76c1d">
 </div>
-<div id="outline-container-orgc3b69c1" class="outline-3">
-<h3 id="orgc3b69c1">Syntax</h3>
-<div class="outline-text-3" id="text-orgc3b69c1">
+<div id="outline-container-org2dde56a" class="outline-3">
+<h3 id="org2dde56a">Syntax</h3>
+<div class="outline-text-3" id="text-org2dde56a">
 <div class="org-src-container">
 <pre class="src src-bnf">&lt;<span style="color: #0000ff;">var</span>&gt;  <span style="color: #008b8b;">::=</span> <span style="color: #b22222;">; see OCaml docs ;</span>
 &lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">var</span>&gt;
@@ -340,9 +340,9 @@ starting with a capital letter (as in OCaml).
 </p>
 </div>
 </div>
-<div id="outline-container-orgb8e85c2" class="outline-3">
-<h3 id="orgb8e85c2">Typing</h3>
-<div class="outline-text-3" id="text-orgb8e85c2">
+<div id="outline-container-org67ed555" class="outline-3">
+<h3 id="org67ed555">Typing</h3>
+<div class="outline-text-3" id="text-org67ed555">
 <p>
 \[
 \uniinf
@@ -377,9 +377,9 @@ then \(x\) is of type \(\tau\) in the context \(\Gamma\).
 </div>
 </div>
 
-<div id="outline-container-orgba2885f" class="outline-3">
-<h3 id="orgba2885f">Semantics</h3>
-<div class="outline-text-3" id="text-orgba2885f">
+<div id="outline-container-orgae0c9a6" class="outline-3">
+<h3 id="orgae0c9a6">Semantics</h3>
+<div class="outline-text-3" id="text-orgae0c9a6">
 <p>
 There are no semantic rules for variables.  If at any point you need
 to evaluate a variable, it's because the original expression was not
@@ -389,13 +389,13 @@ well-scoped.
 </div>
 </div>
 
-<div id="outline-container-org589397e" class="outline-2">
-<h2 id="org589397e">Operators</h2>
-<div class="outline-text-2" id="text-org589397e">
+<div id="outline-container-orgeb0a29b" class="outline-2">
+<h2 id="orgeb0a29b">Operators</h2>
+<div class="outline-text-2" id="text-orgeb0a29b">
 </div>
-<div id="outline-container-orgf612745" class="outline-3">
-<h3 id="orgf612745">Syntax</h3>
-<div class="outline-text-3" id="text-orgf612745">
+<div id="outline-container-org289dda7" class="outline-3">
+<h3 id="org289dda7">Syntax</h3>
+<div class="outline-text-3" id="text-org289dda7">
 <div class="org-src-container">
 <pre class="src src-bnf">&lt;<span style="color: #0000ff;">op</span>&gt;   <span style="color: #008b8b;">::=</span> + <span style="color: #ff0000; font-weight: bold;">|</span> - <span style="color: #ff0000; font-weight: bold;">|</span> * <span style="color: #ff0000; font-weight: bold;">|</span> / <span style="color: #ff0000; font-weight: bold;">|</span> mod
          <span style="color: #ff0000; font-weight: bold;">|</span> +. <span style="color: #ff0000; font-weight: bold;">|</span> -. <span style="color: #ff0000; font-weight: bold;">|</span> *. <span style="color: #ff0000; font-weight: bold;">|</span> /.
@@ -416,9 +416,9 @@ expression.
 </p>
 </div>
 </div>
-<div id="outline-container-org93f8bd4" class="outline-3">
-<h3 id="org93f8bd4">Typing</h3>
-<div class="outline-text-3" id="text-org93f8bd4">
+<div id="outline-container-org6664901" class="outline-3">
+<h3 id="org6664901">Typing</h3>
+<div class="outline-text-3" id="text-org6664901">
 <p>
 \[
 \bininf
@@ -571,9 +571,9 @@ is a valid derivation.
 </div>
 </div>
 
-<div id="outline-container-org1594a0e" class="outline-3">
-<h3 id="org1594a0e">Semantics</h3>
-<div class="outline-text-3" id="text-org1594a0e">
+<div id="outline-container-org14c1a14" class="outline-3">
+<h3 id="org14c1a14">Semantics</h3>
+<div class="outline-text-3" id="text-org14c1a14">
 <p>
 \[
 \triinf
@@ -808,13 +808,13 @@ following is a valid derivation.
 </div>
 </div>
 
-<div id="outline-container-orgfc350ea" class="outline-2">
-<h2 id="orgfc350ea">If-Expressions</h2>
-<div class="outline-text-2" id="text-orgfc350ea">
+<div id="outline-container-orgd46c795" class="outline-2">
+<h2 id="orgd46c795">If-Expressions</h2>
+<div class="outline-text-2" id="text-orgd46c795">
 </div>
-<div id="outline-container-org9fe66d2" class="outline-3">
-<h3 id="org9fe66d2">Syntax</h3>
-<div class="outline-text-3" id="text-org9fe66d2">
+<div id="outline-container-org4b18986" class="outline-3">
+<h3 id="org4b18986">Syntax</h3>
+<div class="outline-text-3" id="text-org4b18986">
 <div class="org-src-container">
 <pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> if &lt;<span style="color: #483d8b;">expr</span>&gt; then &lt;<span style="color: #483d8b;">expr</span>&gt; else &lt;<span style="color: #483d8b;">expr</span>&gt;
 </pre>
@@ -847,9 +847,9 @@ if 2      then 2      else 2
 </div>
 </div>
 
-<div id="outline-container-org47f2158" class="outline-3">
-<h3 id="org47f2158">Typing</h3>
-<div class="outline-text-3" id="text-org47f2158">
+<div id="outline-container-orgddfabb1" class="outline-3">
+<h3 id="orgddfabb1">Typing</h3>
+<div class="outline-text-3" id="text-orgddfabb1">
 <p>
 \[
 \triinf
@@ -896,9 +896,9 @@ empty context by the \(\mathsf{intLit}\) rule, it follows by the
 </div>
 </div>
 
-<div id="outline-container-orge5dfd8d" class="outline-3">
-<h3 id="orge5dfd8d">Semantics</h3>
-<div class="outline-text-3" id="text-orge5dfd8d">
+<div id="outline-container-org80f34da" class="outline-3">
+<h3 id="org80f34da">Semantics</h3>
+<div class="outline-text-3" id="text-org80f34da">
 <p>
 \[
 \bininf
@@ -943,13 +943,13 @@ If \(e_1\) evaluates to \(\true\) and \(e_2\) evaluates to \(v_2\), then
 </div>
 </div>
 
-<div id="outline-container-org38e45fe" class="outline-2">
-<h2 id="org38e45fe">Let-Expressions</h2>
-<div class="outline-text-2" id="text-org38e45fe">
+<div id="outline-container-orgaa8df14" class="outline-2">
+<h2 id="orgaa8df14">Let-Expressions</h2>
+<div class="outline-text-2" id="text-orgaa8df14">
 </div>
-<div id="outline-container-org617d0d0" class="outline-3">
-<h3 id="org617d0d0">Syntax</h3>
-<div class="outline-text-3" id="text-org617d0d0">
+<div id="outline-container-orga9ee5ca" class="outline-3">
+<h3 id="orga9ee5ca">Syntax</h3>
+<div class="outline-text-3" id="text-orga9ee5ca">
 <div class="org-src-container">
 <pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> let &lt;<span style="color: #483d8b;">var</span>&gt; = &lt;<span style="color: #483d8b;">expr</span>&gt; in &lt;<span style="color: #483d8b;">expr</span>&gt;
 </pre>
@@ -982,9 +982,9 @@ let var_name = 2      in var_name
 </blockquote>
 </div>
 </div>
-<div id="outline-container-org1d1c61c" class="outline-3">
-<h3 id="org1d1c61c">Typing</h3>
-<div class="outline-text-3" id="text-org1d1c61c">
+<div id="outline-container-org9cd50b9" class="outline-3">
+<h3 id="org9cd50b9">Typing</h3>
+<div class="outline-text-3" id="text-org9cd50b9">
 <p>
 \[
 \bininf
@@ -1026,14 +1026,15 @@ the context \(\Gamma\).
 </div>
 </div>
 
-<div id="outline-container-orge47473f" class="outline-3">
-<h3 id="orge47473f">Semantics</h3>
-<div class="outline-text-3" id="text-orge47473f">
+<div id="outline-container-org114938d" class="outline-3">
+<h3 id="org114938d">Semantics</h3>
+<div class="outline-text-3" id="text-org114938d">
 <p>
 \[
-\bininf
+\triinf
 {\evj{e_1}{v_1}}
-{\evj{\subst{v_1}{x}{e_2}}{v}}
+{\side{\subst{v_1}{x}{e_2} = e'}}
+{\evj{e'}{v}}
 {\evj{\let{x}{e_1}{e_2}}{v}}
 {letEval}
 \]
@@ -1074,13 +1075,13 @@ i.e. the following is a valid derivation.
 </div>
 </div>
 
-<div id="outline-container-orgf48f24f" class="outline-2">
-<h2 id="orgf48f24f">Functions</h2>
-<div class="outline-text-2" id="text-orgf48f24f">
+<div id="outline-container-orgfad9e0f" class="outline-2">
+<h2 id="orgfad9e0f">Functions</h2>
+<div class="outline-text-2" id="text-orgfad9e0f">
 </div>
-<div id="outline-container-orgabc69bc" class="outline-3">
-<h3 id="orgabc69bc">Syntax</h3>
-<div class="outline-text-3" id="text-orgabc69bc">
+<div id="outline-container-orgbb4e713" class="outline-3">
+<h3 id="orgbb4e713">Syntax</h3>
+<div class="outline-text-3" id="text-orgbb4e713">
 <div class="org-src-container">
 <pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> fun &lt;<span style="color: #483d8b;">var</span>&gt; -&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
 </pre>
@@ -1115,9 +1116,9 @@ fun name  -&gt;  name   + 3
 </div>
 </div>
 
-<div id="outline-container-org6b760da" class="outline-3">
-<h3 id="org6b760da">Typing</h3>
-<div class="outline-text-3" id="text-org6b760da">
+<div id="outline-container-org33cd389" class="outline-3">
+<h3 id="org33cd389">Typing</h3>
+<div class="outline-text-3" id="text-org33cd389">
 <p>
 \[
 \uniinf
@@ -1149,9 +1150,9 @@ of type \(\funty{\tau_1}{\tau_2}\).
 </div>
 </div>
 
-<div id="outline-container-orgf1f457f" class="outline-3">
-<h3 id="orgf1f457f">Semantics</h3>
-<div class="outline-text-3" id="text-orgf1f457f">
+<div id="outline-container-org9dc31cc" class="outline-3">
+<h3 id="org9dc31cc">Semantics</h3>
+<div class="outline-text-3" id="text-org9dc31cc">
 <p>
 \[
 \uniinf
@@ -1181,13 +1182,13 @@ A function evaluates to a function value.
 </div>
 </div>
 
-<div id="outline-container-org8cd164a" class="outline-2">
-<h2 id="org8cd164a">Application</h2>
-<div class="outline-text-2" id="text-org8cd164a">
+<div id="outline-container-org63aa365" class="outline-2">
+<h2 id="org63aa365">Application</h2>
+<div class="outline-text-2" id="text-org63aa365">
 </div>
-<div id="outline-container-org6be2e60" class="outline-3">
-<h3 id="org6be2e60">Syntax</h3>
-<div class="outline-text-3" id="text-org6be2e60">
+<div id="outline-container-org76b1396" class="outline-3">
+<h3 id="org76b1396">Syntax</h3>
+<div class="outline-text-3" id="text-org76b1396">
 <div class="org-src-container">
 <pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">expr</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
 </pre>
@@ -1200,9 +1201,9 @@ expression, then \(e_1 \ e_2\) is a well-formed expression.
 </div>
 </div>
 
-<div id="outline-container-org85b1f9e" class="outline-3">
-<h3 id="org85b1f9e">Typing</h3>
-<div class="outline-text-3" id="text-org85b1f9e">
+<div id="outline-container-orgbea7dab" class="outline-3">
+<h3 id="orgbea7dab">Typing</h3>
+<div class="outline-text-3" id="text-orgbea7dab">
 <p>
 \[
 \bininf
@@ -1239,9 +1240,9 @@ then \(e_1 \ e_2\) is of type \(\tau\).
 </div>
 </div>
 
-<div id="outline-container-org9ad8949" class="outline-3">
-<h3 id="org9ad8949">Semantics</h3>
-<div class="outline-text-3" id="text-org9ad8949">
+<div id="outline-container-org32d1f6f" class="outline-3">
+<h3 id="org32d1f6f">Semantics</h3>
+<div class="outline-text-3" id="text-org32d1f6f">
 <p>
 \[
 \quainf
@@ -1295,13 +1296,13 @@ expression
 </div>
 </div>
 
-<div id="outline-container-org165a297" class="outline-2">
-<h2 id="org165a297">Tuples</h2>
-<div class="outline-text-2" id="text-org165a297">
+<div id="outline-container-org8b3abcd" class="outline-2">
+<h2 id="org8b3abcd">Tuples</h2>
+<div class="outline-text-2" id="text-org8b3abcd">
 </div>
-<div id="outline-container-org15b4233" class="outline-3">
-<h3 id="org15b4233">Syntax</h3>
-<div class="outline-text-3" id="text-org15b4233">
+<div id="outline-container-orga15656a" class="outline-3">
+<h3 id="orga15656a">Syntax</h3>
+<div class="outline-text-3" id="text-orga15656a">
 <div class="org-src-container">
 <pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">expr</span>&gt; , &lt;<span style="color: #483d8b;">expr</span>&gt;
 &lt;<span style="color: #0000ff;">ty</span>&gt;   <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">ty</span>&gt; * &lt;<span style="color: #483d8b;">ty</span>&gt;
@@ -1314,9 +1315,9 @@ expression, then \(e_1 \ \codel, \ e_2\) is a well-formed expression.
 </p>
 </div>
 </div>
-<div id="outline-container-orgde93565" class="outline-3">
-<h3 id="orgde93565">Typing</h3>
-<div class="outline-text-3" id="text-orgde93565">
+<div id="outline-container-org5f1ec47" class="outline-3">
+<h3 id="org5f1ec47">Typing</h3>
+<div class="outline-text-3" id="text-org5f1ec47">
 <p>
 \[
 \bininf
@@ -1335,9 +1336,9 @@ type \(\tau_1 \times \tau_2\) in the context \(\Gamma\).
 </div>
 </div>
 
-<div id="outline-container-org6f733c5" class="outline-3">
-<h3 id="org6f733c5">Semantics</h3>
-<div class="outline-text-3" id="text-org6f733c5">
+<div id="outline-container-org1666318" class="outline-3">
+<h3 id="org1666318">Semantics</h3>
+<div class="outline-text-3" id="text-org1666318">
 <p>
 \[
 \bininf
@@ -1357,13 +1358,13 @@ the distinction between tuple expressions and tuple values).
 </div>
 </div>
 
-<div id="outline-container-orgeee92a4" class="outline-2">
-<h2 id="orgeee92a4">Lists</h2>
-<div class="outline-text-2" id="text-orgeee92a4">
+<div id="outline-container-org06df889" class="outline-2">
+<h2 id="org06df889">Lists</h2>
+<div class="outline-text-2" id="text-org06df889">
 </div>
-<div id="outline-container-org02faafc" class="outline-3">
-<h3 id="org02faafc">Syntax</h3>
-<div class="outline-text-3" id="text-org02faafc">
+<div id="outline-container-org729346a" class="outline-3">
+<h3 id="org729346a">Syntax</h3>
+<div class="outline-text-3" id="text-org729346a">
 <div class="org-src-container">
 <pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> []
          <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">expr</span>&gt; :: &lt;<span style="color: #483d8b;">expr</span>&gt;
@@ -1405,9 +1406,9 @@ following is a valid parse tree
 </div>
 </div>
 
-<div id="outline-container-org588458a" class="outline-3">
-<h3 id="org588458a">Typing</h3>
-<div class="outline-text-3" id="text-org588458a">
+<div id="outline-container-org848cfd4" class="outline-3">
+<h3 id="org848cfd4">Typing</h3>
+<div class="outline-text-3" id="text-org848cfd4">
 <p>
 \[
 \uniinf
@@ -1458,9 +1459,9 @@ of type \(\listty \tau\) in the context \(\Gamma\).
 </div>
 </div>
 
-<div id="outline-container-org2891a57" class="outline-3">
-<h3 id="org2891a57">Semantics</h3>
-<div class="outline-text-3" id="text-org2891a57">
+<div id="outline-container-orgadb86a8" class="outline-3">
+<h3 id="orgadb86a8">Semantics</h3>
+<div class="outline-text-3" id="text-orgadb86a8">
 <p>
 \[
 \uniinf
@@ -1489,13 +1490,13 @@ list value \([v_1, v_2, \dots, v_k]\)
 </div>
 </div>
 
-<div id="outline-container-org317cf32" class="outline-2">
-<h2 id="org317cf32">Tuple Matches</h2>
-<div class="outline-text-2" id="text-org317cf32">
+<div id="outline-container-org407e605" class="outline-2">
+<h2 id="org407e605">Tuple Matches</h2>
+<div class="outline-text-2" id="text-org407e605">
 </div>
-<div id="outline-container-org9b647d0" class="outline-3">
-<h3 id="org9b647d0">Syntax</h3>
-<div class="outline-text-3" id="text-org9b647d0">
+<div id="outline-container-orga3a8738" class="outline-3">
+<h3 id="orga3a8738">Syntax</h3>
+<div class="outline-text-3" id="text-orga3a8738">
 <div class="org-src-container">
 <pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> match &lt;<span style="color: #483d8b;">expr</span>&gt; with &#8739; &lt;<span style="color: #483d8b;">var</span>&gt; , &lt;<span style="color: #483d8b;">var</span>&gt; -&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
 </pre>
@@ -1509,9 +1510,9 @@ well-formed expression.
 </div>
 </div>
 
-<div id="outline-container-orgfcdb9b8" class="outline-3">
-<h3 id="orgfcdb9b8">Typing</h3>
-<div class="outline-text-3" id="text-orgfcdb9b8">
+<div id="outline-container-org2537c67" class="outline-3">
+<h3 id="org2537c67">Typing</h3>
+<div class="outline-text-3" id="text-org2537c67">
 <p>
 \[
 \bininf
@@ -1530,9 +1531,9 @@ declarations \((x : \tau_1)\) and \((y : \tau_2)\)</i>, then \(\match e \with
 </p>
 </div>
 </div>
-<div id="outline-container-orgfcca55d" class="outline-3">
-<h3 id="orgfcca55d">Semantics</h3>
-<div class="outline-text-3" id="text-orgfcca55d">
+<div id="outline-container-orgbbdd5ad" class="outline-3">
+<h3 id="orgbbdd5ad">Semantics</h3>
+<div class="outline-text-3" id="text-orgbbdd5ad">
 <p>
 \[
 \triinf
@@ -1552,13 +1553,13 @@ substituted in for \(x\) and \(v_2\) substituted in for \(y\)</i> evaluates to
 </div>
 </div>
 </div>
-<div id="outline-container-orgbdf95ea" class="outline-2">
-<h2 id="orgbdf95ea">List Matches</h2>
-<div class="outline-text-2" id="text-orgbdf95ea">
+<div id="outline-container-org1916bf9" class="outline-2">
+<h2 id="org1916bf9">List Matches</h2>
+<div class="outline-text-2" id="text-org1916bf9">
 </div>
-<div id="outline-container-org70def07" class="outline-3">
-<h3 id="org70def07">Syntax</h3>
-<div class="outline-text-3" id="text-org70def07">
+<div id="outline-container-org77ef5a5" class="outline-3">
+<h3 id="org77ef5a5">Syntax</h3>
+<div class="outline-text-3" id="text-org77ef5a5">
 <div class="org-src-container">
 <pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> match &lt;<span style="color: #483d8b;">expr</span>&gt; with
            &#8739; [] -&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
@@ -1574,9 +1575,9 @@ are valid variable names then \(\match e \with \case{\nil}{e_1} \case{x
 </div>
 </div>
 
-<div id="outline-container-org326186a" class="outline-3">
-<h3 id="org326186a">Typing</h3>
-<div class="outline-text-3" id="text-org326186a">
+<div id="outline-container-org96c4e5c" class="outline-3">
+<h3 id="org96c4e5c">Typing</h3>
+<div class="outline-text-3" id="text-org96c4e5c">
 <p>
 \[
 \triinf
@@ -1604,9 +1605,9 @@ type \(\tau\).
 </div>
 </div>
 
-<div id="outline-container-orgd029050" class="outline-3">
-<h3 id="orgd029050">Semantics</h3>
-<div class="outline-text-3" id="text-orgd029050">
+<div id="outline-container-org5e64779" class="outline-3">
+<h3 id="org5e64779">Semantics</h3>
+<div class="outline-text-3" id="text-org5e64779">
 <p>
 \[
 \bininf
@@ -1644,13 +1645,13 @@ substituted for \(x\) and \(t\) substituted for \(y\)</i> evaluates to \(v\), th
 </div>
 </div>
 
-<div id="outline-container-org178ace4" class="outline-2">
-<h2 id="org178ace4">Extra</h2>
-<div class="outline-text-2" id="text-org178ace4">
+<div id="outline-container-org5b26831" class="outline-2">
+<h2 id="org5b26831">Extra</h2>
+<div class="outline-text-2" id="text-org5b26831">
 </div>
-<div id="outline-container-org325312e" class="outline-3">
-<h3 id="org325312e">Syntax</h3>
-<div class="outline-text-3" id="text-org325312e">
+<div id="outline-container-org9d6dc95" class="outline-3">
+<h3 id="org9d6dc95">Syntax</h3>
+<div class="outline-text-3" id="text-org9d6dc95">
 <div class="org-src-container">
 <pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> ( &lt;<span style="color: #483d8b;">expr</span>&gt; )
 </pre>
@@ -1660,9 +1661,9 @@ Expressions may be surrounded in parentheses.
 </p>
 </div>
 </div>
-<div id="outline-container-org206c90e" class="outline-3">
-<h3 id="org206c90e">Examples</h3>
-<div class="outline-text-3" id="text-org206c90e">
+<div id="outline-container-orgd679756" class="outline-3">
+<h3 id="orgd679756">Examples</h3>
+<div class="outline-text-3" id="text-orgd679756">
 <p>
 More to come&#x2026;
 </p>
