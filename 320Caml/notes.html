@@ -1,0 +1,1685 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2025-02-05 Wed 22:36 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>320Caml Specification</title>
+<meta name="author" content="Nathan  Mull" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="../myStyle.css" />
+<div style="display: none"> \(
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\codel}[1]{{\color{purple}{\texttt{#1}}}}
+\newcommand{\side}[1]{{\color{green}{#1}}}
+\newcommand{\ite}[3]{\codel{if} \ \ #1 \ \ \codel{then} \ \ #2 \ \ \codel{else} \ \ {#3}}
+\newcommand{\let}[3]{\codel{let} \ \ #1 \ \ \codel{=} \ \ #2 \ \ \codel{in} \ \ #3}
+\newcommand{\fun}[2]{\codel{fun} \ \ #1 \ \ \codel{->} \ \ #2}
+\newcommand{\triple}[3]{\codel{(} \ #1 \ \codel{,} \ #2 \ \codel{,} \ #3 \ \codel{)}}
+\newcommand{\funty}[2]{#1 \ \codel{->} \ #2}
+\newcommand{\listty}[1]{#1 \ \codel{list}}
+\newcommand{\funval}[2]{\lambda \ #1 \ . \ #2}
+\newcommand{\int}{\codel{int}}
+\newcommand{\float}{\codel{float}}
+\newcommand{\string}{\codel{string}}
+\newcommand{\char}{\codel{char}}
+\newcommand{\bool}{\codel{bool}}
+\newcommand{\unit}{\codel{unit}}
+\newcommand{\true}{\codel{true}}
+\newcommand{\false}{\codel{false}}
+\newcommand{\plus}{\ \codel{+} \ }
+\newcommand{\plusd}{\ \codel{+.} \ }
+\newcommand{\minus}{\ \codel{-} \ }
+\newcommand{\minusd}{\ \codel{-.} \ }
+\newcommand{\times}{\ \codel{*} \ }
+\newcommand{\timesd}{\ \codel{*.} \ }
+\newcommand{\divby}{\ \codel{/} \ }
+\newcommand{\divbyd}{\ \codel{/.} \ }
+\newcommand{\modby}{\ \codel{mod} \ }
+\newcommand{\andb}{\ \codel{&&} \ }
+\newcommand{\orb}{\ \codel{||} \ }
+\newcommand{\sconcat}{\ \codel{^} \ }
+\newcommand{\lconcat}{\ \codel{@} \ }
+\newcommand{\eqc}{\ \codel{=} \ }
+\newcommand{\neqc}{\ \codel{<>} \ }
+\newcommand{\ltc}{\ \codel{<} \ }
+\newcommand{\ltec}{\ \codel{<=} \ }
+\newcommand{\gtc}{\ \codel{>} \ }
+\newcommand{\gtec}{\ \codel{>=} \ }
+\newcommand{\pairc}{\ \codel{,} \ }
+\newcommand{\nil}{\codel{[]}}
+\newcommand{\nilv}{\varnothing}
+\newcommand{\consv}{\ :: \ }
+\newcommand{\cons}{\ \codel{::} \ }
+\newcommand{\tyj}[3]{#1 \vdash #2 : #3}
+\newcommand{\evj}[2]{#1 \Downarrow #2}
+\newcommand{\uniinf}[3]{\frac{#1}{#2} \ (\mathsf{#3})}
+\newcommand{\bininf}[4]{\frac{#1 \qquad #2}{#3} \ (\mathsf{#4})}
+\newcommand{\triinf}[5]{\frac{#1 \qquad #2 \qquad #3}{#4} (\mathsf{#5})}
+\newcommand{\quainf}[6]{\frac{#1 \qquad #2 \qquad #3 \qquad #4}{#5} (\mathsf{#6})}
+\newcommand{\inflab}[1]{\ (\mathsf{#1})}
+\newcommand{\emptyCtxt}{\{\}}
+\newcommand{\subst}[3]{[#1 / #2]#3}
+\newcommand{\match}{\codel{match} \ }
+\newcommand{\with}{\ \codel{with}}
+\newcommand{\case}[2]{\ \codel| \ #1 \ \codel{->} \ #2}
+\)</div>
+<script>
+  window.MathJax = {
+    tex: {
+      ams: {
+        multlineWidth: '85%'
+      },
+      tags: 'ams',
+      tagSide: 'right',
+      tagIndent: '.8em'
+    },
+    chtml: {
+      scale: 1.0,
+      displayAlign: 'center',
+      displayIndent: '0em'
+    },
+    svg: {
+      scale: 1.0,
+      displayAlign: 'center',
+      displayIndent: '0em'
+    },
+    output: {
+      font: 'mathjax-modern',
+      displayOverflow: 'overflow'
+    }
+  };
+</script>
+
+<script
+  id="MathJax-script"
+  async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+</head>
+<body>
+<div id="org-div-home-and-up"><a href="../toc.html">↩</a></div><div id="content" class="content">
+<h1 class="title">320Caml Specification</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org226c962">Literals</a></li>
+<li><a href="#orge4daedb">Variables</a></li>
+<li><a href="#org589397e">Operators</a></li>
+<li><a href="#orgfc350ea">If-Expressions</a></li>
+<li><a href="#org38e45fe">Let-Expressions</a></li>
+<li><a href="#orgf48f24f">Functions</a></li>
+<li><a href="#org8cd164a">Application</a></li>
+<li><a href="#org165a297">Tuples</a></li>
+<li><a href="#orgeee92a4">Lists</a></li>
+<li><a href="#org317cf32">Tuple Matches</a></li>
+<li><a href="#orgbdf95ea">List Matches</a></li>
+<li><a href="#org178ace4">Extra</a></li>
+</ul>
+</div>
+</div>
+<p>
+The following is a specification of a subset of OCaml used throughout
+the course <i>CAS CS 320: Principles of Programming Languages</i> during
+the spring 2025 semester.
+</p>
+<div id="outline-container-org226c962" class="outline-2">
+<h2 id="org226c962">Literals</h2>
+<div class="outline-text-2" id="text-org226c962">
+</div>
+<div id="outline-container-org39e9b5c" class="outline-3">
+<h3 id="org39e9b5c">Syntax</h3>
+<div class="outline-text-3" id="text-org39e9b5c">
+<div class="org-src-container">
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">int</span>&gt;    <span style="color: #008b8b;">::=</span> <span style="color: #b22222;">; see OCaml docs ;</span>
+&lt;<span style="color: #0000ff;">float</span>&gt;  <span style="color: #008b8b;">::=</span> <span style="color: #b22222;">; see OCaml docs ;</span>
+&lt;<span style="color: #0000ff;">bool</span>&gt;   <span style="color: #008b8b;">::=</span> true <span style="color: #ff0000; font-weight: bold;">|</span> false
+
+&lt;<span style="color: #0000ff;">expr</span>&gt;   <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">int</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">float</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">bool</span>&gt;
+&lt;<span style="color: #0000ff;">ty</span>&gt;     <span style="color: #008b8b;">::=</span> int <span style="color: #ff0000; font-weight: bold;">|</span> float <span style="color: #ff0000; font-weight: bold;">|</span> bool
+</pre>
+</div>
+<p>
+Every literal is a well-formed expression <i>by fiat</i>.
+</p>
+
+<p>
+In the case of Boolean values, we can make the syntax explicit: there are
+two literals, \(\codel{true}\) and \(\codel{false}\).  For the other
+literals, we're going to have to use our intuition for now; we know
+what integer literals look like.<sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup>
+</p>
+
+<p>
+We additionally state that \(\codel{int}\), \(\codel{float}\), and
+\(\codel{bool}\) are well-formed types.
+</p>
+
+<p>
+<b>Example:</b> Since \(\codel{2}\) an integer number literal, it is a
+well-formed expression. The literal \(\codel{true}\) is a well-formed
+expression.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org8920b8a" class="outline-3">
+<h3 id="org8920b8a">Typing</h3>
+<div class="outline-text-3" id="text-org8920b8a">
+<p>
+<b>Note:</b> The rules for literals (and variables) are <i>axioms</i>, i.e.,
+they have no premises.  When building a derivation you will always
+have these rules at the leaves of the derivation tree.
+</p>
+
+<p>
+<b>Note:</b> Several of the rules below have <i>side conditions</i> as premises.
+These are conditions which are <i>not</i> typing judgments, but are
+required in order to apply the rule.  Side conditions do <b>not</b> appear
+in derivations (see the examples below).  We are careful to write all
+side conditions in \(\side{\text{green}}\).
+</p>
+
+<p>
+\[
+\uniinf
+{\side{\texttt{n} \text{ is an integer literal}}}
+{\tyj{\Gamma}{\texttt{n}}{\int}}
+{intLit}
+\]
+</p>
+
+<p>
+Every integer number literal is of type \(\codel{int}\) in any context.
+</p>
+
+<p>
+\[
+\uniinf
+{\side{\texttt{n} \text{ is an float literal}}}
+{\tyj{\Gamma}{\texttt{n}}{\float}}
+{floatLit}
+\]
+</p>
+
+<p>
+Every floating-point number literal is of type \(\codel{float}\) in any
+context.
+</p>
+
+<p>
+\[
+\uniinf
+{}
+{\tyj{\Gamma}{\true}{\bool}}
+{trueLit}
+\qquad
+\uniinf
+{}
+{\tyj{\Gamma}{\false}{\bool}}
+{falseLit}
+\]
+</p>
+
+<p>
+The literals \(\codel{true}\) and \(\codel{false}\) are of type
+\(\codel{bool}\) in any context.
+</p>
+
+<blockquote>
+<p>
+<b>Example:</b> Since \(\codel{35}\) is a integer literal, the literal
+\(\codel{35}\) is of type \(\int\) in the empty context, i.e., the
+following is a valid derivation.
+</p>
+
+<p>
+\[
+\uniinf
+{}
+{
+\tyj \emptyCtxt {\codel{35}} \int
+}
+{stringLit}
+\]
+</p>
+</blockquote>
+</div>
+</div>
+
+<div id="outline-container-orge0f8616" class="outline-3">
+<h3 id="orge0f8616">Semantics</h3>
+<div class="outline-text-3" id="text-orge0f8616">
+<p>
+\[
+\uniinf
+{\side{\texttt{n} \text{ is an integer literal}}}
+{\evj{\texttt{n}}{n}}
+{intLitEval}
+\]
+</p>
+
+<p>
+The integer number literal \(\texttt{n}\) evaluates to the number \(n\)
+that it denotes.
+</p>
+
+<p>
+\[
+\uniinf
+{\side{\texttt{n} \text{ is an float literal}}}
+{\evj{\texttt{n}}{n}}
+{floatLitEval}
+\]
+</p>
+
+<p>
+The floating-point number literal \(\texttt{n}\) evaluates to the number
+\(n\) that it denotes.
+</p>
+
+<p>
+\[
+\uniinf
+{}
+{\evj{\true}{\top}}
+{trueLitEval}
+\qquad
+\uniinf
+{}
+{\evj{\false}{\bot}}
+{falseLitEval}
+\]
+</p>
+
+<p>
+The literal \(\true\) evaluates to the Boolean value \(\top\).  The
+literal \(\false\) evaluates to the Boolean value \(\bot\).
+</p>
+
+<blockquote>
+<p>
+<b>Example:</b> Since \(\codel{3.14}\) is floating-point number literal, the
+literal \(\codel{3.14}\) evaluates to the number \(3.14\), i.e., the
+following is a valid derivation.
+</p>
+
+<p>
+\[
+\uniinf
+{}
+{\evj{\codel{3.14}}{3.14}}
+{evalLitEval}
+\]
+</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div id="outline-container-orge4daedb" class="outline-2">
+<h2 id="orge4daedb">Variables</h2>
+<div class="outline-text-2" id="text-orge4daedb">
+</div>
+<div id="outline-container-orgc3b69c1" class="outline-3">
+<h3 id="orgc3b69c1">Syntax</h3>
+<div class="outline-text-3" id="text-orgc3b69c1">
+<div class="org-src-container">
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">var</span>&gt;  <span style="color: #008b8b;">::=</span> <span style="color: #b22222;">; see OCaml docs ;</span>
+&lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">var</span>&gt;
+</pre>
+</div>
+
+<p>
+Every variable is a well-formed expression.  As with number literals,
+we will not make the syntax of a variable explicit, but will take a
+variable to be alphanumeric with underscores and single-quotes, not
+starting with a capital letter (as in OCaml).
+</p>
+</div>
+</div>
+<div id="outline-container-orgb8e85c2" class="outline-3">
+<h3 id="orgb8e85c2">Typing</h3>
+<div class="outline-text-3" id="text-orgb8e85c2">
+<p>
+\[
+\uniinf
+{\side{(x : \tau) \in \Gamma}}
+{\tyj{\Gamma}{x}{\tau}}
+{var}
+\]
+</p>
+
+<p>
+If the variable \(x\) is declared to be of type \(\tau\) in
+\(\Gamma\) (i.e., the declaration \((x : \tau)\) appears in \(\Gamma\)),
+then \(x\) is of type \(\tau\) in the context \(\Gamma\).
+</p>
+
+<blockquote>
+<p>
+<b>Example:</b> Since \((\codel{x} : \codel{int})\) appears in the context
+\(\{\codel{x} : \int, \codel{y} : \bool\}\), we have that \(x\) is of type
+\(\int\) in this context, i.e. the following is a valid derivation.
+</p>
+
+<p>
+\[
+\uniinf
+{}
+{\tyj{\{ \codel{x} : \int, \codel{y} : \int \}}{\codel x}{\int}}
+{var}
+\]
+</p>
+</blockquote>
+</div>
+</div>
+
+<div id="outline-container-orgba2885f" class="outline-3">
+<h3 id="orgba2885f">Semantics</h3>
+<div class="outline-text-3" id="text-orgba2885f">
+<p>
+There are no semantic rules for variables.  If at any point you need
+to evaluate a variable, it's because the original expression was not
+well-scoped.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org589397e" class="outline-2">
+<h2 id="org589397e">Operators</h2>
+<div class="outline-text-2" id="text-org589397e">
+</div>
+<div id="outline-container-orgf612745" class="outline-3">
+<h3 id="orgf612745">Syntax</h3>
+<div class="outline-text-3" id="text-orgf612745">
+<div class="org-src-container">
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">op</span>&gt;   <span style="color: #008b8b;">::=</span> + <span style="color: #ff0000; font-weight: bold;">|</span> - <span style="color: #ff0000; font-weight: bold;">|</span> * <span style="color: #ff0000; font-weight: bold;">|</span> / <span style="color: #ff0000; font-weight: bold;">|</span> mod
+         <span style="color: #ff0000; font-weight: bold;">|</span> +. <span style="color: #ff0000; font-weight: bold;">|</span> -. <span style="color: #ff0000; font-weight: bold;">|</span> *. <span style="color: #ff0000; font-weight: bold;">|</span> /.
+         <span style="color: #ff0000; font-weight: bold;">|</span> &amp;&amp; <span style="color: #ff0000; font-weight: bold;">|</span> &#8739;&#8739;
+         <span style="color: #ff0000; font-weight: bold;">|</span> = <span style="color: #ff0000; font-weight: bold;">|</span> &lt;&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;= <span style="color: #ff0000; font-weight: bold;">|</span> &gt; <span style="color: #ff0000; font-weight: bold;">|</span> &gt;=
+&lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">expr</span>&gt; &lt;<span style="color: #483d8b;">op</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
+</pre>
+</div>
+<p>
+The symbol \(\codel{+}\), \(\codel-\), \(\codel *\), \(\codel/\),
+\(\codel{mod}\), etc. are well-formed operators.
+</p>
+
+<p>
+If \(\square\) is a well-formed operator and \(e_1\) and \(e_2\) are
+well-formed expressions, then \(e_1 \ \square \ e_2\) is a well-formed
+expression.
+</p>
+</div>
+</div>
+<div id="outline-container-org93f8bd4" class="outline-3">
+<h3 id="org93f8bd4">Typing</h3>
+<div class="outline-text-3" id="text-org93f8bd4">
+<p>
+\[
+\bininf
+{\tyj \Gamma {e_1} {\int}}
+{\tyj \Gamma {e_2} {\int}}
+{\tyj \Gamma {e_1 \plus e_2}{\int}}
+{addInt}
+\qquad
+\bininf
+{\tyj \Gamma {e_1} {\int}}
+{\tyj \Gamma {e_2} {\int}}
+{\tyj \Gamma {e_1 \times e_2}{\int}}
+{mulInt}
+\]
+\[
+\bininf
+{\tyj \Gamma {e_1} {\int}}
+{\tyj \Gamma {e_2} {\int}}
+{\tyj \Gamma {e_1 \minus e_2}{\int}}
+{subInt}
+\qquad
+\bininf
+{\tyj \Gamma {e_1} {\int}}
+{\tyj \Gamma {e_2} {\int}}
+{\tyj \Gamma {e_1 \divby e_2}{\int}}
+{divInt}
+\]
+\[
+\bininf
+{\tyj \Gamma {e_1} {\int}}
+{\tyj \Gamma {e_2} {\int}}
+{\tyj \Gamma {e_1 \modby e_2}{\int}}
+{modInt}
+\]
+</p>
+
+<p>
+\[
+\bininf
+{\tyj \Gamma {e_1} {\float}}
+{\tyj \Gamma {e_2} {\float}}
+{\tyj \Gamma {e_1 \plusd e_2}{\float}}
+{addFloat}
+\qquad
+\bininf
+{\tyj \Gamma {e_1} {\float}}
+{\tyj \Gamma {e_2} {\float}}
+{\tyj \Gamma {e_1 \timesd e_2}{\float}}
+{mulFloat}
+\]
+\[
+\bininf
+{\tyj \Gamma {e_1} {\float}}
+{\tyj \Gamma {e_2} {\float}}
+{\tyj \Gamma {e_1 \minusd e_2}{\float}}
+{subFloat}
+\qquad
+\bininf
+{\tyj \Gamma {e_1} {\float}}
+{\tyj \Gamma {e_2} {\float}}
+{\tyj \Gamma {e_1 \divbyd e_2}{\float}}
+{divFloat}
+\]
+\[
+\bininf
+{\tyj \Gamma {e_1} {\bool}}
+{\tyj \Gamma {e_2} {\bool}}
+{\tyj \Gamma {e_1 \andb e_2} {\bool}}
+{and}
+\qquad
+\bininf
+{\tyj \Gamma {e_1} {\bool}}
+{\tyj \Gamma {e_2} {\bool}}
+{\tyj \Gamma {e_1 \orb e_2} {\bool}}
+{or}
+\]
+\[
+\bininf
+{\tyj{\Gamma}{e_1}{\tau}}
+{\tyj{\Gamma}{e_2}{\tau}}
+{\tyj{\Gamma}{e_1 \eqc e_2}{\bool}}
+{eq}
+\qquad
+\bininf
+{\tyj{\Gamma}{e_1}{\tau}}
+{\tyj{\Gamma}{e_2}{\tau}}
+{\tyj{\Gamma}{e_1 \neqc e_2}{\bool}}
+{neq}
+\]
+\[
+\bininf
+{\tyj{\Gamma}{e_1}{\tau}}
+{\tyj{\Gamma}{e_2}{\tau}}
+{\tyj{\Gamma}{e_1 \ltc e_2}{\bool}}
+{lt}
+\qquad
+\bininf
+{\tyj{\Gamma}{e_1}{\tau}}
+{\tyj{\Gamma}{e_2}{\tau}}
+{\tyj{\Gamma}{e_1 \ltec e_2}{\bool}}
+{lte}
+\]
+\[
+\bininf
+{\tyj{\Gamma}{e_1}{\tau}}
+{\tyj{\Gamma}{e_2}{\tau}}
+{\tyj{\Gamma}{e_1 \gtc e_2}{\bool}}
+{gt}
+\qquad
+\bininf
+{\tyj{\Gamma}{e_1}{\tau}}
+{\tyj{\Gamma}{e_2}{\tau}}
+{\tyj{\Gamma}{e_1 \gtec e_2}{\bool}}
+{gte}
+\]
+</p>
+
+<p>
+There are quite a few rules here, but in essence, they all say: if
+\(e_1\) and \(e_2\) are some type in a given context then \(e_1 \ \square \
+e_2\) is some type in the same context.
+</p>
+
+<blockquote>
+<p>
+<b>Example:</b> \(\codel 2 \plus \codel 3\) is an \(\int\) in the empty context
+since \(\codel 2\) is an \(\int\) in the empty context and \(\codel 3\) is
+an \(\int\) in the empty context. Since \(\codel 4\) is an \(\int\) in the
+empty context, we also have that \(\codel 2 \plus \codel 3 \neqc \codel
+4\) is a \(\bool\) in the empty context.  In other words, the following
+is a valid derivation.
+</p>
+
+\begin{prooftree}
+\AxiomC{}
+\RightLabel{$\inflab{intLit}$}
+\UnaryInfC{$\tyj{\emptyCtxt}{\codel 2}{\int}$}
+\AxiomC{}
+\RightLabel{$\inflab{intLit}$}
+\UnaryInfC{$\tyj{\emptyCtxt}{\codel 3}{\int}$}
+\RightLabel{$\inflab{addInt}$}
+\BinaryInfC{$\tyj{\emptyCtxt}{\codel 2 \plus \codel 3}{\int}$}
+\AxiomC{}
+\RightLabel{$\inflab{intLit}$}
+\UnaryInfC{$\tyj{\emptyCtxt}{\codel 4}{\int}$}
+\RightLabel{$\inflab{neq}$}
+\BinaryInfC{$\tyj{\emptyCtxt}{\codel 2 \plus \codel 3 \neqc \codel 4}{\bool}$}
+\end{prooftree}
+</blockquote>
+</div>
+</div>
+
+<div id="outline-container-org1594a0e" class="outline-3">
+<h3 id="org1594a0e">Semantics</h3>
+<div class="outline-text-3" id="text-org1594a0e">
+<p>
+\[
+\triinf
+{\evj{e_1}{v_1}}
+{\evj{e_2}{v_2}}
+{\side{v_1 + v_2 = v}}
+{\evj{e_1 \plus e_2}{v}}
+{addIntEval}
+\]
+\[
+\triinf
+{\evj{e_1}{v_1}}
+{\evj{e_2}{v_2}}
+{\side{v_1 v_2 = v}}
+{\evj{e_1 \times e_2}{v}}
+{mulIntEval}
+\]
+\[
+\triinf
+{\evj{e_1}{v_1}}
+{\evj{e_2}{v_2}}
+{\side{v_1 - v_2 = v}}
+{\evj{e_1 \minus e_2}{v}}
+{subIntEval}
+\]
+\[
+\quainf
+{\evj{e_1}{v_1}}
+{\evj{e_2}{v_2}}
+{\side{v_2 \neq 0}}
+{\side{v_1 / v_2 = v}}
+{\evj{e_1 \divby e_2}{v}}
+{divIntEval}
+\]
+\[
+\quainf
+{\evj{e_1}{v_1}}
+{\evj{e_2}{v_2}}
+{\side{v_2 \neq 0}}
+{\side{v_1 \pmod {v_2} = v}}
+{\evj{e_1 \modby e_2}{v}}
+{modIntEval}
+\]
+</p>
+
+<p>
+\[
+\triinf
+{\evj{e_1}{v_1}}
+{\evj{e_2}{v_2}}
+{\side{v_1 + v_2 = v}}
+{\evj{e_1 \plusd e_2}{v}}
+{addFloatEval}
+\]
+\[
+\triinf
+{\evj{e_1}{v_1}}
+{\evj{e_2}{v_2}}
+{\side{v_1 v_2 = v}}
+{\evj{e_1 \timesd e_2}{v}}
+{mulFloatEval}
+\]
+\[
+\triinf
+{\evj{e_1}{v_1}}
+{\evj{e_2}{v_2}}
+{\side{v_1 - v_2 = v}}
+{\evj{e_1 \minusd e_2}{v}}
+{subFloatEval}
+\]
+\[
+\quainf
+{\evj{e_1}{v_1}}
+{\evj{e_2}{v_2}}
+{\side{v_2 \neq 0}}
+{\side{v_1 / v_2 = v}}
+{\evj{e_1 \divbyd e_2}{v}}
+{divIntEval}
+\]
+\[
+\uniinf
+{\evj{e_1}{\top}}
+{\evj{e_1 \orb e_2}{\top}}
+{orEvalTrue}
+\qquad
+\bininf
+{\evj{e_1}{\bot}}
+{\evj{e_2}{v}}
+{\evj{e_1 \orb e_2}{v}}
+{orEvalFalse}
+\]
+\[
+\uniinf
+{\evj{e_1}{\bot}}
+{\evj{e_1 \andb e_2}{\bot}}
+{andEvalFalse}
+\qquad
+\bininf
+{\evj{e_1}{\top}}
+{\evj{e_2}{v}}
+{\evj{e_1 \andb e_2}{v}}
+{andEvalTrue}
+\]
+\[
+\triinf
+{\evj{e_1}{v_1}}
+{\evj{e_2}{v_2}}
+{\side{v_1 = v_2}}
+{\evj{e_1 \eqc e_2}{\top}}
+{eqEvalTrue}
+\quad
+\triinf
+{\evj{e_1}{v_1}}
+{\evj{e_2}{v_2}}
+{\side{v_1 \neq v_2}}
+{\evj{e_1 \eqc e_2}{\bot}}
+{eqEvalFalse}
+\]
+\[
+\triinf
+{\evj{e_1}{v_1}}
+{\evj{e_2}{v_2}}
+{\side{v_1 \neq v_2}}
+{\evj{e_1 \neqc e_2}{\top}}
+{neqEvalTrue}
+\quad
+\triinf
+{\evj{e_1}{v_1}}
+{\evj{e_2}{v_2}}
+{\side{v_1 = v_2}}
+{\evj{e_1 \neqc e_2}{\bot}}
+{neqEvalFalse}
+\]
+\[
+\triinf
+{\evj{e_1}{v_1}}
+{\evj{e_2}{v_2}}
+{\side{v_1 < v_2}}
+{\evj{e_1 \ltc e_2}{\top}}
+{ltEvalTrue}
+\quad
+\triinf
+{\evj{e_1}{v_1}}
+{\evj{e_2}{v_2}}
+{\side{v_1 \geq v_2}}
+{\evj{e_1 \eqc e_2}{\bot}}
+{ltEvalFalse}
+\]
+\[
+\triinf
+{\evj{e_1}{v_1}}
+{\evj{e_2}{v_2}}
+{\side{v_1 \leq v_2}}
+{\evj{e_1 \ltec e_2}{\top}}
+{lteEvalTrue}
+\quad
+\triinf
+{\evj{e_1}{v_1}}
+{\evj{e_2}{v_2}}
+{\side{v_1 \gt v_2}}
+{\evj{e_1 \ltec e_2}{\bot}}
+{lteEvalFalse}
+\]
+\[
+\triinf
+{\evj{e_1}{v_1}}
+{\evj{e_2}{v_2}}
+{\side{v_1 > v_2}}
+{\evj{e_1 \gtc e_2}{\top}}
+{gtEvalTrue}
+\quad
+\triinf
+{\evj{e_1}{v_1}}
+{\evj{e_2}{v_2}}
+{\side{v_1 \leq v_2}}
+{\evj{e_1 \gtc e_2}{\bot}}
+{gtEvalFalse}
+\]
+\[
+\triinf
+{\evj{e_1}{v_1}}
+{\evj{e_2}{v_2}}
+{\side{v_1 \geq v_2}}
+{\evj{e_1 \gtec e_2}{\top}}
+{gteEvalTrue}
+\quad
+\triinf
+{\evj{e_1}{v_1}}
+{\evj{e_2}{v_2}}
+{\side{v_1 < v_2}}
+{\evj{e_1 \gtec e_2}{\bot}}
+{gteEvalFalse}
+\]
+</p>
+
+<p>
+Again, there are a lot of rules here, but they all in essence say that
+if \(e_1\) and \(e_2\) evaluate to particular values, then \(e_1 \ \square
+\ e_2\) evaluates to the expected value.
+</p>
+
+<p>
+One case of note is Boolean operators. Note how the rules enforce
+<i>short-circuiting</i>.
+</p>
+
+<blockquote>
+<p>
+<b>Example:</b> \(\codel 2 \plus \codel 3\) evaluates to \(5\) and \(\codel 4\)
+evaluates to \(4\). So, since \(5 \neq 4\), we have that \(\codel 2 \plus
+\codel 3 \neqc \codel 4\) evaluates to \(\top\).  In other words, the
+following is a valid derivation.
+</p>
+
+\begin{prooftree}
+\AxiomC{}
+\RightLabel{$\inflab{intLitEval}$}
+\UnaryInfC{$\evj{\codel 2}{2}$}
+\AxiomC{}
+\RightLabel{$\inflab{intLitEval}$}
+\UnaryInfC{$\evj{\codel 3}{3}$}
+\RightLabel{$\inflab{intAddEval}$}
+\BinaryInfC{$\evj{\codel 2 \plus \codel 3}{5}$}
+\AxiomC{}
+\RightLabel{$\inflab{intLitEval}$}
+\UnaryInfC{$\evj{\codel 4}{4}$}
+\RightLabel{$\inflab{intAddEval}$}
+\BinaryInfC{$\evj{\codel 2 \plus \codel 3 \neqc \codel 4}{\top}$}
+\end{prooftree}
+</blockquote>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgfc350ea" class="outline-2">
+<h2 id="orgfc350ea">If-Expressions</h2>
+<div class="outline-text-2" id="text-orgfc350ea">
+</div>
+<div id="outline-container-org9fe66d2" class="outline-3">
+<h3 id="org9fe66d2">Syntax</h3>
+<div class="outline-text-3" id="text-org9fe66d2">
+<div class="org-src-container">
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> if &lt;<span style="color: #483d8b;">expr</span>&gt; then &lt;<span style="color: #483d8b;">expr</span>&gt; else &lt;<span style="color: #483d8b;">expr</span>&gt;
+</pre>
+</div>
+
+<p>
+If \(e_1\) is a well-formed expression and \(e_2\) is a well-formed
+expression and \(e_3\) is a well-formed expression, then
+\(\ite{e_1}{e_2}{e_3}\) is a well-formed expression.
+</p>
+
+<blockquote>
+<p>
+<b>Example:</b> Since \(\codel{2}\) is a well-formed expression, then
+\(\ite{\codel 2}{\codel 2}{\codel 2}\) is a well-formed expression,
+i.e., the following is a valid parse tree.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-parse-tree">&lt;expr&gt;
+├──┬──────┬────┬──────┬────┐
+│  &lt;expr&gt; │    &lt;expr&gt; │    &lt;expr&gt;
+│  │      │    │      │    │
+│  &lt;int&gt;  │    &lt;int&gt;  │    &lt;int&gt;
+│  │      │    │      │    │
+if 2      then 2      else 2
+</pre>
+</div>
+</blockquote>
+</div>
+</div>
+
+<div id="outline-container-org47f2158" class="outline-3">
+<h3 id="org47f2158">Typing</h3>
+<div class="outline-text-3" id="text-org47f2158">
+<p>
+\[
+\triinf
+{\tyj{\Gamma}{e_1}{\bool}}
+{\tyj{\Gamma}{e_2}{\tau}}
+{\tyj{\Gamma}{e_3}{\tau}}
+{\tyj{\Gamma}{\ite{e_1}{e_2}{e_3}}{\tau}}
+{if}
+\]
+</p>
+
+<p>
+If \(e_1\) is of type \(\bool\) in the context \(\Gamma\) and \(e_2\) is of
+type \(\tau\) in the context \(\Gamma\) and \(e_3\) is <i>also</i> of type \(\tau\)
+in the context \(\Gamma\), then \(\ite{e_1}{e_2}{e_3}\) is of type \(\tau\)
+in the context \(\Gamma\).
+</p>
+
+<p>
+<b>Note:</b> The type of the then-case must be the <i>same</i> as the type of the
+else-case, and the entire if-expression is of this type.
+</p>
+
+<blockquote>
+<p>
+<b>Example:</b> Since \(\true\) is of type \(\bool\) in the empty context by
+the \(\mathsf{trueLit}\) rule, and \(\codel 2\) is of type \(\int\) in the
+empty context by the \(\mathsf{intLit}\) rule, it follows by the
+\(\mathsf{if}\) rule that \(\ite{\true}{\codel 2}{\codel 2}\) is of type
+\(\int\) in the empty context, i.e. the following is a valid derivation.
+</p>
+
+\begin{prooftree}
+\AxiomC{}
+\RightLabel{$\ (\mathsf{trueLit})$}
+\UnaryInfC{$\tyj{\emptyCtxt}{\true}{\bool}$}
+\AxiomC{}
+\RightLabel{$\ (\mathsf{intLit})$}
+\UnaryInfC{$\tyj{\emptyCtxt}{\codel 2}{\int}$}
+\RightLabel{$\ (\mathsf{if})$}
+\BinaryInfC{$\tyj{\emptyCtxt}{\ite{\true}{\codel 2}{\codel 2}}{\int}$}
+\end{prooftree}
+</blockquote>
+</div>
+</div>
+
+<div id="outline-container-orge5dfd8d" class="outline-3">
+<h3 id="orge5dfd8d">Semantics</h3>
+<div class="outline-text-3" id="text-orge5dfd8d">
+<p>
+\[
+\bininf
+{\evj{e_1}{\top}}
+{\evj{e_2}{v_2}}
+{\evj{\ite{e_1}{e_2}{e_3}}{v_2}}
+{ifEvalTrue}
+\qquad
+\bininf
+{\evj{e_1}{\bot}}
+{\evj{e_2}{v_2}}
+{\evj{\ite{e_1}{e_2}{e_3}}{v_2}}
+{ifEvalFalse}
+\]
+</p>
+
+<p>
+If \(e_1\) evaluates to \(\true\) and \(e_2\) evaluates to \(v_2\), then
+\(\ite{e_1}{e_2}{e_3}\) evaluates to \(v_2\).
+</p>
+
+<blockquote>
+<p>
+<b>Example:</b> Since \(\evj \true \top\) by the \(\mathsf{trueEval}\) rule and
+\(\evj{\codel 2}{2}\) by the \(\mathsf{intLitEval}\) rule then
+\(\evj{\ite{\true}{\codel 2}{\codel 3}}{2}\) by the
+\(\mathsf{ifEvalTrue}\) rule, i.e. the following is a valid derivation.
+</p>
+
+\begin{prooftree}
+\AxiomC{}
+\RightLabel{$\inflab{trueEval}$}
+\UnaryInfC{$\evj{\true}{\top}$}
+\AxiomC{}
+\RightLabel{$\inflab{intEval}$}
+\UnaryInfC{$\evj{\codel 2}{2}$}
+\RightLabel{$\inflab{ifEval}$}
+\BinaryInfC{$\evj{\ite{\true}{\codel 2}{\codel 3}}{2}$}
+\end{prooftree}
+</blockquote>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org38e45fe" class="outline-2">
+<h2 id="org38e45fe">Let-Expressions</h2>
+<div class="outline-text-2" id="text-org38e45fe">
+</div>
+<div id="outline-container-org617d0d0" class="outline-3">
+<h3 id="org617d0d0">Syntax</h3>
+<div class="outline-text-3" id="text-org617d0d0">
+<div class="org-src-container">
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> let &lt;<span style="color: #483d8b;">var</span>&gt; = &lt;<span style="color: #483d8b;">expr</span>&gt; in &lt;<span style="color: #483d8b;">expr</span>&gt;
+</pre>
+</div>
+
+<p>
+If \(x\) is a variable and \(e_1\) is a well-formed expression and \(e_2\)
+is a well-formed expression, then \(\let{x}{e_1}{e_2}\) is a well-formed
+expression.
+</p>
+
+<blockquote>
+<p>
+<b>Example:</b> Since \(\codel{var_name}\) is a well-formed variable name and
+\(\codel 2\) is a well-formed expression then
+\(\let{\codel{var_name}}{\codel 2}{\codel{var_name}}\) is a well-formed
+expression, i.e., the following is a valid parse tree.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-parse-tree">&lt;expr&gt;
+├───┬────────┬─┬──────┬──┐
+│   &lt;var&gt;    │ &lt;expr&gt; │  &lt;expr&gt;
+│   │        │ │      │  │
+│   │        │ &lt;int&gt;  │  &lt;var&gt;
+│   │        │ │      │  │
+let var_name = 2      in var_name
+</pre>
+</div>
+</blockquote>
+</div>
+</div>
+<div id="outline-container-org1d1c61c" class="outline-3">
+<h3 id="org1d1c61c">Typing</h3>
+<div class="outline-text-3" id="text-org1d1c61c">
+<p>
+\[
+\bininf
+{\tyj{\Gamma}{e_1}{\tau_1}}
+{\tyj{\Gamma, x : \tau_1}{e_2}{\tau_2}}
+{\tyj{\Gamma}{\let{x}{e_1}{e_2}}{\tau_2}}
+{let}
+\]
+</p>
+
+<p>
+If \(e_1\) is of type \(\tau_1\) in the context \(\Gamma\), and \(e_2\) is of
+type \(\tau_2\) in the context \(\Gamma\) <i>with the variable declaration \((x :
+\tau_1)\) added to it</i>, then \(\let{x}{e_1}{e_2}\) is of type \(\tau_2\) in
+the context \(\Gamma\).
+</p>
+
+<blockquote>
+<p>
+<b>Example:</b> The following is a valid derivation.
+</p>
+
+\begin{prooftree}
+\AxiomC{}
+\RightLabel{$\inflab{intLit}$}
+\UnaryInfC{$\tyj{\emptyCtxt}{\codel 2}{\int}$}
+\AxiomC{}
+\RightLabel{$\inflab{var}$}
+\UnaryInfC{$\tyj{\{\codel y : \int\}}{\codel y}{\int}$}
+\AxiomC{}
+\RightLabel{$\inflab{var}$}
+\UnaryInfC{$\tyj{\{\codel y : \int\}}{\codel y}{\int}$}
+\RightLabel{$\inflab{intAdd}$}
+\BinaryInfC{$\tyj{\{\codel y : \int\}}{\codel y \plus \codel y}{\int}$}
+\RightLabel{$\inflab{let}$}
+\BinaryInfC{$\tyj{\emptyCtxt}{\let{\codel y}{\codel 2}{\codel y \plus \codel y}}{\int}$}
+\end{prooftree}
+</blockquote>
+</div>
+</div>
+
+<div id="outline-container-orge47473f" class="outline-3">
+<h3 id="orge47473f">Semantics</h3>
+<div class="outline-text-3" id="text-orge47473f">
+<p>
+\[
+\bininf
+{\evj{e_1}{v_1}}
+{\evj{\subst{v_1}{x}{e_2}}{v}}
+{\evj{\let{x}{e_1}{e_2}}{v}}
+{letEval}
+\]
+</p>
+
+<p>
+If \(e_1\) evaluates to \(v_1\) and \(e_2\) <i>with \(v_1\) substituted for \(x\)</i>
+evaluates to \(v\), then \(\let{x}{e_1}{e_2}\) evaluates to \(v\).
+</p>
+
+<blockquote>
+<p>
+<b>Example:</b> Since \(\evj{\codel 2}{2}\) by the \(\mathsf{intLitEval}\) rule
+and \(\codel y \plus \codel y\) is \(\codel 2 \plus \codel 2\) after
+substituting \(\codel 2\) for \(\codel y\) and \(\codel 2 \plus \codel 2\)
+evaluates to \(4\) by the \(\mathsf{intAddEval}\) rule, it follows that
+\(\let{\codel y}{\codel 2}{\codel y \plus \codel y}\) evaluates to \(4\),
+i.e. the following is a valid derivation.
+</p>
+
+\begin{prooftree}
+\AxiomC{}
+\RightLabel{$\inflab{intLitEval}$}
+\UnaryInfC{$\evj{\codel 2}{2}$}
+\AxiomC{}
+\RightLabel{$\inflab{intLitEval}$}
+\UnaryInfC{$\evj{\codel 2}{2}$}
+\AxiomC{}
+\RightLabel{$\inflab{intLitEval}$}
+\UnaryInfC{$\evj{\codel 2}{2}$}
+\RightLabel{$\inflab{intAddEval}$}
+\BinaryInfC{$\evj{\codel 2 \plus \codel 2}{4}$}
+\RightLabel{$\inflab{letEval}$}
+\BinaryInfC{$\evj{\let{\codel y}{\codel 2}{\codel y \plus \codel y}}{4}$}
+\end{prooftree}
+</blockquote>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgf48f24f" class="outline-2">
+<h2 id="orgf48f24f">Functions</h2>
+<div class="outline-text-2" id="text-orgf48f24f">
+</div>
+<div id="outline-container-orgabc69bc" class="outline-3">
+<h3 id="orgabc69bc">Syntax</h3>
+<div class="outline-text-3" id="text-orgabc69bc">
+<div class="org-src-container">
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> fun &lt;<span style="color: #483d8b;">var</span>&gt; -&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
+</pre>
+</div>
+
+<p>
+If \(x\) is a well-formed variable and \(e\) is a well-formed expression,
+then \(\fun{x}{e}\) is a well-formed expression.
+</p>
+
+<blockquote>
+<p>
+<b>Example:</b> Since \(\codel{name}\) is a valid variable name and
+\(\codel{name} \plus \codel{3}\) is a well-formed expression, it follows
+that \(\fun{\codel{name}}{\codel{name}\plus \codel{3}}\) is a well-formed
+expression, i.e., the following is a valid parse tree
+</p>
+
+<div class="org-src-container">
+<pre class="src src-text">&lt;expr&gt;
+&#9500;&#9472;&#9472;&#9472;&#9516;&#9472;&#9472;&#9472;&#9472;&#9472;&#9516;&#9472;&#9472;&#9472;&#9488;
+&#9474;   &lt;var&gt; &#9474;   &lt;expr&gt;
+&#9474;   &#9474;     &#9474;   &#9500;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9516;&#9472;&#9488;
+&#9474;   &#9474;     &#9474;   &lt;expr&gt; &#9474; &lt;expr&gt;
+&#9474;   &#9474;     &#9474;   &#9474;      &#9474; &#9474;
+&#9474;   &#9474;     &#9474;   &lt;var&gt;  &#9474; &lt;int&gt;
+&#9474;   &#9474;     &#9474;   &#9474;      &#9474; &#9474;
+fun name  -&gt;  name   + 3
+</pre>
+</div>
+</blockquote>
+</div>
+</div>
+
+<div id="outline-container-org6b760da" class="outline-3">
+<h3 id="org6b760da">Typing</h3>
+<div class="outline-text-3" id="text-org6b760da">
+<p>
+\[
+\uniinf
+{\tyj{\Gamma, x : \tau_1}{e}{\tau_2}}
+{\tyj{\Gamma}{\fun{x}{e}}{\funty{\tau_1}{\tau_2}}}
+{fun}
+\]
+</p>
+
+<p>
+If \(e\) is of type \(\tau_2\) in the context \(\Gamma\) <i>together with the
+variable declaration \((x : \tau_1)\) added to it</i>, then \(\fun{x}{e}\) is
+of type \(\funty{\tau_1}{\tau_2}\).
+</p>
+
+<blockquote>
+<p>
+<b>Example:</b> The following is a valid derivation.
+</p>
+
+\begin{prooftree}
+\AxiomC{}
+\RightLabel{$\inflab{intLit}$}
+\UnaryInfC{$\tyj{\{ \codel z : \float \}}{\codel 2}{\int}$}
+\RightLabel{$\inflab{fun}$}
+\UnaryInfC{$\tyj{\emptyCtxt}{\fun{\codel z}{\codel 2}}{\funty{\float}\int}$}
+\end{prooftree}
+</blockquote>
+</div>
+</div>
+
+<div id="outline-container-orgf1f457f" class="outline-3">
+<h3 id="orgf1f457f">Semantics</h3>
+<div class="outline-text-3" id="text-orgf1f457f">
+<p>
+\[
+\uniinf
+{}
+{\evj{\fun{x}{e}}{\funval x  e}}
+{funEval}
+\qquad
+\]
+</p>
+
+<p>
+A function evaluates to a function value.
+</p>
+
+<blockquote>
+<p>
+<b>Example:</b> The following is a valid derivation.
+</p>
+
+\begin{prooftree}
+\AxiomC{}
+\RightLabel{$\inflab{funEval}$}
+\UnaryInfC{$\evj{\fun{\codel x}{\codel x \plus \codel x}}{\funval {\codel x}{\codel x \plus \codel x}}$}
+\end{prooftree}
+</blockquote>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org8cd164a" class="outline-2">
+<h2 id="org8cd164a">Application</h2>
+<div class="outline-text-2" id="text-org8cd164a">
+</div>
+<div id="outline-container-org6be2e60" class="outline-3">
+<h3 id="org6be2e60">Syntax</h3>
+<div class="outline-text-3" id="text-org6be2e60">
+<div class="org-src-container">
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">expr</span>&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
+</pre>
+</div>
+
+<p>
+If \(e_1\) is a well-formed expression and \(e_2\) is a well-formed
+expression, then \(e_1 \ e_2\) is a well-formed expression.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org85b1f9e" class="outline-3">
+<h3 id="org85b1f9e">Typing</h3>
+<div class="outline-text-3" id="text-org85b1f9e">
+<p>
+\[
+\bininf
+{\tyj{\Gamma}{e_1}{\funty {\tau_2} {\tau}}}
+{\tyj{\Gamma}{e_2}{\tau_2}}
+{\tyj{\Gamma}{e_1 \ e_2}{\tau}}
+{app}
+\]
+</p>
+
+<p>
+If \(e_1\) is of type \(\funty {\tau_2} {\tau}\) and \(e_2\) is of type \(\tau_2\),
+then \(e_1 \ e_2\) is of type \(\tau\).
+</p>
+
+<blockquote>
+<p>
+<b>Example:</b> The following is a valid derivation.
+</p>
+
+\begin{prooftree}
+\AxiomC{}
+\RightLabel{$\inflab{int}$}
+\UnaryInfC{$\tyj{\{ \codel z : \float \}}{\codel 2}{\int}$}
+\RightLabel{$\inflab{fun}$}
+\UnaryInfC{$\tyj{\emptyCtxt}{\fun{\codel z}{\codel 2}}{\funty{\float}\int}$}
+\AxiomC{}
+\RightLabel{$\inflab{floatLit}$}
+\UnaryInfC{$\tyj{\emptyCtxt}{\codel{2.0}}{\float}$}
+\RightLabel{$\inflab{app}$}
+\BinaryInfC{$\tyj{\emptyCtxt}{(\fun{\codel z}{\codel 2}) \ \codel{2.0}}{\int}$}
+\end{prooftree}
+</blockquote>
+</div>
+</div>
+
+<div id="outline-container-org9ad8949" class="outline-3">
+<h3 id="org9ad8949">Semantics</h3>
+<div class="outline-text-3" id="text-org9ad8949">
+<p>
+\[
+\quainf
+{\evj{e_1}{\funval{x}{e}}}
+{\evj{e_2}{v_2}}
+{\side{\subst{v_2}{x}{e} = e'}}
+{\evj{e'}{v}}
+{\evj{e_1 \ e_2}{v}}
+{appEval}
+\]
+</p>
+
+<p>
+If \(e_1\) evaluates to the function value \(\funval x e\) and \(e_2\)
+evaluates to \(v_2\) and \(e\) <i>with \(v_2\) substituted for \(x\)</i> evaluates
+to \(v\), then \(e_1 \ e_2\) evaluates to \(v\).
+</p>
+
+<p>
+<b>Note:</b> Despite the fact that we make a distinction between values and
+expressions, it is always possible to convert a value to an
+expression.  We do this implictly when we substitute a value into and
+expression
+</p>
+
+<blockquote>
+<p>
+<b>Example:</b> The following is a valid derivation.
+</p>
+
+\begin{prooftree}
+\AxiomC{}
+\RightLabel{$\inflab{funEval}$}
+\UnaryInfC{$\evj{\fun{\codel x}{\codel x \plus \codel x}}{\funval {\codel x}{\codel x \plus \codel x}}$}
+\AxiomC{}
+\RightLabel{$\inflab{iLE}$}
+\UnaryInfC{$\evj{\codel 2}{2}$}
+\AxiomC{}
+\RightLabel{$\inflab{iLE}$}
+\UnaryInfC{$\evj{\codel 2}{2}$}
+\AxiomC{}
+\RightLabel{$\inflab{iLE}$}
+\UnaryInfC{$\evj{\codel 2}{2}$}
+\RightLabel{$\inflab{iAE}$}
+\BinaryInfC{$\evj{\codel 2 \plus \codel 2}{4}$}
+\RightLabel{$\inflab{app}$}
+\TrinaryInfC{$\evj{(\fun{\codel x}{\codel x \plus \codel x}) \ \codel 2}{4}$}
+\end{prooftree}
+</blockquote>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org165a297" class="outline-2">
+<h2 id="org165a297">Tuples</h2>
+<div class="outline-text-2" id="text-org165a297">
+</div>
+<div id="outline-container-org15b4233" class="outline-3">
+<h3 id="org15b4233">Syntax</h3>
+<div class="outline-text-3" id="text-org15b4233">
+<div class="org-src-container">
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">expr</span>&gt; , &lt;<span style="color: #483d8b;">expr</span>&gt;
+&lt;<span style="color: #0000ff;">ty</span>&gt;   <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">ty</span>&gt; * &lt;<span style="color: #483d8b;">ty</span>&gt;
+</pre>
+</div>
+
+<p>
+If \(e_1\) is a well-formed expression and \(e_2\) is a well-formed
+expression, then \(e_1 \ \codel, \ e_2\) is a well-formed expression.
+</p>
+</div>
+</div>
+<div id="outline-container-orgde93565" class="outline-3">
+<h3 id="orgde93565">Typing</h3>
+<div class="outline-text-3" id="text-orgde93565">
+<p>
+\[
+\bininf
+{\tyj{\Gamma}{e_1}{\tau_1}}
+{\tyj{\Gamma}{e_2}{\tau_2}}
+{\tyj{\Gamma}{e_1 \pairc e_2}{\tau_1 \times \tau_2}}
+{tuple}
+\]
+</p>
+
+<p>
+If \(e_1\) is of type \(\tau_1\) in the context \(\Gamma\) and \(e_2\) is of
+type \(\tau_2\) in the context \(\Gamma\), then \(e_1 \pairc e_2\) is of
+type \(\tau_1 \times \tau_2\) in the context \(\Gamma\).
+</p>
+</div>
+</div>
+
+<div id="outline-container-org6f733c5" class="outline-3">
+<h3 id="org6f733c5">Semantics</h3>
+<div class="outline-text-3" id="text-org6f733c5">
+<p>
+\[
+\bininf
+{\evj{e_1}{v_1}}
+{\evj{e_2}{v_2}}
+{\evj{e_1 \pairc e_2}{(v_1, v_2)}}
+{tupleEval}
+\]
+</p>
+
+<p>
+If \(e_1\) evaluates to \(v_1\) and \(e_2\) evaluates to \(v_2\), then \(e_1
+\pairc e_2\) evaluates to a tuple value \((v_1, v_2)\) (as usual, note
+the distinction between tuple expressions and tuple values).
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgeee92a4" class="outline-2">
+<h2 id="orgeee92a4">Lists</h2>
+<div class="outline-text-2" id="text-orgeee92a4">
+</div>
+<div id="outline-container-org02faafc" class="outline-3">
+<h3 id="org02faafc">Syntax</h3>
+<div class="outline-text-3" id="text-org02faafc">
+<div class="org-src-container">
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> []
+         <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">expr</span>&gt; :: &lt;<span style="color: #483d8b;">expr</span>&gt;
+&lt;<span style="color: #0000ff;">ty</span>&gt;   <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">ty</span>&gt; list
+</pre>
+</div>
+
+<p>
+\(\nil\) is a well-formed expression.
+</p>
+
+<p>
+If \(e_1\) is a well-formed expression and \(e_2\) is a well-formed
+expression, then \(e_1 \cons e_2\) is a well-formed expression.
+</p>
+
+<blockquote>
+<p>
+<b>Example:</b> Since \(\codel 2 \plus \codel 2\) is a well-formed
+expression, and \(\codel{"word"}\) is a well-formed expression, it
+follows that \(\codel( \codel{2} \plus \codel {2} \codel) \cons
+\codel{"word"} \cons \nil\) is a well-formed expression, i.e., the
+following is a valid parse tree
+</p>
+
+<div class="org-src-container">
+<pre class="src src-text">&lt;expr&gt;
+&#9500;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9516;&#9472;&#9472;&#9488;
+&lt;expr&gt;                     &#9474;  &lt;expr&gt;
+&#9500;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9516;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488; &#9474;  &#9500;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9516;&#9472;&#9472;&#9488;
+&#9474;      &lt;expr&gt;            &#9474; &#9474;  &lt;expr&gt;   &#9474;  &lt;expr&gt;
+&#9474;      &#9500;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9516;&#9472;&#9472;&#9472;&#9472;&#9488;     &#9474; &#9474;  &#9474;        &#9474;  &#9474;
+&#9474;      &lt;int&gt;  &lt;op&gt; &lt;int&gt; &#9474; &#9474;  &lt;string&gt; &#9474;  &#9474;
+&#9474;      &#9474;      &#9474;    &#9474;     &#9474; &#9474;  &#9474;        &#9474;  &#9474;
+(      2      +    2     ) :: "word"   :: []
+</pre>
+</div>
+</blockquote>
+</div>
+</div>
+
+<div id="outline-container-org588458a" class="outline-3">
+<h3 id="org588458a">Typing</h3>
+<div class="outline-text-3" id="text-org588458a">
+<p>
+\[
+\uniinf
+{}
+{\tyj{\Gamma}{\nil}{\listty \tau}}
+{nil}
+\qquad
+\bininf
+{\tyj{\Gamma}{e_1}{\tau}}
+{\tyj{\Gamma}{e_2}{\listty \tau}}
+{\tyj{\Gamma}{e_1 \cons e_2}{\listty \tau}}
+{cons}
+\]
+</p>
+
+<p>
+The empty list \(\nil\) of type \(\listty \tau\) in any context \(\Gamma\)
+(and for any type \(\tau\)).
+</p>
+
+<p>
+If \(e_1\) is of type \(\tau\) in the context \(\Gamma\) and \(e_2\) is of
+type \(\listty \tau\) in the context \(\Gamma\), then \(e_1 \cons e_2\) is
+of type \(\listty \tau\) in the context \(\Gamma\).
+</p>
+
+<blockquote>
+<p>
+<b>Example:</b> The following is a valid derivation.
+</p>
+
+\begin{prooftree}
+\AxiomC{}
+\RightLabel{$\inflab{var}$}
+\UnaryInfC{$\tyj{\{\codel x : \int\}}{\codel x}{\int}$}
+\AxiomC{}
+\RightLabel{$\inflab{iL}$}
+\UnaryInfC{$\tyj{\{\codel x : \int\}}{\codel 1}{\int}$}
+\RightLabel{$\inflab{iA}$}
+\BinaryInfC{$\tyj{\{\codel x : \int\}}{\codel x \plus \codel 1}{\int}$}
+\AxiomC{}
+\RightLabel{$\inflab{nil}$}
+\UnaryInfC{$\tyj{\{\codel x : \int\}}{\nil}{\listty \int}$}
+\RightLabel{$\inflab{cons}$}
+\BinaryInfC{$\tyj{\{\codel x : \int\}}{\codel( \codel x \plus \codel 1 \codel) \cons \nil}{\listty \int}$}
+\end{prooftree}
+</blockquote>
+</div>
+</div>
+
+<div id="outline-container-org2891a57" class="outline-3">
+<h3 id="org2891a57">Semantics</h3>
+<div class="outline-text-3" id="text-org2891a57">
+<p>
+\[
+\uniinf
+{}
+{\evj{\nil}{\nilv}}
+{nilEval}
+\qquad
+\bininf
+{\evj{e_2}{[v_2, \dots, v_k]}}
+{\evj{e_1}{v_1}}
+{\evj{e_1 \cons e_2}{[v_1, v_2, \dots, v_k]}}
+{consEval}
+\]
+</p>
+
+<p>
+The empty list \(\nil\) evaluates to the empty list (as a value).
+</p>
+
+<p>
+If \(e_2\) evaluates to the list value \([v_2, \dots, v_k]\) and \(e_1\)
+evaluates to the value \(v_1\), then \(e_1 \cons e_2\) evaluates to the
+list value \([v_1, v_2, \dots, v_k]\)
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org317cf32" class="outline-2">
+<h2 id="org317cf32">Tuple Matches</h2>
+<div class="outline-text-2" id="text-org317cf32">
+</div>
+<div id="outline-container-org9b647d0" class="outline-3">
+<h3 id="org9b647d0">Syntax</h3>
+<div class="outline-text-3" id="text-org9b647d0">
+<div class="org-src-container">
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> match &lt;<span style="color: #483d8b;">expr</span>&gt; with &#8739; &lt;<span style="color: #483d8b;">var</span>&gt; , &lt;<span style="color: #483d8b;">var</span>&gt; -&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
+</pre>
+</div>
+
+<p>
+If \(e\) and \(e'\) are a well-formed expressions and \(x\) and \(y\) are
+valid variable names, then \(\match e \with \case{x \pairc y}{e'}\) is a
+well-formed expression.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgfcdb9b8" class="outline-3">
+<h3 id="orgfcdb9b8">Typing</h3>
+<div class="outline-text-3" id="text-orgfcdb9b8">
+<p>
+\[
+\bininf
+{\tyj{\Gamma}{e}{\tau_1 \times \tau_2}}
+{\tyj{\Gamma, x : \tau_1, y : \tau_2}{e'}{\tau}}
+{\tyj{\Gamma}{\match e \with \case{x \pairc y}{e'}}{\tau}}
+{tupleMatch}
+\]
+</p>
+
+<p>
+If \(e\) is of type \(\tau_1 \times \tau_2\) in the context \(\Gamma\) and
+\(e'\) is of type \(\tau\) in the context \(\Gamma\) <i>in addition to the
+declarations \((x : \tau_1)\) and \((y : \tau_2)\)</i>, then \(\match e \with
+\case{x \pairc y}{e'}\) is of type \(\tau\).
+</p>
+</div>
+</div>
+<div id="outline-container-orgfcca55d" class="outline-3">
+<h3 id="orgfcca55d">Semantics</h3>
+<div class="outline-text-3" id="text-orgfcca55d">
+<p>
+\[
+\triinf
+{\evj{e}{(v_1, v_2)}}
+{\side{\subst{v_2}{y}{\subst{v_1}{x}{e'}} = e''}}
+{\evj{e''}{v}}
+{\evj{\match e \with \case{x \pairc y}{e'}}{v}}
+{tupleMatchEval}
+\]
+</p>
+
+<p>
+If \(e\) evaluates to a tuple value \((v_1, v_2)\) and \(e'\) <i>with \(v_1\)
+substituted in for \(x\) and \(v_2\) substituted in for \(y\)</i> evaluates to
+\(v\), then \(\match e \with \case{x \pairc y}{e'}\) evaluates to \(v\).
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgbdf95ea" class="outline-2">
+<h2 id="orgbdf95ea">List Matches</h2>
+<div class="outline-text-2" id="text-orgbdf95ea">
+</div>
+<div id="outline-container-org70def07" class="outline-3">
+<h3 id="org70def07">Syntax</h3>
+<div class="outline-text-3" id="text-org70def07">
+<div class="org-src-container">
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> match &lt;<span style="color: #483d8b;">expr</span>&gt; with
+           &#8739; [] -&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
+           &#8739; &lt;<span style="color: #483d8b;">var</span>&gt; :: &lt;<span style="color: #483d8b;">var</span>&gt; -&gt; &lt;<span style="color: #483d8b;">expr</span>&gt;
+</pre>
+</div>
+
+<p>
+If \(e\), \(e_1\) and \(e_2\) are well-formed expressions and \(x\) and \(y\)
+are valid variable names then \(\match e \with \case{\nil}{e_1} \case{x
+\cons y}{e_2}\) is a well-formed expression.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org326186a" class="outline-3">
+<h3 id="org326186a">Typing</h3>
+<div class="outline-text-3" id="text-org326186a">
+<p>
+\[
+\triinf
+{\tyj{\Gamma}{e}{\listty {\tau'}}}
+{\tyj{\Gamma}{e_1}{\tau}}
+{\tyj{\Gamma, x : \tau', y : \listty {\tau'}}{e_2}{\tau}}
+{\tyj{\Gamma}{\match e \with \case{\nil}{e_1} \case{x \cons y}{e_2}}{\tau}}
+{matchList}
+\]
+</p>
+
+<p>
+If all of the following hold:
+</p>
+<ul class="org-ul">
+<li>\(e\) is of type \(\listty {\tau'}\) in the context \(\Gamma\)</li>
+<li>\(e_1\) is of type \(\tau\) in the context \(\Gamma\)</li>
+<li>\(e_2\) is of type \(\tau\) in the context \(\Gamma\) <i>in addition to the
+declarations \((x : \tau')\) and \((y : \listty {\tau'})\)</i></li>
+</ul>
+<p>
+then \(\match e \with \case{\nil}{e_1} \case{x \cons y}{e_2}\) is of
+type \(\tau\).
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgd029050" class="outline-3">
+<h3 id="orgd029050">Semantics</h3>
+<div class="outline-text-3" id="text-orgd029050">
+<p>
+\[
+\bininf
+{\evj{e}{\nilv}}
+{\evj{e_1}{v}}
+{\evj{\match e \with \case{\nil}{e_1} \case{x \cons y}{e_2}}{v}}
+{matchListEvalNil}
+\]
+</p>
+
+<p>
+\[
+\triinf
+{\evj{e}{h \consv t}}
+{\side{e_2' = [t / y][h / x]e_2}}
+{\evj{e_2'}{v}}
+{\evj{\match e \with \case{\nil}{e_1} \case{x \cons y}{e_2}}{v}}
+{matchListEvalCons}
+\]
+</p>
+
+<p>
+If \(e\) evaluates to the empty list \(\nilv\) and \(e_1\) evaluates to \(v\),
+then \(\match e \with \case{\nil}{e_1} \case{x \cons y}{e_2}\) evaluates
+to \(v\).
+</p>
+
+<p>
+If \(e\) evaluates to the list value \(h \consv t\) and \(e_2\) <i>with \(h\)
+substituted for \(x\) and \(t\) substituted for \(y\)</i> evaluates to \(v\), then
+\(\match e \with \case{\nil}{e_1} \case{x \cons y}{e_2}\) evaluates to
+\(v\).
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org178ace4" class="outline-2">
+<h2 id="org178ace4">Extra</h2>
+<div class="outline-text-2" id="text-org178ace4">
+</div>
+<div id="outline-container-org325312e" class="outline-3">
+<h3 id="org325312e">Syntax</h3>
+<div class="outline-text-3" id="text-org325312e">
+<div class="org-src-container">
+<pre class="src src-bnf">&lt;<span style="color: #0000ff;">expr</span>&gt; <span style="color: #008b8b;">::=</span> ( &lt;<span style="color: #483d8b;">expr</span>&gt; )
+</pre>
+</div>
+<p>
+Expressions may be surrounded in parentheses.
+</p>
+</div>
+</div>
+<div id="outline-container-org206c90e" class="outline-3">
+<h3 id="org206c90e">Examples</h3>
+<div class="outline-text-3" id="text-org206c90e">
+<p>
+More to come&#x2026;
+</p>
+</div>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink">1</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">In the second half of the course,
+we'll see that determining integer literals is not a part of <i>parsing</i>
+but of <i>lexing</i>, and we will describe them using what are called
+<i>regular expressions</i>.</p></div></div>
+
+
+</div>
+</div></div>
+</body>
+</html>

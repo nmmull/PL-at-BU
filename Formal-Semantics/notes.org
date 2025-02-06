@@ -1,0 +1,106 @@
+#+title: Formal Semantics
+#+HTML_MATHJAX: align: left indent: 2em
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../myStyle.css" />
+#+OPTIONS: html-style:nil H:3 toc:2 num:nil tasks:nil
+#+HTML_LINK_HOME: ../toc.html
+We've discussed what is means to specify the /form/ of a program.
+This is the business of syntax, of formal grammar. Next we have to
+discuss what means to specify the /meaning/ of a program.
+
+But what is the meaning of meaning?  You've probably already thought
+about semantics to some degree; when you look at a program and think
+"what does this program print?" you know the answer because you have a
+/model/ in your head of how that programming langauge operates, and
+how that particular program behaves.  What you may be lacking is a
+mathematical framework or language for describing your intuitions.
+
+#+begin_quote
+*Example.* You should, at the point be able to tell me what the
+ following OCaml program prints.
+
+ #+begin_src ocaml
+   let x = 3
+   let f () =
+     let x = 2 in ()
+   let _ = f ()
+   let _ = print_int x
+ #+end_src
+
+ The real question is /why/ does it print what it prints? What
+ consistent mathematical description of how OCaml operates says that
+ it should print what it prints.[fn::It prints ~3~.]
+#+end_quote
+
+* Flavors of Semantics
+
+When discussing semantics, there are a couple distinctions we need to
+make.  The first is between *denotational* and *operational*
+semantics.
+
+For a mathematician, the "meaning" of a program might be what it
+"denotes".  For example, the expression ~2 + 4~ denotes the number ~6~
+is the standard model of arithmetic.  There may be multiple
+expressions which denote the same object, e.g., ~1 + 5~ also denotes
+the value ~6~. This becomes more complicated if as our programming
+language becomes more complicated.  What should the program
+
+#+begin_src ocaml
+  let k = fun x -> fun y -> x
+#+end_src
+
+denote? It's a function that returns another functions. But what is a
+function? Should it be a set function like in calculus? What is the
+domain and range? How do we know it denotes the same function as
+
+#+begin_src ocaml
+  let k = fun x -> fun y -> if true then x else x
+#+end_src
+
+Denotational semantics is beautiful, but it's /difficult/.[fn::It has
+surprising connections to things like category theory.]  We won't be
+covering denotational semantics in this course.  Instead we will focus
+exclusively on operational semantics.
+
+The "meaning" of a program in the sense of operational semantics is
+how it behaves with respect to evaluation.  Specifying the operational
+semantics of a programming language means describing how a program can
+be /evaluated/ or /reduced/ to give a value.  This means specifying
+
++ What are considered values in this language?
++ What are the /rules/ for describing how a program should be
+  evaluated?
+
+The next distinction, once we've fixed ourselves to operational
+semantics, is the one between *small-step* semantics and *big-step*
+semantics.  Small-step semantics describes how a program should be
+evaluated "one step at a time" whereas big-step semantics describes
+how a program is evaluated "in one shot."[fn::The names are actually
+quite apt.]  We will cover both styles of operational semantics in
+this course, but we will focus on implementing big-step semantics.
+
+One last distinction──which I personally find to be
+not-all-that-useful but commonly used──is between *static* and
+*dynamic* semantics.  In rough terms, static semantics refers to the
+meaning of a program /before/ it has been evaluated.  Coming back to
+the picture of the interpretation pipeline from the first set of
+notes, this is handled in the ~SEMANTIC ANALYSIS~ box, and for our
+purposes is basically equivalent to type checking/type
+inference.
+
+So, this time with the right terminology, we will be discussing
+small-step and big-step operational semantics.
+
+* Operational Semantics
+
+
+
+** Small-Step Semantics
+
+When we specify the operational semantics of a programming language
+(small-step or big-step), we're ultimately describing a /relation/
+between expressions and what are called /values/. So we'll need two
+things:
++ we need to clearly delineate what our values are.
++ inference rules which describe
+
+** Big-Step Semantics

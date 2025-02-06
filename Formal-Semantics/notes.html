@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2025-02-05 Wed 22:42 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Formal Semantics</title>
+<meta name="author" content="Nathan  Mull" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="../myStyle.css" />
+</head>
+<body>
+<div id="org-div-home-and-up"><a href="../toc.html">↩</a></div><div id="content" class="content">
+<h1 class="title">Formal Semantics</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org1f23983">Flavors of Semantics</a></li>
+<li><a href="#org17aa851">Operational Semantics</a>
+<ul>
+<li><a href="#orgf808aa8">Small-Step Semantics</a></li>
+<li><a href="#org9eb35aa">Big-Step Semantics</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<p>
+We've discussed what is means to specify the <i>form</i> of a program.
+This is the business of syntax, of formal grammar. Next we have to
+discuss what means to specify the <i>meaning</i> of a program.
+</p>
+
+<p>
+But what is the meaning of meaning?  You've probably already thought
+about semantics to some degree; when you look at a program and think
+"what does this program print?" you know the answer because you have a
+<i>model</i> in your head of how that programming langauge operates, and
+how that particular program behaves.  What you may be lacking is a
+mathematical framework or language for describing your intuitions.
+</p>
+
+<blockquote>
+<p>
+<b>Example.</b> You should, at the point be able to tell me what the
+ following OCaml program prints.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-ocaml"><span style="color: #000000; font-weight: bold;">let</span> <span style="color: #a0522d;">x</span> = 3
+<span style="color: #000000; font-weight: bold;">let</span> <span style="color: #0000ff;">f</span> () =
+  <span style="color: #000000; font-weight: bold;">let</span> <span style="color: #a0522d;">x</span> = 2 <span style="color: #000000; font-weight: bold;">in</span> ()
+<span style="color: #000000; font-weight: bold;">let</span> <span style="color: #a0522d;">_</span> = f ()
+<span style="color: #000000; font-weight: bold;">let</span> <span style="color: #a0522d;">_</span> = print_int x
+</pre>
+</div>
+
+<p>
+The real question is <i>why</i> does it print what it prints? What
+consistent mathematical description of how OCaml operates says that
+it should print what it prints.<sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup>
+</p>
+</blockquote>
+
+<div id="outline-container-org1f23983" class="outline-2">
+<h2 id="org1f23983">Flavors of Semantics</h2>
+<div class="outline-text-2" id="text-org1f23983">
+<p>
+When discussing semantics, there are a couple distinctions we need to
+make.  The first is between <b>denotational</b> and <b>operational</b>
+semantics.
+</p>
+
+<p>
+For a mathematician, the "meaning" of a program might be what it
+"denotes".  For example, the expression <code>2 + 4</code> denotes the number <code>6</code>
+is the standard model of arithmetic.  There may be multiple
+expressions which denote the same object, e.g., <code>1 + 5</code> also denotes
+the value <code>6</code>. This becomes more complicated if as our programming
+language becomes more complicated.  What should the program
+</p>
+
+<div class="org-src-container">
+<pre class="src src-ocaml"><span style="color: #000000; font-weight: bold;">let</span> <span style="color: #0000ff;">k</span> = <span style="color: #a020f0;">fun</span> <span style="color: #a0522d;">x</span> -&gt; <span style="color: #a020f0;">fun</span> <span style="color: #a0522d;">y</span> -&gt; x
+</pre>
+</div>
+
+<p>
+denote? It's a function that returns another functions. But what is a
+function? Should it be a set function like in calculus? What is the
+domain and range? How do we know it denotes the same function as
+</p>
+
+<div class="org-src-container">
+<pre class="src src-ocaml"><span style="color: #000000; font-weight: bold;">let</span> <span style="color: #0000ff;">k</span> = <span style="color: #a020f0;">fun</span> <span style="color: #a0522d;">x</span> -&gt; <span style="color: #a020f0;">fun</span> <span style="color: #a0522d;">y</span> -&gt; <span style="color: #a020f0;">if</span> <span style="color: #008b8b;">true</span> <span style="color: #a020f0;">then</span> x <span style="color: #a020f0;">else</span> x
+</pre>
+</div>
+
+<p>
+Denotational semantics is beautiful, but it's <i>difficult</i>.<sup><a id="fnr.2" class="footref" href="#fn.2" role="doc-backlink">2</a></sup>  We won't be
+covering denotational semantics in this course.  Instead we will focus
+exclusively on operational semantics.
+</p>
+
+<p>
+The "meaning" of a program in the sense of operational semantics is
+how it behaves with respect to evaluation.  Specifying the operational
+semantics of a programming language means describing how a program can
+be <i>evaluated</i> or <i>reduced</i> to give a value.  This means specifying
+</p>
+
+<ul class="org-ul">
+<li>What are considered values in this language?</li>
+<li>What are the <i>rules</i> for describing how a program should be
+evaluated?</li>
+</ul>
+
+<p>
+The next distinction, once we've fixed ourselves to operational
+semantics, is the one between <b>small-step</b> semantics and <b>big-step</b>
+semantics.  Small-step semantics describes how a program should be
+evaluated "one step at a time" whereas big-step semantics describes
+how a program is evaluated "in one shot."<sup><a id="fnr.3" class="footref" href="#fn.3" role="doc-backlink">3</a></sup>  We will cover both styles of operational semantics in
+this course, but we will focus on implementing big-step semantics.
+</p>
+
+<p>
+One last distinction──which I personally find to be
+not-all-that-useful but commonly used──is between <b>static</b> and
+<b>dynamic</b> semantics.  In rough terms, static semantics refers to the
+meaning of a program <i>before</i> it has been evaluated.  Coming back to
+the picture of the interpretation pipeline from the first set of
+notes, this is handled in the <code>SEMANTIC ANALYSIS</code> box, and for our
+purposes is basically equivalent to type checking/type
+inference.
+</p>
+
+<p>
+So, this time with the right terminology, we will be discussing
+small-step and big-step operational semantics.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org17aa851" class="outline-2">
+<h2 id="org17aa851">Operational Semantics</h2>
+<div class="outline-text-2" id="text-org17aa851">
+</div>
+<div id="outline-container-orgf808aa8" class="outline-3">
+<h3 id="orgf808aa8">Small-Step Semantics</h3>
+<div class="outline-text-3" id="text-orgf808aa8">
+<p>
+When we specify the operational semantics of a programming language
+(small-step or big-step), we're ultimately describing a <i>relation</i>
+between expressions and what are called <i>values</i>. So we'll need two
+things:
+</p>
+<ul class="org-ul">
+<li>we need to clearly delineate what our values are.</li>
+<li>inference rules which describe</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org9eb35aa" class="outline-3">
+<h3 id="org9eb35aa">Big-Step Semantics</h3>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink">1</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">It prints <code>3</code>.</p></div></div>
+
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2" role="doc-backlink">2</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">It has
+surprising connections to things like category theory.</p></div></div>
+
+<div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3" role="doc-backlink">3</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">The names are actually
+quite apt.</p></div></div>
+
+
+</div>
+</div></div>
+</body>
+</html>

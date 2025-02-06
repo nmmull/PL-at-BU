@@ -15,9 +15,14 @@ sections, missing explanations, etc. To students: we appreciate your
 a error, you are encouraged to post an issue to the associated [[https://github.com/nmmull/PL-at-BU][GitHub
 repository]].
 
-* [[file:Intro/notes.org][The Interpretation Pipeline]]
-* [[file:Formal-Grammar/notes.org][Formal Grammar]]
-* [[file:Parsing/notes.org][Parser Generators]]
-* Formal Semantics
-* Type Checking
-* Type Inference
++ [[file:Intro/notes.org][The Interpretation Pipeline]]
++ [[file:Formal-Grammar/notes.org][Formal Grammar]]
++ [[file:Parsing/notes.org][Parser Generators]]
++ Formal Semantics
++ Type Checking
++ Type Inference
+
+These are specifications of PLs that we will use as examples in the
+course.
+
++ [[file:320Caml/notes.org][320Caml Specification]]
