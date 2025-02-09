@@ -695,8 +695,8 @@ $\int$ in the empty context, i.e. the following is a valid derivation.
 \qquad
 \bininf
 {\evj{e_1}{\bot}}
-{\evj{e_2}{v_2}}
-{\evj{\ite{e_1}{e_2}{e_3}}{v_2}}
+{\evj{e_3}{v_3}}
+{\evj{\ite{e_1}{e_2}{e_3}}{v_3}}
 {ifEvalFalse}
 \]
 
