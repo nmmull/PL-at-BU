@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2025-03-13 Thu 12:47 -->
+<!-- 2025-03-13 Thu 12:54 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Formal Grammar</title>
@@ -50,27 +50,27 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orgc2a3c6c">Introduction</a></li>
-<li><a href="#orgc89bc9c">Backus-Naur Form</a>
+<li><a href="#org61d7074">Introduction</a></li>
+<li><a href="#orgd666f19">Backus-Naur Form</a>
 <ul>
-<li><a href="#org05a86e5">Definitions</a></li>
-<li><a href="#orgdf0d252">A More Interesting Example</a></li>
-<li><a href="#org9aafa3b">Parse Trees</a></li>
+<li><a href="#org6cd0f69">Definitions</a></li>
+<li><a href="#org2abdd96">A More Interesting Example</a></li>
+<li><a href="#org878b942">Parse Trees</a></li>
 </ul>
 </li>
-<li><a href="#org9c0f8cd">Ambiguity</a>
+<li><a href="#org2316239">Ambiguity</a>
 <ul>
-<li><a href="#org2d41896">Avoiding Ambiguity</a></li>
-<li><a href="#org05593f6">Associativity</a></li>
-<li><a href="#org78c6951">Precedence</a></li>
-<li><a href="#orgfa4e214">Parentheses (Again)</a></li>
+<li><a href="#org971dd68">Avoiding Ambiguity</a></li>
+<li><a href="#org58db8b2">Associativity</a></li>
+<li><a href="#org73fddd7">Precedence</a></li>
+<li><a href="#orgb22cd55">Parentheses (Again)</a></li>
 </ul>
 </li>
-<li><a href="#org79d47ea">Extended BNF</a>
+<li><a href="#orgb534ec3">Extended BNF</a>
 <ul>
-<li><a href="#org7e2d011">Optional</a></li>
-<li><a href="#org14bda8b">Alternative</a></li>
-<li><a href="#org3ca231f">Repetition</a></li>
+<li><a href="#orgda95068">Optional</a></li>
+<li><a href="#org305057e">Alternative</a></li>
+<li><a href="#org8b2186d">Repetition</a></li>
 </ul>
 </li>
 </ul>
@@ -96,9 +96,9 @@ difficult one, and certainly one worth studying if you're interested.
 But, logistically speaking, in this course you will be <i>given</i> a
 grammar, from which you will generate a parser.
 </p>
-<div id="outline-container-orgc2a3c6c" class="outline-2">
-<h2 id="orgc2a3c6c">Introduction</h2>
-<div class="outline-text-2" id="text-orgc2a3c6c">
+<div id="outline-container-org61d7074" class="outline-2">
+<h2 id="org61d7074">Introduction</h2>
+<div class="outline-text-2" id="text-org61d7074">
 <p>
 Most of us are familiar with grammar in the context of natural
 language.  In English class, we learn that we should use the article
@@ -258,9 +258,9 @@ specifying PLs.</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgc89bc9c" class="outline-2">
-<h2 id="orgc89bc9c">Backus-Naur Form</h2>
-<div class="outline-text-2" id="text-orgc89bc9c">
+<div id="outline-container-orgd666f19" class="outline-2">
+<h2 id="orgd666f19">Backus-Naur Form</h2>
+<div class="outline-text-2" id="text-orgd666f19">
 <p>
 Backus-Naur Form (BNF) specifications are used to describe what are
 called <b>context-free grammars</b>.  Context-free grammars form a class of
@@ -381,9 +381,9 @@ classifying a sentence as grammatical by verifying that it has "valid"
 hierarchical structure.
 </p>
 </div>
-<div id="outline-container-org05a86e5" class="outline-3">
-<h3 id="org05a86e5">Definitions</h3>
-<div class="outline-text-3" id="text-org05a86e5">
+<div id="outline-container-org6cd0f69" class="outline-3">
+<h3 id="org6cd0f69">Definitions</h3>
+<div class="outline-text-3" id="text-org6cd0f69">
 <p>
 When defining a formal grammar, we fix ourselves to a collection of
 symbols.  These symbols are divided into two disjoint groups: the
@@ -666,9 +666,9 @@ in the above grammar.
 </blockquote>
 </div>
 </div>
-<div id="outline-container-orgdf0d252" class="outline-3">
-<h3 id="orgdf0d252">A More Interesting Example</h3>
-<div class="outline-text-3" id="text-orgdf0d252">
+<div id="outline-container-org2abdd96" class="outline-3">
+<h3 id="org2abdd96">A More Interesting Example</h3>
+<div class="outline-text-3" id="text-org2abdd96">
 <p>
 The following is a BNF specification for a fragment of a simple
 imperative PL.
@@ -791,9 +791,9 @@ is recognized by the above grammar.
 </blockquote>
 </div>
 </div>
-<div id="outline-container-org9aafa3b" class="outline-3">
-<h3 id="org9aafa3b">Parse Trees</h3>
-<div class="outline-text-3" id="text-org9aafa3b">
+<div id="outline-container-org878b942" class="outline-3">
+<h3 id="org878b942">Parse Trees</h3>
+<div class="outline-text-3" id="text-org878b942">
 <p>
 Grammars imbue sentences with hierarchical structure.  This structure
 is represented as a <b>parse tree</b>.  We've seen a couple examples of
@@ -803,30 +803,30 @@ for sentences recognized by <i>any</i> grammar with a BNF specification.
 
 <blockquote>
 <p>
-<b>Definition:</b> A <b>parse tree</b> for a sentence <code>S</code> in a grammar is a tree
-<code>T</code> with the following properties:
+<b>Definition:</b> A <b>parse tree</b> for a sentence \(S\) in a grammar is a tree
+\(T\) with the following properties:
 </p>
 
 <ul class="org-ul">
-<li>every leaf of <code>T</code> has a terminal symbol;</li>
-<li>every non-leaf node <code>n</code> has a nonterminal symbol (we write <code>val(n)</code>
-for the value at <code>n</code>);</li>
+<li>every leaf of \(T\) has a terminal symbol;</li>
+<li>every non-leaf node \(n\) has a nonterminal symbol (we write \(\mathsf{val}(n)\)
+for the value at \(n\));</li>
 <li><p>
-if a node <code>n</code> with has children <code>[t1, t2, ..., tk]</code> then
+if a node \(n\) has children \(T_1, T_2, \dots, T_k\) then
 </p>
 
 <div class="org-src-container">
-<pre class="src src-pseudo">val(n) ::= root(t1) root(t2) ... root(tk)
+<pre class="src src-bnf">val(n) ::= root(T1) root(T2) ... root(Tk)
 </pre>
 </div>
 
 <p>
-is a production rule in the grammar (where <code>root(t)</code> denotes the
-value at the root of the tree <code>t</code>);
+is a production rule in the grammar (where \(\mathsf{root}(T)\)
+denotes the value at the root of the tree \(T\));
 </p></li>
 
-<li>the leaves in order (i.e., the <b>frontier</b> of <code>T</code>) form the sentence
-<code>S</code>.</li>
+<li>the leaves in order (i.e., the <b>frontier</b> of \(T\)) form the sentence
+\(S\).</li>
 </ul>
 </blockquote>
 
@@ -922,9 +922,9 @@ will be important when we cover ambiguity in the next section.
 </div>
 </div>
 
-<div id="outline-container-org9c0f8cd" class="outline-2">
-<h2 id="org9c0f8cd">Ambiguity</h2>
-<div class="outline-text-2" id="text-org9c0f8cd">
+<div id="outline-container-org2316239" class="outline-2">
+<h2 id="org2316239">Ambiguity</h2>
+<div class="outline-text-2" id="text-org2316239">
 <p>
 As participants of language, we are no strangers to grammatical
 ambiguity.  Take, for instance, the following sentence:<sup><a id="fnr.2" class="footref" href="#fn.2" role="doc-backlink">2</a></sup>
@@ -1178,9 +1178,9 @@ interest).
 </blockquote>
 </div>
 
-<div id="outline-container-org2d41896" class="outline-3">
-<h3 id="org2d41896">Avoiding Ambiguity</h3>
-<div class="outline-text-3" id="text-org2d41896">
+<div id="outline-container-org971dd68" class="outline-3">
+<h3 id="org971dd68">Avoiding Ambiguity</h3>
+<div class="outline-text-3" id="text-org971dd68">
 <p>
 Our next task it to determine how to avoid grammatical ambiguity when
 possible. But first, <i>why should we care?</i> Natural language is
@@ -1206,9 +1206,9 @@ they meant.  We can't do this for a program, so instead we make it
 </blockquote>
 </div>
 
-<div id="outline-container-org39af450" class="outline-4">
-<h4 id="org39af450">(Reverse) Polish Notation</h4>
-<div class="outline-text-4" id="text-org39af450">
+<div id="outline-container-orgf9d2325" class="outline-4">
+<h4 id="orgf9d2325">(Reverse) Polish Notation</h4>
+<div class="outline-text-4" id="text-orgf9d2325">
 <p>
 If our only concern is avoiding ambiguity, we can use <b>Polish
 notation</b> or <b>reverse polish notation</b>.  In Polish notation, operators
@@ -1337,9 +1337,9 @@ ambiguity.
 </div>
 </div>
 
-<div id="outline-container-orgf7a5e0e" class="outline-4">
-<h4 id="orgf7a5e0e">Parentheses</h4>
-<div class="outline-text-4" id="text-orgf7a5e0e">
+<div id="outline-container-orgc11dff2" class="outline-4">
+<h4 id="orgc11dff2">Parentheses</h4>
+<div class="outline-text-4" id="text-orgc11dff2">
 <p>
 Another simple solution to the ambiguity problem is to surround
 applications of operations with parentheses:
@@ -1403,9 +1403,9 @@ contending with two things: <b>associativity</b> and <b>precedence</b>.
 </div>
 </div>
 
-<div id="outline-container-org05593f6" class="outline-3">
-<h3 id="org05593f6">Associativity</h3>
-<div class="outline-text-3" id="text-org05593f6">
+<div id="outline-container-org58db8b2" class="outline-3">
+<h3 id="org58db8b2">Associativity</h3>
+<div class="outline-text-3" id="text-org58db8b2">
 <p>
 Associativity refers to how arguments are grouped when we are given a
 sequence of applications of an infix operator in the absence of
@@ -1614,9 +1614,9 @@ tree.
 </div>
 </div>
 
-<div id="outline-container-org78c6951" class="outline-3">
-<h3 id="org78c6951">Precedence</h3>
-<div class="outline-text-3" id="text-org78c6951">
+<div id="outline-container-org73fddd7" class="outline-3">
+<h3 id="org73fddd7">Precedence</h3>
+<div class="outline-text-3" id="text-org73fddd7">
 <p>
 In the examples from the previous section, there was only one
 operator.  In the presence of multiple operators we have new issues to
@@ -1796,9 +1796,9 @@ seem to be ambiguous.
 </div>
 </div>
 
-<div id="outline-container-orgfa4e214" class="outline-3">
-<h3 id="orgfa4e214">Parentheses (Again)</h3>
-<div class="outline-text-3" id="text-orgfa4e214">
+<div id="outline-container-orgb22cd55" class="outline-3">
+<h3 id="orgb22cd55">Parentheses (Again)</h3>
+<div class="outline-text-3" id="text-orgb22cd55">
 <p>
 We're not quite done.  Without parentheses, we can't derive all
 expressions we might want to write down.  This is important:
@@ -1920,9 +1920,9 @@ the Python interpreter.
 </div>
 </div>
 
-<div id="outline-container-org79d47ea" class="outline-2">
-<h2 id="org79d47ea">Extended BNF</h2>
-<div class="outline-text-2" id="text-org79d47ea">
+<div id="outline-container-orgb534ec3" class="outline-2">
+<h2 id="orgb534ec3">Extended BNF</h2>
+<div class="outline-text-2" id="text-orgb534ec3">
 <p>
 There are a number of extensions to the BNF (meta-)syntax which make
 it more usable.  If you go digging around the Internet for <a href="https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form">Extended
@@ -1933,9 +1933,9 @@ parser generator we use in the next chapter.
 </p>
 </div>
 
-<div id="outline-container-org7e2d011" class="outline-3">
-<h3 id="org7e2d011">Optional</h3>
-<div class="outline-text-3" id="text-org7e2d011">
+<div id="outline-container-orgda95068" class="outline-3">
+<h3 id="orgda95068">Optional</h3>
+<div class="outline-text-3" id="text-orgda95068">
 <p>
 We use <code>[ SENT-FORM ]</code> to notate part of a production rule which is
 optional.  We may, for instance, want to write a language which has
@@ -1965,7 +1965,8 @@ can be rewritten as a collection of BNF production rules.</i>
 
 <blockquote>
 <p>
-<b>Exercise:</b> Rewrite the following EBNF production rule as a collection of BNF production rules.
+<b>Exercise:</b> Rewrite the following EBNF production rule as a collection
+of BNF production rules.
 </p>
 
 <div class="org-src-container">
@@ -1987,9 +1988,9 @@ grammar.
 </div>
 </div>
 
-<div id="outline-container-org14bda8b" class="outline-3">
-<h3 id="org14bda8b">Alternative</h3>
-<div class="outline-text-3" id="text-org14bda8b">
+<div id="outline-container-org305057e" class="outline-3">
+<h3 id="org305057e">Alternative</h3>
+<div class="outline-text-3" id="text-org305057e">
 <p>
 We use <code>( SENT-FORM₁ | SENT-FORM₂ | ... | SENT-FORMₖ )</code> to notate the
 choice of multiple sentential forms as <i>part</i> of a production rule.
@@ -2019,9 +2020,9 @@ We can simplify this in EBNF by removing the production rules for operators.
 </div>
 </div>
 
-<div id="outline-container-org3ca231f" class="outline-3">
-<h3 id="org3ca231f">Repetition</h3>
-<div class="outline-text-3" id="text-org3ca231f">
+<div id="outline-container-org8b2186d" class="outline-3">
+<h3 id="org8b2186d">Repetition</h3>
+<div class="outline-text-3" id="text-org8b2186d">
 <p>
 We use <code>{ SENT-FORM }</code> to notate a part of a production rule which can
 be repeated as many times as we want.  We can also combine this with

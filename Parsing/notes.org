@@ -9,32 +9,30 @@ purposes/.  It ignores many concerns about parsing that are incredibly
 important when it comes to practical parsing, e.g., error messages and
 portability.]
 
-
 #+begin_quote
-*Definition.* The *(context-free) parsing problem* is: given a
+*Definition:* The *(context-free) parsing problem* is, given a
 (context-free) grammar $\mathcal G$ and a sentence $S$ over the
-terminal symbols of $\mathcal G$, determine if $\mathcal G$ recognizes
-$S$.
+terminal symbols of $\mathcal G$, to determine if $\mathcal G$
+recognizes $S$.
 #+end_quote
-
 
 There's some very interesting algorithmic theory regarding this
 problem, including the [[https://en.wikipedia.org/wiki/CYK_algorithm][Cocke-Younger-Kasami (CYK) algorithm]], a
 beautiful example of dynamic programming.
 
 We will /not/ be covering this.  We won't be implementing parsers at
-all. Instead, we'll be /specifying/ our programming languages and then
-/generating/ parsers for them, no coding necessary (at least, no OCaml
+all. Instead, we'll be /specifying/ our PLs and then /generating/
+parsers for them, no coding necessary (at least, no OCaml
 programming).
 
-In broad strokes, a parser generator is a program which, given an EBNF
-grammar (or a similar specification language), generates the /code/
-which implements a parser for that grammar.[fn:: It's worth taking a
-moment to appreciate how cool this is. And also to note that this is
-really an example of /compilation/, i.e., of taking a high-level
-language (EBNF specifications) and translating it into a low-level
-language (OCaml).]  We'll be using a parser generator for OCaml called
-[[https://gallium.inria.fr/~fpottier/menhir/][Menhir]].  This page is essentially a tutorial on using Menhir.
+Roughly, a parser generator is a program which, given an EBNF grammar
+(or a similar specification language), generates the /code/ which
+implements a parser for that grammar.[fn:: It's worth taking a moment
+to appreciate how cool this is. And also to note that this is really
+an example of /compilation/, i.e., of taking a high-level language
+(EBNF specifications) and translating it into a low-level language
+(OCaml).]  We'll be using a parser generator for OCaml called [[https://gallium.inria.fr/~fpottier/menhir/][Menhir]].
+This page is essentially a tutorial on Menhir.
 
 But parser generators are like streaming services, there are more that
 exist than we'll ever need and people are still making new
@@ -52,18 +50,18 @@ other ways of building parsers.
   descent parser]] which was implemented in-house.  They argue it's
   more efficient and more portable than using a generator.
 + [[https://elm-lang.org][Elm]] (a very fun functional language for building web-apps which has
-  interoperability with JavaScript) uses what are called [[https://en.wikipedia.org/wiki/Parser_combinator][parser
+  interoperability with JavaScript) uses what are called
+  [[https://en.wikipedia.org/wiki/Parser_combinator][parser
   combinators]] to build its parser in a modular fashion.  This
   implementation is very slick, and has interesting connections to
   monads.[fn::We used to teach parser combinators in this course, but
-  have since decided to spare you all.]
+  have since decided to spare you.]
 
 This is just to say, if you're interested, there are a lot of avenues
 to explore.  It's also to say that, like any interesting engineering
 problem, building a parser takes a bit of artistry.  There's no best
 choice, and you'll have to make some choices based on your aesthetic
-inclinations as well as domain-specific considerations (also your
-gut).
+inclinations as well as domain-specific considerations.
 #+end_quote
 * Lexing vs. Parsing
 The last bit of preamble we need before we can start using Menhir: we
@@ -75,16 +73,25 @@ expected, the first of these two boxes.
 
 At the beginning, we're given a string.  Lexing is the process of
 taking that string and grouping together the characters that
-correspond to a single /unit/ in our programming language.  When we
-parse a program, we'd like to know if the ~'l'~ we're looking at is
-part of a string, part of a variable name, or part of the keyword
-~let~.  Grouping these /beforehand/ will make parsing much simpler.
+correspond to a single /unit/ in our PL.  When we parse a program,
+we'd like to know if the ~'l'~ we're looking at is part of a string,
+part of a variable name, or part of the keyword ~let~.  Grouping these
+/beforehand/ will make parsing much simpler.
+
+#+begin_quote
+*Aside:* On a more technical note, strings tend to be stored
+contiguously in memory, which is inconvenient for doing things like
+recursion.  I am of the opinion that if you ever need to process a
+string in a way that is more complex than reading each character
+one-by-one, you might as well lex it first. /Structure your data for
+your problem, not the other way around./
+#+end_quote
 
 We call the abstract units of a program *tokens* and we call their
 associated strings *lexemes*.
 
 #+begin_quote
-*Example.* Here is a short list of lexemes and tokens that will appear
+*Example:* Here is a short list of lexemes and tokens that will appear
 in the languages we consider.  It is standard (at least in Menhir) to
 represent tokens with ALLCAPS.
 
@@ -103,7 +110,7 @@ the function arrow and the left parentheses symbol.  Also note that
 some tokens may not be defined as a /single/ collection of characters,
 but as a collection of characters "with a particular shape." In Menhir
 (and many other parser generators) we use /regular expressions/ to
-describe more complex tokens.
+describe more complex tokens like numbers and variables.
 #+end_quote
 
 In short, lexing is the process of converting a ~string~ to ~token
@@ -131,7 +138,7 @@ fails (in which case we'd have to return something more sophisticated
 than an ~expr option~.
 
 #+begin_quote
-*Terminology.* We call the output of parsing a *parse tree* or a
+*Terminology:* We call the output of parsing a *parse tree* or a
 *concrete syntax tree*.  Occasionally we will also use the term
 *abstract syntax tree* (AST) because the output of parsing represents
 the syntax of the program we want to evaluate abstractly as a data.
@@ -143,8 +150,8 @@ output of parsing.
 #+end_quote
 
 #+begin_quote
-*Remark.* There are a couple reasons for separating these two
-processes, we won't dwell on it in this course.  But, in rougth terms:
+*Remark:* There are a couple reasons for separating lexing and
+parsing.  We won't dwell on it in this course, but in rough terms:
 
 + It makes the parsing task easier.  There are fewer low-level
   concerns we need to deal with for parsing.
@@ -160,7 +167,6 @@ variable names.  This is because these are not parsing issues.[fn::As
 usual, this is not strictly true, but I hope y'all can accept this
 fairly innocuous pedagogically motivated lie.]
 #+end_quote
-
 * Using Menhir
 
 With that business out of the way, we go to generating a parser for a
@@ -172,7 +178,7 @@ This will be our working example, a language for arithmetic
 expressions with local variables.
 
 #+begin_quote
-The grammar:
+*The Grammar:*
 #+begin_src bnf
   <prog>  ::= <expr>
 
@@ -195,14 +201,14 @@ The grammar:
   ; let var = ['a'-'z' '_'] ['a'-'z' 'A'-'Z' '0'-'9' '_' '\'']*
 #+end_src
 
-Operators in order of increasing precedence:
+*Operators in order of increasing precedence:*
 
 | Operator | Associativity |
 |----------+---------------|
 | ~+~, ~-~ | left          |
 | ~*~, ~/~ | left          |
 
-Output type of parsing (the AST):
+*Output type of parsing (the AST):*
 
 #+begin_src ocaml
   type bop = Add | Sub | Mul | Div
@@ -262,11 +268,7 @@ returns ~Some e~ where ~e~ is the expression
 #+end_src
 
 We will assume that you have a dune project set up (if not, you can
-run ~dune init project parser_example~ to create one).  We will also
-assume (as we do in the projects) that you have access to a library
-called ~Utils~, which contains the AST for the language (among other
-things).
-
+run ~dune init project parser_example~ to create one).
 ** Step 0: The Project File
 If we want to use Menhir, we have to tell dune that.  First, add the
 stanza
@@ -283,25 +285,34 @@ You need to create four files with the following file structure in the
 
 #+begin_src ascii
   lib
-  └──parser
-     ├──dune
-     ├──lex.mll
-     ├──my_parser.ml
-     └──par.mly
+  ├──dune
+  ├──utils.ml
+  ├──parser_example.ml
+  ├──lexer.mll
+  └──parser.mly
 #+end_src
-
-We use the name ~My_parser~ because the module ~Parser~ already exists
-in the standard library.  For us, the ~dune~ file and ~my_parser.ml~ file
-are fixed:
 
 ~dune~:
 #+begin_src dune
-  (library (name my_parser) (libraries utils))
-  (menhir (modules par))
-  (ocamllex lex)
+  (library (name parser_example))
+  (menhir (modules parser))
+  (ocamllex lexer)
 #+end_src
 
-~my_parser.ml:~
+~utils.ml:~
+#+begin_src ocaml
+  type bop = Add | Sub | Mul | Div
+
+  type expr =
+    | Var of string
+    | Num of int
+    | Let of string * expr * expr
+    | Bop of bop * expr * expr
+
+  type prog = expr
+#+end_src
+
+~parse_example.ml:~
 #+begin_src ocaml
   let parse s =
     try Some (Parser.prog Lexer.read (Lexing.from_string s))
@@ -309,7 +320,7 @@ are fixed:
 #+end_src
 
 #+begin_quote
-*Remark.* One of the benefits of using a parser generator is better
+*Remark:* One of the benefits of using a parser generator is better
 error messages.  We will /not/ be using this feature in this course.
 If you were to use Menhir in a personal project, you would need to
 update the ~parse~ function to make use of the exceptions produced by
@@ -319,10 +330,10 @@ update the ~parse~ function to make use of the exceptions produced by
 The last two files are where the work happens.  We can start with
 the following dummy files.
 
-~lex.mll~:
+~lexer.mll~:
 #+begin_src mll
   {
-  open Par
+  open Parser
   }
 
   let whitespace = [' ' '\t' '\n' '\r']+
@@ -333,7 +344,7 @@ the following dummy files.
     | eof { EOF }
 #+end_src
 
-~par.mly~
+~parser.mly~:
 #+begin_src mly
   %{
   open Utils
@@ -341,7 +352,7 @@ the following dummy files.
 
   %token EOF
 
-  %start <Ast.prog> { prog }
+  %start <Utils.prog> prog
 
   %%
 
@@ -350,40 +361,28 @@ the following dummy files.
 #+end_src
 
 At this point, you should be able to ~dune build~ your project.
-
-#+begin_quote
-*Note.* We will presume that the abstract representation (in this
-case, ~prog~ as above) we want to target is in a file
-~lib/utils/utils.ml~.
-
-The type ~prog~ is something you are either given, or which you should
-have determined /before/ you started building a parser.[fn::It's generally
-not a good idea to try to build a parser before you know what abstract
-representation you're targeting.]
-#+end_quote
-
 ** Step 2: Tokens
 
-Now we need to populate our parser with the tokens of our language.
-We also need to discuss the anatomy of the ~par.mly~ file.
+Now we need to populate our parser with the tokens of our PL.
+We also need to discuss the anatomy of the ~parser.mly~ file.
 
 Our file begins with a header that can include arbitary OCaml code.
-For now we just open the module ~Ast~ so that we can refer to the
-~expr~ type in this file:
+For now we just open the module ~Utils~ so that we can refer to the
+~prog~ and ~expr~ types in this file:
 
 #+begin_src mly
   %{
-  open Ast
+  open Utils
   %}
 #+end_src
 
 Next follows a collection of /declarations/.  This is where we will
-specify *tokens* and *precedence*.  We also declare our *start*
-production rule here (this is already done):
+specify *tokens*, *precedence*, and *associativity*.  We also declare
+our *start symbol* here (this is already done):
 #+begin_src mly
   %token EOF
 
-  %start <Ast.prog> { prog }
+  %start <Utils.prog> { prog }
 
   %%
 #+end_src
@@ -392,50 +391,56 @@ are *rules*, i.e., the production rules of our grammar.  We will cover
 this in the next section.
 
 For now, we'll populate the top of our file with token declarations,
-one for each terminal symbol in our grammar.  The syntax is ~%token
-NAME~, and it is typical to choose an ALLCAPS name.  There is already
-a token that we are using the represent the end of a file, which will
-appear in every parser we build.  In the case of complex tokens, like
-numbers and variables, we also specify the type of thing the lexer
-will give us with the syntax ~%token <type> NAME~.
+one for each terminal symbol in our grammar.  The syntax is
 
-Updated ~par.mly~:
+#+begin_src text
+%token NAME
+#+end_src
+and it is typical to choose an ALLCAPS name.  There is already a token
+that we are using the represent the end of a file, which will appear
+in every parser we build.  In the case of complex tokens, like numbers
+and variables, we also specify the type of thing the lexer will give
+us with the syntax
 
+#+begin_src mll
+%token <type> NAME
+#+end_src
+
+With this, we can update ~parser.mly~:
 #+begin_src mly
-  %{
-  open Ast
-  %}
+%{
+open Utils
+%}
 
-  %token LET
-  %token EQUALS
-  %token IN
-  %token PLUS
-  %token MINUS
-  %token TIMES
-  %token DIVIDE
-  %token <int> NUM
-  %token <string> VAR
-  %token LPAREN
-  %token RPAREN
-  %token EOF
+%token LET
+%token EQUALS
+%token IN
+%token PLUS
+%token MINUS
+%token TIMES
+%token DIVIDE
+%token <int> NUM
+%token <string> VAR
+%token LPAREN
+%token RPAREN
+%token EOF
 
-  %start <Ast.prog> { prog }
+%start <Utils.prog> prog
 
-  %%
+%%
 
-  prog:
-    | EOF { Num 0 }
+prog:
+  | EOF { Num 0 }
 #+end_src
 
 Determining the tokens you need to create is a matter of looking
 through the list of rules in the grammar, picking out all the
-terminal symbols and giving them names.
+terminal symbols, and giving them names.
 
 At this point, if you try to ~dune build~, you will see many warnings
 about unused tokens.  This is because we haven't used any of the
 tokens in the rules of the grammar. We'll handle this in the
 next section.
-
 ** Step 3: Rules
 Onto the most important part, describing the *rules* of the grammar.
 Menhir is designed so that its rules looks /a whole lot/ like EBNF
@@ -488,70 +493,77 @@ Implementing the parser is a matter of translating these rules into
 Menhir syntax.
 
 We also need to provide precedence and associativity declarations for
-our operators.  The syntax is ~%left TOKEN~ or ~%right TOKEN~,
+our operators.  The syntax is:
+
+
+#+begin_src mll
+%left TOKEN
+%right TOKEN
+#+end_src
+
 depending on whether ~TOKEN~ should be left associative or right
 associative, and precendence is handled by /the order the declarations
-are presented/ (just like in our precedence table).
+are presented/. Precedences increases down the list, just like in our
+precedence table.
 
-Updated ~par.mly~:
-
+Futher updating ~parser.mly~:
 #+begin_src mly
-  %{
-  open Ast
-  %}
+%{
+open Utils
+%}
 
-  %token LET
-  %token EQUALS
-  %token IN
-  %token PLUS
-  %token MINUS
-  %token TIMES
-  %token DIVIDE
-  %token <int> NUM
-  %token <string> VAR
-  %token LPAREN
-  %token RPAREN
-  %token EOF
+%token LET
+%token EQUALS
+%token IN
+%token PLUS
+%token MINUS
+%token TIMES
+%token DIVIDE
+%token <int> NUM
+%token <string> VAR
+%token LPAREN
+%token RPAREN
+%token EOF
 
-  %left PLUS, MINUS
-  %left TIMES, DIVIDE
+%left PLUS, MINUS
+%left TIMES, DIVIDE
 
-  %start <Ast.prog> { prog }
+%start <Utils.prog> prog
 
-  %%
+%%
 
-  prog:
-    | e = expr; EOF { e }
+prog:
+  | e = expr; EOF { e }
 
-  expr:
-    | LET; x = var; EQUALS; e1 = expr; IN; e2 = expr { Let(x, e1, e2) }
-    | e = expr1 { e }
+expr:
+  | LET; x = var; EQUALS; e1 = expr; IN; e2 = expr { Let(x, e1, e2) }
+  | e = expr1 { e }
 
-  %inline bop:
-    | PLUS { Add }
-    | MINUS { Sub }
-    | TIMES { Mul }
-    | DIVIDE { Div }
+%inline bop:
+  | PLUS { Add }
+  | MINUS { Sub }
+  | TIMES { Mul }
+  | DIVIDE { Div }
 
-  expr1:
-    | e1 = expr1; op = bop; e2 = expr2 { Bop(op, e1, e2) }
-    | e = num { e }
-    | e = var { e }
-    | LPAREN; e = expr; RPAREN { e }
+expr1:
+  | e1 = expr1; op = bop; e2 = expr1 { Bop(op, e1, e2) }
+  | n = num { Num n }
+  | v = var { Var v }
+  | LPAREN; e = expr; RPAREN { e }
 
-  num:
-    | n = NUM { Num n }
+num:
+  | n = NUM { n }
 
-  var:
-    | x = VAR { Var x }
+var:
+  | x = VAR { x }
 #+end_src
 
 #+begin_quote
-*Remark.* If we want to follow the grammar exactly, we have to use
- what is called /inlining/ for the binary operators.  Menhir is not
- smart enough to recognize that ~bop~ expands to operators with
- declared precendence.  We use the keyword ~%inline~ to tell Menhir
- essentially to immediately substitute ~bop~ in the grammar itself.
+*Remark:* If we want to follow the grammar exactly, we have to
+ /inline/ the binary operators.  Menhir is not smart enough to
+ recognize that ~bop~ expands to operators with declared precendence.
+ We use the keyword ~%inline~ to tell Menhir essentially to
+ immediately substitute ~bop~ in the grammar itself.
 
  It's equivalent to having the rule:
 
@@ -561,18 +573,17 @@ Updated ~par.mly~:
     | e1 = expr1; MINUS; e2 = expr2 { Bop(Sub, e1, e2) }
     | e1 = expr1; TIMES; e2 = expr2 { Bop(Mul, e1, e2) }
     | e1 = expr1; DIVIDE; e2 = expr2 { Bop(Div, e1, e2) }
-    | e = num { e }
-    | e = var { e }
+    | n = num { Num n }
+    | v = var { Var v }
     | LPAREN; e = expr; RPAREN { e }
  #+end_src
 
  but with far less typing.
 #+end_quote
 At this point, you should be able to ~dune build~ your project.  That
-said, if you try to use it, it won't do anything because we haven't
-specified the lexer, we haven't said which strings correspond to which
-tokens.  We will deal with this in the next section.
-
+said, if you try to use ~Parser_example.parse~, it won't do anything
+because /we haven't specified the lexer/. That is, we haven't said
+which strings correspond to which tokens.
 ** Step 4: Lexing
 
 The last thing we need to do: populate the lexer.  We won't discuss
@@ -583,7 +594,7 @@ stay fairly fixed for us in this course.
 
   #+begin_src mll
     {
-    open Par
+    open Parser
     }
   #+end_src
 
@@ -606,6 +617,7 @@ stay fairly fixed for us in this course.
     rule read =
       parse
       | "let" { LET }
+      | "in" { IN }
       | "=" { EQUALS }
       | "+" { PLUS }
       | "-" { MINUS }
@@ -627,10 +639,10 @@ stay fairly fixed for us in this course.
   want to give the parser a /number/ not a string so we convert it
   with ~string_of_int~.
 
-All together, the updated ~lex.mll~:
+All together, the updated ~lexer.mll~:
 #+begin_src mll
   {
-  open Par
+  open Parser
   }
 
   let whitespace = [' ' '\t' '\n' '\r']
@@ -640,6 +652,7 @@ All together, the updated ~lex.mll~:
   rule read =
     parse
     | "let" { LET }
+    | "in" { IN }
     | "=" { EQUALS }
     | "+" { PLUS }
     | "-" { MINUS }
@@ -654,31 +667,25 @@ All together, the updated ~lex.mll~:
 #+end_src
 
 At this point, you should be able to ~dune build~ your project.
-
 ** Step 5: Running
-
 If all goes well you should be able to open ~dune utop~ and evaluate
 
 #+begin_src ocaml
-  My_parser.parse "let x = 2 in let y = 3 in x + y"
+  parse "let x = 2 in let y = 3 in x + y"
 #+end_src
 
-and see that it has the value
+and see that it has the value:
 
 #+begin_src ocaml
-  Let
-    ("x"
-    , Num 2
-    , Let
-	( "y"
-	, Num 3
-	, Add (Var "x", Var "y")
-	)
-    )
+  Some
+   (Parser_example__.Utils.Let ("x", Parser_example__.Utils.Num 2,
+     Parser_example__.Utils.Let ("y", Parser_example__.Utils.Num 3,
+      Parser_example__.Utils.Bop (Parser_example__.Utils.Add,
+       Parser_example__.Utils.Var "x", Parser_example__.Utils.Var "y"))))
 #+end_src
 
-You'll use ~My_parser.parse~ as your parser for the mini-projects.
-
+Don't worry too much about the module names in the output.  You'll use
+~parse~ as your parser for the mini-projects.
 * Closing Remarks
 
 + Menhir is it's own beast, there's a lot we're not covering.  You may
@@ -688,10 +695,10 @@ You'll use ~My_parser.parse~ as your parser for the mini-projects.
 
 + In general, you're going to want to work more incrementally than
   we've done here.  Since you'll be given the specification, it's
-  /maybe/ fine for this course to try to sprint to the end and build a
-  parser in one shot, but if you're worried about making mistakes, you
-  should include one new token at a time and one new rule at a time,
-  and test frequently.
+  /maybe/ fine for this course to try to sprint to the end and build
+  the parser in one shot, but if you're worried about making mistakes,
+  you should include one new token at a time and one new rule at a
+  time, and test frequently.
 
 + You will have the luxury of being given /unambiguous/ grammars.  In
   the case that you try to generate a parser for an ambiguous grammar,

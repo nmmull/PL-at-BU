@@ -538,23 +538,23 @@ English grammar parse trees so far, but we can also build parse trees
 for sentences recognized by /any/ grammar with a BNF specification.
 
 #+begin_quote
-*Definition:* A *parse tree* for a sentence ~S~ in a grammar is a tree
-~T~ with the following properties:
+*Definition:* A *parse tree* for a sentence $S$ in a grammar is a tree
+$T$ with the following properties:
 
-+ every leaf of ~T~ has a terminal symbol;
-+ every non-leaf node ~n~ has a nonterminal symbol (we write ~val(n)~
-  for the value at ~n~);
-+ if a node ~n~ with has children ~[t1, t2, ..., tk]~ then
++ every leaf of $T$ has a terminal symbol;
++ every non-leaf node $n$ has a nonterminal symbol (we write $\mathsf{val}(n)$
+  for the value at $n$);
++ if a node $n$ has children $T_1, T_2, \dots, T_k$ then
 
-  #+begin_src pseudo
-    val(n) ::= root(t1) root(t2) ... root(tk)
+  #+begin_src bnf
+    val(n) ::= root(T1) root(T2) ... root(Tk)
   #+end_src
 
-  is a production rule in the grammar (where ~root(t)~ denotes the
-  value at the root of the tree ~t~);
+  is a production rule in the grammar (where $\mathsf{root}(T)$
+  denotes the value at the root of the tree $T$);
 
-+ the leaves in order (i.e., the *frontier* of ~T~) form the sentence
-  ~S~.
++ the leaves in order (i.e., the *frontier* of $T$) form the sentence
+  $S$.
 #+end_quote
 
 The details of the above definition are not so important, as long as
