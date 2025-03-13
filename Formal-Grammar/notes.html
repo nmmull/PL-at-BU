@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-10-21 Mon 14:46 -->
+<!-- 2025-03-13 Thu 12:47 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Formal Grammar</title>
@@ -50,27 +50,27 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org875928f">Introduction</a></li>
-<li><a href="#org5b43dca">Backus-Naur Form</a>
+<li><a href="#orgc2a3c6c">Introduction</a></li>
+<li><a href="#orgc89bc9c">Backus-Naur Form</a>
 <ul>
-<li><a href="#orgb464740">Definitions</a></li>
-<li><a href="#orga46734b">A More Interesting Example</a></li>
-<li><a href="#org3f3d53d">Parse Trees</a></li>
+<li><a href="#org05a86e5">Definitions</a></li>
+<li><a href="#orgdf0d252">A More Interesting Example</a></li>
+<li><a href="#org9aafa3b">Parse Trees</a></li>
 </ul>
 </li>
-<li><a href="#org92cc265">Ambiguity</a>
+<li><a href="#org9c0f8cd">Ambiguity</a>
 <ul>
-<li><a href="#orgc040f0f">Avoiding Ambiguity</a></li>
-<li><a href="#orgc550ed5">Associativity</a></li>
-<li><a href="#orgf000be4">Precedence</a></li>
-<li><a href="#org3348eb1">Parentheses (Again)</a></li>
+<li><a href="#org2d41896">Avoiding Ambiguity</a></li>
+<li><a href="#org05593f6">Associativity</a></li>
+<li><a href="#org78c6951">Precedence</a></li>
+<li><a href="#orgfa4e214">Parentheses (Again)</a></li>
 </ul>
 </li>
-<li><a href="#org9f37264">Extended BNF</a>
+<li><a href="#org79d47ea">Extended BNF</a>
 <ul>
-<li><a href="#org3c33293">Optional</a></li>
-<li><a href="#orgaf5667b">Alternative</a></li>
-<li><a href="#org8672d52">Repetition</a></li>
+<li><a href="#org7e2d011">Optional</a></li>
+<li><a href="#org14bda8b">Alternative</a></li>
+<li><a href="#org3ca231f">Repetition</a></li>
 </ul>
 </li>
 </ul>
@@ -79,26 +79,26 @@
 <p>
 Before discussing parsing, we have to look at its mathematical
 counterpart: <i>formal language theory</i>.  We won't put heavy emphasis on
-formal language theory in this course (as interesting as it is);
-rather the most important thing to get from these notes are:
+formal language theory in this course (as interesting as it is).
+Rather the most important things to get from these notes are:
 </p>
 
 <ul class="org-ul">
-<li>the terminology, you need to know what a grammar is, what precedence is, etc.</li>
-<li>the ability to <b>read</b> a grammar and (in time) construct a parser
+<li>the terminology; you need to know what a grammar is, what precedence
+is, etc.</li>
+<li>the ability to <i>read</i> a grammar and (in time) construct a parser
 from it using a parser generator</li>
 </ul>
 
 <p>
-In particular, the problem of <b>designing</b> grammars is a subtle and
+In particular, the problem of <i>designing</i> grammars is a subtle and
 difficult one, and certainly one worth studying if you're interested.
 But, logistically speaking, in this course you will be <i>given</i> a
 grammar, from which you will generate a parser.
 </p>
-
-<div id="outline-container-org875928f" class="outline-2">
-<h2 id="org875928f">Introduction</h2>
-<div class="outline-text-2" id="text-org875928f">
+<div id="outline-container-orgc2a3c6c" class="outline-2">
+<h2 id="orgc2a3c6c">Introduction</h2>
+<div class="outline-text-2" id="text-orgc2a3c6c">
 <p>
 Most of us are familiar with grammar in the context of natural
 language.  In English class, we learn that we should use the article
@@ -137,17 +137,17 @@ in English (except, perhaps, in surrealist fiction).
 </p>
 
 <p>
-Programming languages──being themselves languages in their own right,
-albeit more stringent ones than natural languages──have their own
-grammars, i.e., rules for determining what counts as a well-formed
-<i>program</i>.  Due to the grammatic precision expected of programming
-languages (we don't want too much variation in what we are allowed to
-write as a valid program), these tend to be called <b>formal grammars</b>.
+PLs──being themselves languages in their own right, albeit more
+stringent ones than natural languages──have their own grammars, i.e.,
+rules for determining what counts as a well-formed <i>program</i>.  Due to
+the grammatical precision expected of PLs (we don't want too much
+variation in what we are allowed to write as a valid program), these
+tend to be called <b>formal grammars</b>.
 </p>
 
 <blockquote>
 <p>
-<b>Example.</b> In OCaml, the program
+<b>Example:</b> In OCaml, the program
 </p>
 
 <div class="org-src-container">
@@ -166,17 +166,16 @@ is well-formed, but the program
 
 <p>
 is not, because the rule for using the <code>+</code> operator is that its
-arguments appear to its left and its right, i.e., it's an <i>infix
+arguments appear to its left and its right, i.e., <code>+</code> is an <i>infix
 operator</i>.<sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup>
 </p>
 </blockquote>
 
 <p>
-As in the case of natural language, grammars for programming languages
-are not concerned with the <b>meaning</b> of programs, just their
-well-formedness. The program
+As in the case of natural language, grammars for PLs are not concerned
+with the <b>meaning</b> of programs, just their well-formedness. The
+program
 </p>
-
 
 <div class="org-src-container">
 <pre class="src src-ocaml"><span style="color: #000000; font-weight: bold;">let</span> <span style="color: #0000ff;">omega</span> <span style="color: #a0522d;">x</span> = x x
@@ -184,36 +183,40 @@ well-formedness. The program
 </div>
 
 <p>
-is well-formed in OCaml, but it's not well-typed since the argument
-<code>x</code> is expected to be a function of type <code>'a -&gt; 'b</code> as well as an
-argument of type <code>'a</code>, an impossibility in the type system of OCaml.
-</p>
-
-<p>
-If our goal is to interpret computer programs, then we have to
-understand formally──both theoretically and practically──the grammars
-describing the well-formed programs.  This means being able to
-represent and interpret representations of formal grammars.  The
-grammar of OCaml, for example, is given in its entirety in <a href="https://v2.ocaml.org/manual/expr.html">The OCaml
-Manual</a>.  After going through this chapter, you should be able to
-interpret the specification given there.
-</p>
-
-<p>
-Placing this in the pipeline of interpretation, a grammar represents
-the target of <i>parsing</i>.  As a reminder, a stream of tokens is parsed
-into a <b>parse tree</b>, a hierarchical structure which describes the way
-the program is formally composed.  It's easier to determine the meaning
-of a program (i.e., to interpret it) given its hierarchical structure
-as opposed to its linear form as a stream of tokens.
+is well-formed in OCaml, but it's not well-<i>typed</i>.
 </p>
 
 <blockquote>
 <p>
-<b>Remark.</b> This is another way of conceptualizing the role of grammar:
-it determines the hierarchical structure of a sentence.  A sentence
-may be considered well-formed if it can constructed as well-formed
-parse tree, e.g.
+<b>Exercise:</b> Open up Utop and evaluate the above OCaml program. What is
+the error message?
+</p>
+</blockquote>
+
+<p>
+If our goal is to interpret programs, then we have to understand
+formally──both theoretically and practically──the grammars describing
+the well-formed programs.  This means being able to represent and
+interpret representations of formal grammars.  The grammar of OCaml,
+for example, is given in its entirety in <a href="https://v2.ocaml.org/manual/expr.html">The OCaml Manual</a>.  After
+going through this chapter, you should be able to interpret the
+specification given there.
+</p>
+
+<p>
+Placing this in the pipeline of interpretation, a grammar represents
+the target of <i>parsing</i>.  As a reminder, a stream of tokens is
+transformed into a <b>parse tree</b> during syntactic analysis. A parse
+tree is a hierarchical structure which describes the composition of
+the source program.  It's easier to interpret a program in its
+hierarchical form as opposed to its linear form as a stream of tokens.
+</p>
+
+<blockquote>
+<p>
+<b>Remark:</b> This is another way of describing the role of grammar: it
+determines the hierarchical structure of a sentence.  A sentence is
+well-formed if it has a parse tree, e.g.
 </p>
 
 <div class="org-src-container">
@@ -232,46 +235,44 @@ N  V      NP
 I  taught the car in the refrigerator.
 </pre>
 </div>
+
+<p>
+Its not important that you know exactly what the abbreviations in the
+above parse tree stand for (though you should be able to make educated
+guesses). But hopefully the structure aligns with your intuition about
+how words in the sentences are grouped.
+</p>
 </blockquote>
 
 <p>
-Its not important that you know exactly what you each of the
-abbreviations in the above image stand for (this isn't a linguistics
-course, but hopefully we can make educated guesses) but hopefully the
-structure aligns with your intuition about how words in the sentences
-are grouped.
-</p>
-
-<p>
-In this collection of notes on formal grammars, we will:
+In this note on formal grammars, we will:
 </p>
 
 <ul class="org-ul">
 <li>define <b>Backus-Naur Form</b> specifications, a way of describing
-so-called <b>context-free grammars</b>, which we will use to present the
-grammars of programming languages;</li>
-<li>discuss <b>ambiguity</b> in grammar along with how to avoid it (and why);</li>
-<li>Look at <b>Extended BNF</b> as a slightly more useful framework for
-specifying programming languages.</li>
+so-called <b>context-free grammars</b>, which we'll use to present the
+formal grammars of PLs;</li>
+<li>discuss <b>ambiguity</b> in grammar and how to avoid it (and why);</li>
+<li>look at <b>extended BNF</b> as a slightly more useful framework for
+specifying PLs.</li>
 </ul>
 </div>
 </div>
-
-<div id="outline-container-org5b43dca" class="outline-2">
-<h2 id="org5b43dca">Backus-Naur Form</h2>
-<div class="outline-text-2" id="text-org5b43dca">
+<div id="outline-container-orgc89bc9c" class="outline-2">
+<h2 id="orgc89bc9c">Backus-Naur Form</h2>
+<div class="outline-text-2" id="text-orgc89bc9c">
 <p>
 Backus-Naur Form (BNF) specifications are used to describe what are
 called <b>context-free grammars</b>.  Context-free grammars form a class of
 formal grammars which are sufficiently expressive to capture the
-grammars of most programming languages.  We will be using BNF
-specifications to describe the rules which determine well-formed
-programs in programming languages we aim to interpret.
+grammars of most PLs.  We will be using BNF specifications to describe
+the rules which determine well-formed programs in then PLs we aim to
+interpret.
 </p>
 
 <p>
-First, a toy example/thought experiment.  Consider the following
-English statement.
+First, a thought experiment.  Consider the following English
+statement.
 </p>
 
 <div class="org-src-container">
@@ -280,12 +281,11 @@ English statement.
 </div>
 
 <p>
-Suppose we tried to break down the cognitive process of determining
-that this sentence is grammatical.  We might first recognize that each
-word falls into a particular part of speech.  We can represent this
-step of the process by replacing each word in the sentence with a
-symbol <i>standing for</i> each figure of speech (the choice of symbol
-being influenced by what is to come).
+Suppose we try to break down the cognitive process of determining that
+this sentence is grammatical.  We might first recognize that each word
+falls into a particular part of speech.  We can represent this step of
+the process by replacing each word in the sentence with a symbol
+<i>standing for</i> each figure of speech.
 </p>
 
 <div class="org-src-container">
@@ -344,18 +344,20 @@ symbol <code>&lt;sentence&gt;</code>) we get something that looks like a <i>proo
 
 <div class="org-src-container">
 <pre class="src src-bnf">&lt;<span style="color: #483d8b;">sentence</span>&gt;
-&lt;<span style="color: #483d8b;">noun phrase</span>&gt;    &lt;<span style="color: #483d8b;">verb phrase</span>&gt;
-&lt;<span style="color: #483d8b;">noun phrase</span>&gt;    &lt;<span style="color: #483d8b;">verb</span>&gt; &lt;<span style="color: #483d8b;">prep phrase</span>&gt;
-&lt;<span style="color: #483d8b;">noun phrase</span>&gt;    &lt;<span style="color: #483d8b;">verb</span>&gt; &lt;<span style="color: #483d8b;">prep</span>&gt; &lt;<span style="color: #483d8b;">noun phrase</span>&gt;
+&lt;<span style="color: #483d8b;">noun-phrase</span>&gt;    &lt;<span style="color: #483d8b;">verb-phrase</span>&gt;
+&lt;<span style="color: #483d8b;">noun-phrase</span>&gt;    &lt;<span style="color: #483d8b;">verb</span>&gt; &lt;<span style="color: #483d8b;">prep-phrase</span>&gt;
+&lt;<span style="color: #483d8b;">noun-phrase</span>&gt;    &lt;<span style="color: #483d8b;">verb</span>&gt; &lt;<span style="color: #483d8b;">prep</span>&gt; &lt;<span style="color: #483d8b;">noun-phrase</span>&gt;
 &lt;<span style="color: #483d8b;">article</span>&gt; &lt;<span style="color: #483d8b;">noun</span>&gt; &lt;<span style="color: #483d8b;">verb</span>&gt; &lt;<span style="color: #483d8b;">prep</span>&gt; &lt;<span style="color: #483d8b;">article</span>&gt; &lt;<span style="color: #483d8b;">noun</span>&gt;
 the       cow    jumped over   the       moon
 </pre>
 </div>
 
 <p>
-That is, a representation of our congnitive process.  And if we
-squint, we can see something that hierarchical, something that looks a
-bit like the parse tree in the introduction to this chapter.
+Each line follows from line which precedes it by a grammar rule, e.g.,
+a <i>sentence</i> is composed of a <i>noun phrase</i> followed by a <i>verb
+phrase</i>. And if we squint, we can see something hierarchical,
+something that looks a bit like the parse tree in the introduction to
+this chapter.
 </p>
 
 <div class="org-src-container">
@@ -375,49 +377,47 @@ the cow jumped over the moon
 
 <p>
 A <b>formal grammar</b> is meant to model this cognitive process of
-classifying a sentence as grammatical by verifying that it has the
-"right" hierarchical structure.
+classifying a sentence as grammatical by verifying that it has "valid"
+hierarchical structure.
 </p>
 </div>
-
-<div id="outline-container-orgb464740" class="outline-3">
-<h3 id="orgb464740">Definitions</h3>
-<div class="outline-text-3" id="text-orgb464740">
+<div id="outline-container-org05a86e5" class="outline-3">
+<h3 id="org05a86e5">Definitions</h3>
+<div class="outline-text-3" id="text-org05a86e5">
 <p>
 When defining a formal grammar, we fix ourselves to a collection of
 symbols.  These symbols are divided into two disjoint groups: the
 <b>terminal symbols</b> and the <b>non-terminal symbols</b>.  We will always
 notate a non-terminal symbol by something of the form <code>&lt;non-term&gt;</code>
-(where we replace <code>non-term</code> with something more descriptive) and
-terminal symbols by sequence of (typically) alphanumeric symbols.
+where we replace <code>non-term</code> with something more descriptive, and
+terminal symbols by sequence of alphanumeric symbols.
 </p>
 
 <blockquote>
 <p>
-<b>Remark.</b> We almost never state outright what the underlying symbols
-of a grammar are.  It should always be possible to determine what
-terminal and non-terminal symbols we are considering by looking at the
-BNF specification itself.
+<b>Remark:</b> We almost never state outright what the underlying symbols
+of a grammar are.  We can always determine the terminal and
+non-terminal symbols of a grammar by looking at its BNF specification.
 </p>
 </blockquote>
 
 <p>
 In the proof that <code>the cow jumped over the moon</code> was grammatical, we
 built a sequence of not-quite sentences, until the very last one which
-was an actual sentences. We call these not-quite sentences <b>sentential
-forms</b>.
+was an actual sentences. We call these possibly-not-quite sentences
+<b>sentential forms</b>.
 </p>
 
 <blockquote>
 <p>
-<b>Definition.</b> A <b>sentential form</b> is a sequence of symbols (terminal
+<b>Definition:</b> A <b>sentential form</b> is a sequence of symbols (terminal
 or non-terminal).  A <b><b>sentence</b></b> is a sequence of terminal symbols.
 </p>
 </blockquote>
 
 <blockquote>
 <p>
-<b>Remark.</b> We notate a sequences of symbols by white space separation.
+<b>Remark:</b> We notate a sequences of symbols by white space separation.
 For example,
 </p>
 
@@ -437,17 +437,15 @@ is a sentence and
 
 <p>
 is a sentential form.  But it is important to note that <i>this is just
-notation</i>.  If it helps, it may be useful to imagine a <i>list</i>
+notation</i>.  We're not interested in low-level concerns like whitespace
+when studying formal grammar.  If it helps, it may be useful to thing
+of sentential forms as <i>lists</i>:
 </p>
 
 <div class="org-src-container">
 <pre class="src src-sent">[the; &lt;noun&gt;; jumped]
 </pre>
 </div>
-
-<p>
-when thinking about what a sentential form is.
-</p>
 </blockquote>
 
 <p>
@@ -459,7 +457,7 @@ are allowed to do.
 
 <blockquote>
 <p>
-<b>Definition.</b> A <b>production rule</b> is an equation of the form
+<b>Definition:</b> A <b>production rule</b> is an equation of the form
 </p>
 
 <div class="org-src-container">
@@ -477,26 +475,29 @@ the right-hand side is a sentential form.
 We read a production rule as: "the non-terminal symbol on the
 left-hand side can be replaced with the sentential form on the right
 hand side."  In a sense, production rules <i>define</i> the non-terminal
-symbols, e.g., a sentence is a noun phrase followed by a verb phrase.
+symbols, e.g., a sentence <i>is</i> a noun phrase followed by a verb phrase.
 </p>
 
 <blockquote>
 <p>
-<b>Definition.</b> A <b>Backus-Naur Form (BNF) specification</b> is a collection
+<b>Definition:</b> A <b>Backus-Naur Form (BNF) specification</b> is a collection
 of production rules, together with a designated the <b>starting symbol</b>.
 </p>
 </blockquote>
 
 
+<blockquote>
 <p>
-We will always take the start symbol will be designated as the
-left-hand side of the <b>first</b> rule appearing in a specification.
+<b>Remark:</b> We will always take the start symbol to be the left-hand side of the
+<i>first</i> rule appearing in a specification.
 </p>
+</blockquote>
+
 
 <blockquote>
 <p>
-<b>Example.</b> The following is an example of a grammar which <i>recognizes</i>
-the sentence above.
+<b>Example:</b> The following is an example of a grammar which <i>recognizes</i>
+the above sentence.
 </p>
 
 <div class="org-src-container">
@@ -514,6 +515,17 @@ the sentence above.
 </div>
 
 <p>
+The nonterminal symbols of this grammar are: <code>&lt;sentence&gt;</code>,
+<code>&lt;noun-phrase&gt;</code>, <code>&lt;verb-phrase&gt;</code>, <code>&lt;verb&gt;</code>, <code>&lt;prep&gt;</code>, <code>&lt;prep-phrase&gt;</code>,
+<code>&lt;article&gt;</code>, and <code>&lt;noun&gt;</code>.
+</p>
+
+<p>
+The terminal symbols of this grammar are: <code>the</code>, <code>cow</code>, <code>moon</code>,
+<code>jumped</code>, and <code>over</code>.
+</p>
+
+<p>
 The nonterminal symbol <code>&lt;sentence&gt;</code> is our starting symbol because it
 appears as the left-hand side of the first rule.
 </p>
@@ -521,13 +533,13 @@ appears as the left-hand side of the first rule.
 
 <p>
 Note that a non-terminal symbol can have multiple associated
-production rules.  This is common enough that we have special syntax
-for this.
+production rules.  This is common enough to have its own special
+syntax.
 </p>
 
 <blockquote>
 <p>
-<b>Notation.</b> We write
+<b>Notation:</b> We write
 </p>
 
 <div class="org-src-container">
@@ -572,14 +584,14 @@ formalize this in the notion of a <b>derivation</b>.
 
 <blockquote>
 <p>
-<b>Definition.</b> A <b>derivation</b> of a sentence <code>S</code> in a BNF grammar is a
+<b>Definition:</b> A <b>derivation</b> of a sentence <code>S</code> in a BNF grammar is a
 sequence of sentential forms with the following properties:
 </p>
 
 <ul class="org-ul">
-<li>it beginning with the designated start symbol;</li>
+<li>it begins with the designated start symbol;</li>
 <li>it ends in the sentence <code>S</code>;</li>
-<li>each sentential form is a the result of replacing <i>one of</i> the
+<li>each sentential form is a the result of replacing <i>one</i> of the
 non-terminal symbols in the preceding sentence with a sentential
 form according to a production rule of the grammar.</li>
 </ul>
@@ -595,8 +607,8 @@ This definition restates the process from the thought experiment
 mathematically.  That said, it deviates in one way which makes the
 definition easier to state: in the thought experiment, we allowed
 ourselves to replace multiple non-terminal symbols simultaneously.
-This is not allowed in the above notion of a derivation. A <i>correct</i>
-derivation would look like:
+This is not allowed according to the above notion of a derivation. A
+<i>correct</i> derivation would look like:
 </p>
 
 <div class="org-src-container">
@@ -617,34 +629,30 @@ the       cow    jumped over   the       moon
 
 <blockquote>
 <p>
-<b>Exercise.</b> In the above derivation, mark the nonterminal in each
+<b>Exercise:</b> In the above derivation, mark the nonterminal in each
 sentential form which was replaced in the following line.
 </p>
 </blockquote>
 
 <p>
-A sentence is not guaranteed to have a <i>unique</i> derivation.  There are
-two forms of derivations that will be of particular importance for us.
+A sentence is not guaranteed to have a <i>unique</i> derivation.  However,
+there is one form of derivation we will single out.
 </p>
 
 <blockquote>
 <p>
-<b>Definition.</b> A <b>leftmost derivation</b> of a sentence is one in which
-the leftmost nonterminal symbol is expanded in each step.  A
-<b>rightmost derivation</b> is one in which the rightmost nonterminal
-symbol is expanded in each step.
+<b>Definition:</b> A <b>leftmost derivation</b> of a sentence is one in which
+the leftmost nonterminal symbol is expanded in each step.
 </p>
 </blockquote>
 
-
 <p>
-Note that the above derivation is neither the leftmost derivation or
-the rightmost derivation.
+The above derivation is not a leftmost derivation.
 </p>
 
 <blockquote>
 <p>
-<b>Exercise.</b> Write leftmost and rightmost derivations for the sentence
+<b>Exercise:</b> Write a leftmost derivation for the sentence
 </p>
 
 <div class="org-src-container">
@@ -658,18 +666,17 @@ in the above grammar.
 </blockquote>
 </div>
 </div>
-
-<div id="outline-container-orga46734b" class="outline-3">
-<h3 id="orga46734b">A More Interesting Example</h3>
-<div class="outline-text-3" id="text-orga46734b">
+<div id="outline-container-orgdf0d252" class="outline-3">
+<h3 id="orgdf0d252">A More Interesting Example</h3>
+<div class="outline-text-3" id="text-orgdf0d252">
 <p>
 The following is a BNF specification for a fragment of a simple
-imperative programming language.
+imperative PL.
 </p>
 
 <div class="org-src-container">
 <pre class="src src-bnf">&lt;<span style="color: #0000ff;">program</span>&gt; <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">stmts</span>&gt;
-&lt;<span style="color: #0000ff;">stmts</span>&gt;   <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">stmt</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">stmt</span>&gt; <span style="color: #b22222;">; &lt;stmts&gt;</span>
+&lt;<span style="color: #0000ff;">stmts</span>&gt;   <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">stmt</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">stmt</span>&gt; &#65044; &lt;<span style="color: #483d8b;">stmts</span>&gt;
 &lt;<span style="color: #0000ff;">stmt</span>&gt;    <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">var</span>&gt; = &lt;<span style="color: #483d8b;">expr</span>&gt;
 &lt;<span style="color: #0000ff;">var</span>&gt;     <span style="color: #008b8b;">::=</span> a <span style="color: #ff0000; font-weight: bold;">|</span> b <span style="color: #ff0000; font-weight: bold;">|</span> c <span style="color: #ff0000; font-weight: bold;">|</span> d
 &lt;<span style="color: #0000ff;">expr</span>&gt;    <span style="color: #008b8b;">::=</span> &lt;<span style="color: #483d8b;">term</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">term</span>&gt; + &lt;<span style="color: #483d8b;">term</span>&gt; <span style="color: #ff0000; font-weight: bold;">|</span> &lt;<span style="color: #483d8b;">term</span>&gt; - &lt;<span style="color: #483d8b;">term</span>&gt;
@@ -687,27 +694,26 @@ In English, we would read this specification as:
 STATEMENT followed a semicolon, followed by a SEQUENCE OF
 STATEMENTS;</li>
 <li>a STATEMENT is a VARIABLE followed by an equals sign, followed
-by an EXPRESSION.</li>
+by an EXPRESSION;</li>
 </ul>
 
 <p>
-and so on.
+and so on&#x2026;
 </p>
 
 <p>
-This second rule highlights something interesting which we can do in
-BNF specifications: rules are allowed to be <i>recursive</i>.  The
-production rule for <code>&lt;stmts&gt;</code> allows us to replace it with a
-sentential form which <i>contains</i> the non-terminal symbol <code>&lt;stmts&gt;</code>.
-This is quite powerful, particularly because it means it is possible
-to derive an infinite number of sentences in a given grammar.
+This second rule highlights an interesting feature of BNF
+specifications: rules are allowed to be <i>recursive</i>.  The production
+rule for <code>&lt;stmts&gt;</code> allows us to replace it with a sentential form
+which <i>contains</i> the non-terminal symbol <code>&lt;stmts&gt;</code>.  As such, this
+grammar recognizes an infinite number of sentences.
 </p>
 
 <blockquote>
 <p>
-<b>Exercise.</b> Determine the number of sentences that can be derived in
- the grammar from the previous section (i.e., the number of sentences
- which can be derived from the starting symbol <code>&lt;sentence&gt;</code>).
+<b>Exercise:</b> Determine the number of sentences that can be derived in
+the grammar from the previous section (i.e., the number of sentences
+which can be derived from the starting symbol <code>&lt;sentence&gt;</code>).
 </p>
 </blockquote>
 
@@ -716,8 +722,8 @@ Consider the following program.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-prog">a = const ;
-a = a + const ;
+<pre class="src src-prog">a = const &#65044;
+a = a + const &#65044;
 b = a
 </pre>
 </div>
@@ -728,31 +734,31 @@ finding a (leftmost) derivation.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-deriv">&lt;program&gt;
-&lt;stmts&gt;
-&lt;stmt&gt; ; &lt;stmts&gt;
-&lt;var&gt; = &lt;expr&gt; ; &lt;stmts&gt;
-a = &lt;expr&gt; ; &lt;stmts&gt;
-a = &lt;term&gt; ; &lt;stmts&gt;
-a = const ; &lt;stmts&gt;
-a = const ; &lt;stmt&gt; ; &lt;stmts&gt;
-a = const ; &lt;var&gt; = &lt;expr&gt; ; &lt;stmts&gt;
-a = const ; a = &lt;expr&gt; ; &lt;stmts&gt;
-a = const ; a = &lt;term&gt; + &lt;term&gt; ; &lt;stmts&gt;
-a = const ; a = &lt;var&gt; + &lt;term&gt; ; &lt;stmts&gt;
-a = const ; a = a + &lt;term&gt; ; &lt;stmts&gt;
-a = const ; a = a + const ; &lt;stmts&gt;
-a = const ; a = a + const ; &lt;var&gt; = &lt;expr&gt;
-a = const ; a = a + const ; b = &lt;expr&gt;
-a = const ; a = a + const ; b = &lt;term&gt;
-a = const ; a = a + const ; b = &lt;var&gt;
-a = const ; a = a + const ; b = a
+<pre class="src src-bnf">&lt;<span style="color: #483d8b;">program</span>&gt;
+&lt;<span style="color: #483d8b;">stmts</span>&gt;
+&lt;<span style="color: #483d8b;">stmt</span>&gt; &#65044; &lt;<span style="color: #483d8b;">stmts</span>&gt;
+&lt;<span style="color: #483d8b;">var</span>&gt; = &lt;<span style="color: #483d8b;">expr</span>&gt; &#65044; &lt;<span style="color: #483d8b;">stmts</span>&gt;
+a = &lt;<span style="color: #483d8b;">expr</span>&gt; &#65044; &lt;<span style="color: #483d8b;">stmts</span>&gt;
+a = &lt;<span style="color: #483d8b;">term</span>&gt; &#65044; &lt;<span style="color: #483d8b;">stmts</span>&gt;
+a = const &#65044; &lt;<span style="color: #483d8b;">stmts</span>&gt;
+a = const &#65044; &lt;<span style="color: #483d8b;">stmt</span>&gt; &#65044; &lt;<span style="color: #483d8b;">stmts</span>&gt;
+a = const &#65044; &lt;<span style="color: #483d8b;">var</span>&gt; = &lt;<span style="color: #483d8b;">expr</span>&gt; &#65044; &lt;<span style="color: #483d8b;">stmts</span>&gt;
+a = const &#65044; a = &lt;<span style="color: #483d8b;">expr</span>&gt; &#65044; &lt;<span style="color: #483d8b;">stmts</span>&gt;
+a = const &#65044; a = &lt;<span style="color: #483d8b;">term</span>&gt; + &lt;<span style="color: #483d8b;">term</span>&gt; &#65044; &lt;<span style="color: #483d8b;">stmts</span>&gt;
+a = const &#65044; a = &lt;<span style="color: #483d8b;">var</span>&gt; + &lt;<span style="color: #483d8b;">term</span>&gt; &#65044; &lt;<span style="color: #483d8b;">stmts</span>&gt;
+a = const &#65044; a = a + &lt;<span style="color: #483d8b;">term</span>&gt; &#65044; &lt;<span style="color: #483d8b;">stmts</span>&gt;
+a = const &#65044; a = a + const &#65044; &lt;<span style="color: #483d8b;">stmts</span>&gt;
+a = const &#65044; a = a + const &#65044; &lt;<span style="color: #483d8b;">var</span>&gt; = &lt;<span style="color: #483d8b;">expr</span>&gt;
+a = const &#65044; a = a + const &#65044; b = &lt;<span style="color: #483d8b;">expr</span>&gt;
+a = const &#65044; a = a + const &#65044; b = &lt;<span style="color: #483d8b;">term</span>&gt;
+a = const &#65044; a = a + const &#65044; b = &lt;<span style="color: #483d8b;">var</span>&gt;
+a = const &#65044; a = a + const &#65044; b = a
 </pre>
 </div>
 
 <blockquote>
 <p>
-<b>Remark.</b> As a reminder, we're not interested in white space when we
+<b>Remark:</b> As a reminder, we're not interested in whitespace when we
 consider whether or not a sentence is recognized by a grammar.  The
 choice to present the sentences in three lines was for readability,
 and the choice to present it in a single line in the derivation was
@@ -761,27 +767,21 @@ for convenience.
 </blockquote>
 
 <p>
-One notable feature of the last four lines of the above derivation:
-even if a nonterminal symbol is replaced by a <i>single</i> nonterminal
-symbol in succession, <b>we have to include each step</b>.  We're only
-allowed to apply one production rule at a time, e.g., we cannot
-immedatiely replace <code>&lt;expr&gt;</code> with <code>&lt;var&gt;</code> because that is not one of
-our production rules.
+There is a notable feature of the last four lines of the above
+derivation: even if a nonterminal symbol is replaced by a <i>single</i>
+nonterminal symbol in succession, <b>we have to include each step</b>.
+We're only allowed to apply one production rule at a time, e.g., we
+cannot immedatiely replace <code>&lt;expr&gt;</code> with <code>&lt;var&gt;</code> because that is not
+one of our production rules.
 </p>
 
 <blockquote>
 <p>
-<b>Exercise.</b> Write a rightmost derivation for the above program.
-</p>
-</blockquote>
-
-<blockquote>
-<p>
-<b>Exercise.</b> Verify that
+<b>Exercise:</b> Verify that
 </p>
 
 <div class="org-src-container">
-<pre class="src src-prog">a = a + a ; b = b
+<pre class="src src-prog">a = a + a &#65044; b = b
 </pre>
 </div>
 
@@ -791,21 +791,19 @@ is recognized by the above grammar.
 </blockquote>
 </div>
 </div>
-
-<div id="outline-container-org3f3d53d" class="outline-3">
-<h3 id="org3f3d53d">Parse Trees</h3>
-<div class="outline-text-3" id="text-org3f3d53d">
+<div id="outline-container-org9aafa3b" class="outline-3">
+<h3 id="org9aafa3b">Parse Trees</h3>
+<div class="outline-text-3" id="text-org9aafa3b">
 <p>
 Grammars imbue sentences with hierarchical structure.  This structure
-is represented graphically as a <b>parse tree</b>.  We've seen a couple
-examples of English grammar parse trees so far, but we can also build
-parse trees for sentences recognized by <i>any</i> grammar with a BNF
-specification.
+is represented as a <b>parse tree</b>.  We've seen a couple examples of
+English grammar parse trees so far, but we can also build parse trees
+for sentences recognized by <i>any</i> grammar with a BNF specification.
 </p>
 
 <blockquote>
 <p>
-<b>Definition.</b> A <b>parse tree</b> for a sentence <code>S</code> in a grammar is a tree
+<b>Definition:</b> A <b>parse tree</b> for a sentence <code>S</code> in a grammar is a tree
 <code>T</code> with the following properties:
 </p>
 
@@ -827,15 +825,15 @@ is a production rule in the grammar (where <code>root(t)</code> denotes the
 value at the root of the tree <code>t</code>);
 </p></li>
 
-<li>the leaves (in order) (i.e., the <b>frontier</b> of <code>T</code>) form the
-sentence <code>S</code>.</li>
+<li>the leaves in order (i.e., the <b>frontier</b> of <code>T</code>) form the sentence
+<code>S</code>.</li>
 </ul>
 </blockquote>
 
 <p>
 The details of the above definition are not so important, as long as
 you have the right picture in your head.  For example, the sentence <code>a
-= b + const</code> has the following derivation.
+= b + const</code> has the following derivation:
 </p>
 
 <div class="org-src-container">
@@ -852,7 +850,7 @@ a = b + const
 </div>
 
 <p>
-And has the following parse tree.
+and has the following parse tree:
 </p>
 
 <div class="org-src-container">
@@ -874,16 +872,16 @@ a     =   b      + const
 
 <blockquote>
 <p>
-<b>Remark.</b> You don't have to draw your trees in this rectilinear
+<b>Remark:</b> You don't have to draw your trees in this rectilinear
 styling. If you're drawing one on paper, I'd recommend drawing it like
-any other tree you've drawn for another computer science course.  I
-just have a predilection for ASCII art&#x2026;
+any other tree you've drawn in a CS course.  I just have a
+predilection for ASCII art&#x2026;
 </p>
 </blockquote>
 
 <blockquote>
 <p>
-<b>Exercise.</b> Given the ADT
+<b>Exercise:</b> Given the ADT
 </p>
 
 <div class="org-src-container">
@@ -894,15 +892,17 @@ just have a predilection for ASCII art&#x2026;
 </div>
 
 <p>
-write the OCaml function <code>frontier</code> which, given
+implement the OCaml function
 </p>
 
-<ul class="org-ul">
-<li><code>t</code> of type <code>'a tree</code></li>
-</ul>
+<div class="org-src-container">
+<pre class="src src-ocaml"><span style="color: #000000; font-weight: bold;">val</span> <span style="color: #0000ff;">frontier</span> : 'a tree &#8594; 'a list
+</pre>
+</div>
 
 <p>
-returns the list of leaves of <code>t</code> in order from left to right.
+so that <code>frontier t</code> is the list of values at leaves of <code>t</code> in order
+from left to right.
 </p>
 </blockquote>
 
@@ -914,17 +914,17 @@ will be important when we cover ambiguity in the next section.
 
 <blockquote>
 <p>
-<b>Exercise.</b> Write a derivation corresponding to the above parse tree
- when is neither leftmost nor rightmost.
+<b>Exercise:</b> Write a derivation corresponding to the above parse tree
+ which is not leftmost.
 </p>
 </blockquote>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org92cc265" class="outline-2">
-<h2 id="org92cc265">Ambiguity</h2>
-<div class="outline-text-2" id="text-org92cc265">
+<div id="outline-container-org9c0f8cd" class="outline-2">
+<h2 id="org9c0f8cd">Ambiguity</h2>
+<div class="outline-text-2" id="text-org9c0f8cd">
 <p>
 As participants of language, we are no strangers to grammatical
 ambiguity.  Take, for instance, the following sentence:<sup><a id="fnr.2" class="footref" href="#fn.2" role="doc-backlink">2</a></sup>
@@ -993,23 +993,25 @@ John saw the man on the mountain with the telescope
 
 <p>
 The prepositional phrase <code>with the telescope</code> is part of the noun
-phrase with <code>the mountain</code>, indicating the there is a telescope on the
-mountain and the man is climbing that mountain.
+phrase for <code>the mountain</code>, indicating the there is a telescope on the
+mountain and the man is on that mountain.
 </p>
 
+<blockquote>
 <p>
-The ambiguity comes from not being completely sure which parse tree to
-give to the sentence; we experience language in a <i>linear fashion</i>,
-either by reading it or hearing it.  If our interlocutor could
-<i>display</i> the parse tree of their statement (floating eerily in space
-before your eyes) there would be nothing to say of (grammatical)
-ambiguity.
+<b>Remark:</b> Grammatical ambiguity comes from not being completely sure
+which parse tree to give to a sentence. We experience language in a
+<i>linear fashion</i>, either by reading it or hearing it.  If our
+interlocutor could <i>display</i> the parse tree of their statement
+(floating eerily in space before our eyes) there would be nothing to
+say of (grammatical) ambiguity.
 </p>
+</blockquote>
+
 
 <p>
-But this is <i>not</i> how we experience language, or how we write
-programs for that matter.  To drive the point home, there is a
-natural-enough looking grammar which recognizes the above sentence.
+Here is a natural-enough-looking grammar which recognizes the above
+sentence.
 </p>
 
 <div class="org-src-container">
@@ -1025,15 +1027,15 @@ natural-enough looking grammar which recognizes the above sentence.
 </div>
 
 <p>
-The above sentence has multiple parse trees in the above
-grammar. Equivalently, since parse trees correspond to exactly one
-leftmost derivation (you should try to convince yourself of this), it
-also has multiple leftmost derivations.
+The above sentence has multiple parse trees in the this
+grammar. Equivalently, <b>since every parse trees correspond to exactly
+one leftmost derivation, and vice versa</b>, it also has multiple
+leftmost derivations.
 </p>
 
 <blockquote>
 <p>
-<b>Exercise.</b> Give two leftmost derivations of
+<b>Exercise:</b> Give two leftmost derivations of
 </p>
 
 <div class="org-src-container">
@@ -1053,7 +1055,7 @@ formal grammars, ambiguity is a well-defined notion.
 
 <blockquote>
 <p>
-<b>Definition.</b> A grammar is <b>ambiguous</b> there is a sentence it
+<b>Definition:</b> A grammar is <b>ambiguous</b> if there is a sentence it
 recognizes which has two distinct parse trees.  Equivalently, it is
 ambiguous of there is a sentence it recognizes which has two distinct
 leftmost derivations.
@@ -1067,7 +1069,7 @@ Thus, the above grammar is ambiguous in the mathematical sense.
 <p>
 More to the point, consider the following grammar which may be seen as
 a prototype of a grammar for arithmetic expressions (something we will
-probably want if we're to give a grammar for a programming language).
+probably want if we're to give a grammar for a PL).
 </p>
 
 <div class="org-src-container">
@@ -1087,14 +1089,16 @@ of sentence.
 
 <blockquote>
 <p>
-<b>Exercise.</b> Give a leftmost a derivation of <code>x * x + x * x</code> in the above grammar.
+<b>Exercise:</b> Give a leftmost a derivation of <code>x * x + x * x</code> in the
+ above grammar.
 </p>
 </blockquote>
 
 <p>
 But, with regards to ambiguity, we should already be suspicious of the
 first production rule.  As soon as we've applied the (second
-alternative of) the first production rule twice we have the partial derivation:
+alternative of) the first production rule twice we have the partial
+derivation:
 </p>
 
 <div class="org-src-container">
@@ -1156,61 +1160,59 @@ x + x + x
 </pre>
 </div>
 
-
 <p>
 This demonstrates that the above grammar is ambiguous.
 </p>
 
 <blockquote>
 <p>
-<b>Aside.</b> In this example, and many of the examples we will see, it
+<b>Aside:</b> In this example, and many of the examples we will see, it
 will be fairly clear that the grammar is ambiguous.  As students of
 computer science, we might think that we could write a <i>program</i> that
 checks for us if a grammar is ambiguous.  Unfortunately, this is
-impossible (not just very difficult, but <b>impossible</b>).  This is to
+impossible (not just very difficult, but <i>impossible</i>).  This is to
 say that determining if a context-free grammar is ambiguous is
-<b>undecidable</b> (a term worth looking up if this piques your
+<i>undecidable</i> (a term worth looking up if this piques your
 interest).
 </p>
 </blockquote>
 </div>
 
-<div id="outline-container-orgc040f0f" class="outline-3">
-<h3 id="orgc040f0f">Avoiding Ambiguity</h3>
-<div class="outline-text-3" id="text-orgc040f0f">
+<div id="outline-container-org2d41896" class="outline-3">
+<h3 id="org2d41896">Avoiding Ambiguity</h3>
+<div class="outline-text-3" id="text-org2d41896">
 <p>
-Our next task it to determine how to avoid this ambiguity, but first,
-<i>why should we care?</i> Natural language is ambiguous and we get along
-perfectly fine.  Why should we go through this trouble to make sure
-grammars we design are unambiguous?
+Our next task it to determine how to avoid grammatical ambiguity when
+possible. But first, <i>why should we care?</i> Natural language is
+ambiguous and we get along perfectly fine.  Why should we go through
+the trouble to make sure grammars we design are unambiguous?
 </p>
 
 <p>
-It's a fair question; the way I see it, it's something of a promise
-that we make to the user of a programming language that we <b><b>never
-make unspoken assumptions about what a user meant when we read one of
-their programs.</b></b> To be fair, we try to do this with natural language
-too, but in communication, if a statement is ambiguous, we can usually
-just ask our interlocutor what they meant.  We can't do this for a
-program, so instead we make it <i>impossible</i> for a sentence to have
-multiple meanings.
+It's a fair question; the way I see it, it's a promise that we make to
+the user of a PL: <b>we never make unspoken assumptions about what
+a user meant when we read one of their programs.</b> To be fair, we try
+to do this with natural language too, but in communication, if a
+statement is ambiguous, we can usually just ask our interlocutor what
+they meant.  We can't do this for a program, so instead we make it
+<i>impossible</i> for a sentence to have multiple meanings.
 </p>
 
 <blockquote>
 <p>
-<b>Aside.</b> We see a similar phenomena in legal language, which tends to
+<b>Aside:</b> We see a similar phenomena in legal language, which tends to
  be grammatically sterile, and usually no fun to read.
 </p>
 </blockquote>
 </div>
 
-<div id="outline-container-orgffbd23e" class="outline-4">
-<h4 id="orgffbd23e">(Reverse) Polish Notation</h4>
-<div class="outline-text-4" id="text-orgffbd23e">
+<div id="outline-container-org39af450" class="outline-4">
+<h4 id="org39af450">(Reverse) Polish Notation</h4>
+<div class="outline-text-4" id="text-org39af450">
 <p>
 If our only concern is avoiding ambiguity, we can use <b>Polish
 notation</b> or <b>reverse polish notation</b>.  In Polish notation, operators
-appear <b>before</b> all their arguments, e.g.
+appear <i>before</i> all their arguments, e.g.
 </p>
 
 <div class="org-src-container">
@@ -1222,15 +1224,15 @@ appear <b>before</b> all their arguments, e.g.
 
 <p>
 We won't dwell on this but it turns out this gives us an unambiguous
-grammar, we don't even need parentheses.
+grammar, <i>we don't even need parentheses</i>.
 </p>
 
 <p>
 It's not difficult to then guess what reverse polish notation is:
-operators always appear <b>after</b> all their arguments.  This is how
-early calculators like <a href="https://en.wikipedia.org/wiki/Hewlett-Packard_9100A">HP 9100A Desktop Calculator</a> were designed.  If
-you wanted to calculate something <code>(2 + 3) * (4 - 5)</code>, you would
-<i>push</i> the values you want to apply operations to onto a <b>stack</b>, and
+operators always appear <i>after</i> all their arguments.  This is how
+early calculators like the <a href="https://en.wikipedia.org/wiki/Hewlett-Packard_9100A">HP 9100A Desktop Calculator</a> were designed.
+If you wanted to calculate something <code>(2 + 3) * (4 - 5)</code>, you would
+<i>push</i> the values you want to apply operations to onto a <i>stack</i>, and
 then apply operations to the top elements of the stack, like so:
 </p>
 
@@ -1253,7 +1255,7 @@ expression in reverse polish notation.
 
 <blockquote>
 <p>
-<b>Exercise.</b> Derive the sentence
+<b>Exercise:</b> Derive the sentence
 </p>
 
 <div class="org-src-container">
@@ -1268,8 +1270,8 @@ in the above grammar.
 
 <p>
 The obvious issue with (reverse) polish notation is that it's
-difficult to read.  Imagine working with a language in which
-if-then-else logic had to be done like this:
+difficult to read.  Imagine writing code in a PL in which if-then-else
+logic had to be done like this:
 </p>
 
 <div class="org-src-container">
@@ -1288,13 +1290,13 @@ if-then-else logic had to be done like this:
 
 <p>
 This is in part to say that what truly causes ambiguity in expressions
-is complex operator <b>fixity</b>.
+is complex operator <i>fixity</i>.
 </p>
 
 <blockquote>
 <p>
-<b>Definition.</b> The <b>fixity</b> of an operator refers to where the
-(syntactic components of an) operator is placed relative to its
+<b>Definition:</b> The <b>fixity</b> of an operator refers to where the
+syntactic components of an operator are placed relative to its
 arguments.  There are four kinds of operator fixity.
 </p>
 <ul class="org-ul">
@@ -1310,7 +1312,7 @@ constructor application in OCaml, e.g.,
 <li><code>int list</code></li>
 <li><code>bool option list</code></li>
 </ul></li>
-<li>An <b>infix</b> operator appears in between its arguments. This is like
+<li>An <b>infix</b> operator appears between its arguments. This is like
 arithmetic operations we learn in primary school, e.g.,
 <ul class="org-ul">
 <li><code>2 + 3</code></li>
@@ -1318,7 +1320,7 @@ arithmetic operations we learn in primary school, e.g.,
 </ul></li>
 <li>A <b>mixfix</b> operator is an operator with multiple syntactic
 components which may appear as some combination of prefix, infix and
-postfix. This is like if-then-else expressions or anonymous
+postfix position. This is like if-then-else expressions or anonymous
 functions in OCaml, e.g.,
 <ul class="org-ul">
 <li><code>if b then x else y</code></li>
@@ -1328,19 +1330,19 @@ functions in OCaml, e.g.,
 </blockquote>
 
 <p>
-If we want to contend with operator fixity (i.e., we don't want <b>just</b>
-prefix or <b>just</b> postfix operators, as in polish notation or reverse
-polish notation) then we have to work to avoid ambiguity.
+If we want to contend with operator fixity (i.e., we don't want <i>just</i>
+prefix or <i>just</i> postfix operators) then we have to work to avoid
+ambiguity.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org236c5ea" class="outline-4">
-<h4 id="org236c5ea">Parentheses</h4>
-<div class="outline-text-4" id="text-org236c5ea">
+<div id="outline-container-orgf7a5e0e" class="outline-4">
+<h4 id="orgf7a5e0e">Parentheses</h4>
+<div class="outline-text-4" id="text-orgf7a5e0e">
 <p>
-Another simple solution is to surround applications of operations with
-parentheses:
+Another simple solution to the ambiguity problem is to surround
+applications of operations with parentheses:
 </p>
 
 <div class="org-src-container">
@@ -1351,7 +1353,7 @@ parentheses:
 </div>
 
 <p>
-It then becomes very clear in a derivation like
+It then becomes very clear in the partial derivation:
 </p>
 
 <div class="org-src-container">
@@ -1368,7 +1370,7 @@ similar issue: <i>lots of parentheses are no fun to read or type.</i>
 
 <blockquote>
 <p>
-<b>Exercise.</b> Give a derivation of
+<b>Exercise:</b> Give a derivation of
 </p>
 
 
@@ -1384,15 +1386,14 @@ in the above grammar.
 
 <blockquote>
 <p>
-<b>Aside.</b> The cult of parentheses is real.  Programming languages based
-on <a href="https://en.wikipedia.org/wiki/Lisp_(programming_language)">LISP</a> use full parenthesization <i>and</i> prefix notation.  Many people
-consider this to be elegant, and many others believe it to be ugly as
-hell.
+<b>Aside:</b> The cult of parentheses is real.  PLs based on <a href="https://en.wikipedia.org/wiki/Lisp_(programming_language)">LISP</a> use full
+parenthesization <i>and</i> prefix notation.  Many people consider this to
+be elegant, and many others believe it to be ugly as hell.
 </p>
 </blockquote>
 
 <p>
-So, our real basic question is: <i>how do we avoid grammar while being
+So our basic question becomes: <i>how do we avoid grammar while being
 able to mix operator fixities and not use so many parentheses?</i> And
 this question has a simple answer in theory: <i>make explicit
 assumptions about how operator arguments are grouped.</i> This will mean
@@ -1402,9 +1403,9 @@ contending with two things: <b>associativity</b> and <b>precedence</b>.
 </div>
 </div>
 
-<div id="outline-container-orgc550ed5" class="outline-3">
-<h3 id="orgc550ed5">Associativity</h3>
-<div class="outline-text-3" id="text-orgc550ed5">
+<div id="outline-container-org05593f6" class="outline-3">
+<h3 id="org05593f6">Associativity</h3>
+<div class="outline-text-3" id="text-org05593f6">
 <p>
 Associativity refers to how arguments are grouped when we are given a
 sequence of applications of an infix operator in the absence of
@@ -1430,7 +1431,7 @@ may be understood as any one of the following (among others):
 
 <blockquote>
 <p>
-<b>Exercise.</b> Determine the number of ways the expression
+<b>Exercise:</b> Determine the number of ways the expression
 </p>
 
 <div class="org-src-container">
@@ -1451,7 +1452,7 @@ additions.  That is, addition is <b>associative</b>.
 
 <blockquote>
 <p>
-<b>Definition.</b> An operator \(\circ: X \to X \to X\) is <b>associative</b> if
+<b>Definition:</b> An operator \(\circ: X \to X \to X\) is <b>associative</b> if
 </p>
 
 \begin{align*}
@@ -1464,7 +1465,7 @@ for any \(a\), \(b\), and \(c\) in \(X\).
 </blockquote>
 
 <p>
-Not all operators are associative.  Take division for example.  We
+But not all operators are associative.  Take division for example.  We
 need to <i>decide</i> how to implicitly parenthesize an expression like
 </p>
 
@@ -1479,19 +1480,19 @@ this, but we might rather avoid using parentheses if possible.
 
 <blockquote>
 <p>
-<b>Exercise.</b> How does OCaml evaluate the expression <code>100 / 5 / 4</code>?
+<b>Exercise:</b> How does OCaml evaluate the expression <code>100 / 5 / 4</code>?
 How are arguments grouped?
 </p>
 </blockquote>
 
 <p>
-For binary operators, we typically choose one of the first two choices
-in the list of parenthesizations above.
+For binary operators, we typically choose one of two ways for grouping
+terms.
 </p>
 
 <blockquote>
 <p>
-<b>Definition.</b> A operation \(\circ : X \to X \to X\) is said to be
+<b>Definition:</b> A operation \(\circ : X \to X \to X\) is said to be
 <b>left-associative</b> if sequences of applications of the operator are
 understood as grouping arguments from the left, i.e.,
 </p>
@@ -1509,28 +1510,19 @@ a \circ b \circ c \circ d = (a \circ (b \circ (c \circ d)))
 \end{align*}
 </blockquote>
 
-<blockquote>
 <p>
-<b>Remark.</b> Another option is that a binary operator can have no
-associativity.  It does not, for instance, make sense to apply a
-sequence of <code>(=)</code> operators in OCaml.
-</p>
-</blockquote>
-
-<p>
-Bringing this back to grammatical ambiguity, giving a parenthesization
-of a sequence of operators means specifying a "shape" for the
-corresponding parse tree.  For example, taking addition to be
-left-associative, i.e., taking <code>x + x + x</code> to mean <code>((x + x) + x)</code>,
-implies that, of the two parse trees for this sentence in the above
-image, the one on the right should be the "correct" one, <i>not</i> the
-one on the left.
+Bringing this back to grammatical ambiguity, giving an implicit
+parenthesization of a sequence of operators means specifying a "shape"
+for the corresponding parse tree.  Taking addition to be
+left-associative means that one of the two parse trees for the
+sentence <code>x + x + x</code> in the above example is correct (the one on the
+right) and the other is not (the one on the left).
 </p>
 
 <blockquote>
 <p>
-<b>Example.</b> Another common ambiguous grammar in programming languages
-is the one for function types.
+<b>Exercise:</b> Here is a grammar for function types over the base type
+<code>int</code>.
 </p>
 
 <div class="org-src-container">
@@ -1538,18 +1530,15 @@ is the one for function types.
 &lt;<span style="color: #0000ff;">int-type</span>&gt; <span style="color: #008b8b;">::=</span> int
 </pre>
 </div>
-</blockquote>
 
-<blockquote>
 <p>
-<b>Exercise.</b> Give two leftmost derivations of <code>int -&gt; int -&gt; int</code> in
- the above grammar.
+Give two leftmost derivations of <code>int -&gt; int -&gt; int</code> in this grammar.
 </p>
 </blockquote>
 
 <blockquote>
 <p>
-<b>Aside.</b> Looking ahead a bit, we will end up building parsers using a
+<b>Aside:</b> Looking ahead a bit, we will end up building parsers using a
 parser generator.  In this setting, specifying the associativity of an
 operator will be simple: there will be a command for doing so, a line
 we'll add to the code.  But we can also deal with associativity <i>in
@@ -1600,16 +1589,16 @@ might consider the following updated grammar.
 <p>
 In this grammar, no matter how many times you apply the second
 alternative of the first production rule, the argument type is always
-just the <code>int</code> type.  So we were, in fact, able to restrict the shape
+just the <code>int</code> type.  So we are, in fact, able to restrict the shape
 of the parse tree for sentences, by <b>breaking the symmetry</b> the
 production rule.  (This, of course, is more complicated once we start
-considering higher-order functions).
+considering higher-order function types).
 </p>
 </blockquote>
 
 <blockquote>
 <p>
-<b>Exercise.</b> Write the leftmost derivation of
+<b>Exercise:</b> Write the leftmost derivation of
 </p>
 
 <div class="org-src-container">
@@ -1618,24 +1607,24 @@ considering higher-order functions).
 </div>
 
 <p>
-in the above grammar, along with its parse tree.
+in the grammar at the end of the previous <b>Aside</b>, along with its parse
+tree.
 </p>
 </blockquote>
 </div>
 </div>
 
-<div id="outline-container-orgf000be4" class="outline-3">
-<h3 id="orgf000be4">Precedence</h3>
-<div class="outline-text-3" id="text-orgf000be4">
+<div id="outline-container-org78c6951" class="outline-3">
+<h3 id="org78c6951">Precedence</h3>
+<div class="outline-text-3" id="text-org78c6951">
 <p>
-In the examples from the previous section, there was only one operator.
-In the presence of multiple operators we have new issues to deal with.
-<i>How should something like \(x * y + z\) be implicitly parenthesized?</i>
-</p>
-
-<p>
-This is an issue of <b>precedence</b> or <b>order of operations</b> something
-probably already somewhat familiar to you.
+In the examples from the previous section, there was only one
+operator.  In the presence of multiple operators we have new issues to
+deal with.  <i>How should something like \(x * y + z\) be implicitly
+parenthesized?</i>
+n
+This is an issue of <b>precedence</b> or <b>order of operations</b>, something
+which is likely already familiar to you.
 </p>
 
 <p>
@@ -1646,13 +1635,13 @@ probably learned the abbreviation PEMDAS ((P)arentheses,
 "please excuse my dear aunt sally").  Focusing on just the last four
 letters, this rule tells us that we should group multiplications and
 divisions first, and then group additions and subtractions.  That is
-to say, multiplication and division have greater <b>precedence</b> than
+to say, multiplication and division have greater <i>precedence</i> than
 addition and subtraction.
 </p>
 
 <blockquote>
 <p>
-<b>Definition.</b> The <b>precedence</b> of an operator, relative to another
+<b>Definition:</b> The <b>precedence</b> of an operator, relative to another
 operator, determines which operator binds more tightly, in the
 presents of ambiguity.
 </p>
@@ -1660,25 +1649,23 @@ presents of ambiguity.
 
 <blockquote>
 <p>
-<b>Example.</b> The expression \(2 * 3 + 4 * 5\) should be implicitly
+<b>Example:</b> The expression \(2 * 3 + 4 * 5\) should be implicitly
  parenthesized as \((2 * 3) + (4 * 5)\) because multiplication binds
- tighter, it is considered first.
+ tighter.
 </p>
 </blockquote>
 
-
 <p>
 The relative precedence of a collection of operators determines the
-"shape" of the parse tree we get when we generate the sentence with a
-grammar.  To say that multiplication has higher precedence is to say
-that when we build the parse tree for <code>x * x + x</code>, we want <code>+</code> to be
-the top-level operation, at the root of the tree.
+"shape" of the parse tree for a sentence in a grammar.  To say that
+multiplication has higher precedence is to say that when we build the
+parse tree for <code>x * x + x</code>, we want <code>+</code> to be the top-level operation,
+at the root of the tree.
 </p>
-
 
 <blockquote>
 <p>
-<b>Remark.</b> One thing that was probably glossed over if/when you learned
+<b>Remark:</b> One thing that was probably glossed over if/when you learned
 PEMDAS: what do you do with something like \(1 + 1 - 1 + 1\)?  Do you
 group additions and then subtractions? Or vice versa?  The issue here
 is that addition and subtraction have the <i>same</i> precedence.  In this
@@ -1751,9 +1738,9 @@ Manual, so is <a href="https://v2.ocaml.org/api/Ocaml_operators.html">the associ
 
 <blockquote>
 <p>
-<b>Aside.</b> As with associativity, we will be able to specify precedence
-the parser generator we use.  And, as with associativity, we can also
-deal with precedence in the grammar itself.
+<b>Aside:</b> As with associativity, we will be able to specify precedence
+in the parser generator we use.  And, as with associativity, we can
+also deal with precedence in the grammar itself.
 </p>
 
 <p>
@@ -1786,7 +1773,7 @@ suggestive names to indicate how the three points above manifest.
 
 <blockquote>
 <p>
-<b>Exercise.</b> Give the leftmost derivation of
+<b>Exercise:</b> Give the leftmost derivation of
 </p>
 
 <div class="org-src-container">
@@ -1795,10 +1782,10 @@ suggestive names to indicate how the three points above manifest.
 </div>
 
 <p>
-in the above grammar. Also draw its parse tree.
+in the above grammar from the previous <b>Aside</b>. Also draw its parse
+tree.
 </p>
 </blockquote>
-
 
 <p>
 Proving that this grammar is unambiguous is a bit tricky (we won't do
@@ -1809,14 +1796,14 @@ seem to be ambiguous.
 </div>
 </div>
 
-<div id="outline-container-org3348eb1" class="outline-3">
-<h3 id="org3348eb1">Parentheses (Again)</h3>
-<div class="outline-text-3" id="text-org3348eb1">
+<div id="outline-container-orgfa4e214" class="outline-3">
+<h3 id="orgfa4e214">Parentheses (Again)</h3>
+<div class="outline-text-3" id="text-orgfa4e214">
 <p>
 We're not quite done.  Without parentheses, we can't derive all
 expressions we might want to write down.  This is important:
-<b>parentheses in a programming language aren't just "there"
-implicitly.  We have to explicitly include them in our grammar.</b>
+<b>parentheses in a PL aren't just "there" implicitly.  We have to
+explicitly include them in our grammar.</b>
 </p>
 
 <p>
@@ -1825,7 +1812,7 @@ Given the rules we've described above, we cannot write an expression
 </p>
 
 <div class="org-src-container">
-<pre class="src src-sent">(x + x) + x
+<pre class="src src-sent">(x + x) * x
 </pre>
 </div>
 
@@ -1854,14 +1841,14 @@ be any expression wrapped in parentheses.
 </div>
 
 <p>
-We might worry that now, it is again possible to have an arbitrary
-expression as an argument to an operator, but the point is that, if we
-do this, it must be wrapped in parentheses, which ensures unambiguity.
+We might worry that now it's possible to have an arbitrary expression
+as an argument to an operator. But the point is that, if we do this,
+it must be wrapped in parentheses, which ensures unambiguity.
 </p>
 
 <blockquote>
 <p>
-&gt; <b>Exercise.</b> Give a leftmost derivation of
+<b>Exercise:</b> Give a leftmost derivation of
 </p>
 
 <div class="org-src-container">
@@ -1877,7 +1864,7 @@ in the above grammar. Draw its parse tree.
 
 <blockquote>
 <p>
-<b>Exercise.</b> (Challenge) According to PEMDAS, we also need to handle
+<b>Exercise:</b> (Challenge) According to PEMDAS, we also need to handle
 exponentiation.  Give a grammar for arithmetic expressions including
 parentheses and exponentiation, using the following operator
 information.
@@ -1924,31 +1911,31 @@ information.
 
 <blockquote>
 <p>
-<b>Exercise.</b> (Challenge) Write a grammar for Boolean expressions in Python.  You
-can check what sorts of expressions are allowed by using the Python
-interpreter.
+<b>Exercise:</b> (Challenge) Write a grammar for Boolean expressions in
+Python.  You can check what sorts of expressions are allowed by using
+the Python interpreter.
 </p>
 </blockquote>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org9f37264" class="outline-2">
-<h2 id="org9f37264">Extended BNF</h2>
-<div class="outline-text-2" id="text-org9f37264">
+<div id="outline-container-org79d47ea" class="outline-2">
+<h2 id="org79d47ea">Extended BNF</h2>
+<div class="outline-text-2" id="text-org79d47ea">
 <p>
 There are a number of extensions to the BNF (meta-)syntax which make
-it more usable.  If you go digging around the Internet for Extended
-BNF (EBNF), you'll find a couple definitions, most of which are more
-complex than what we will choose to call EBNF here.  That said, the
-extensions we consider in this short section are the ones that will be
-available in the parser generator we use in the next chapter.
+it more usable.  If you go digging around the Internet for <a href="https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form">Extended
+BNF (EBNF)</a>, you'll find a couple definitions, most of which are more
+complex than what we'll need.  That said, the extensions we consider
+in this short section are the ones that will be available in the
+parser generator we use in the next chapter.
 </p>
 </div>
 
-<div id="outline-container-org3c33293" class="outline-3">
-<h3 id="org3c33293">Optional</h3>
-<div class="outline-text-3" id="text-org3c33293">
+<div id="outline-container-org7e2d011" class="outline-3">
+<h3 id="org7e2d011">Optional</h3>
+<div class="outline-text-3" id="text-org7e2d011">
 <p>
 We use <code>[ SENT-FORM ]</code> to notate part of a production rule which is
 optional.  We may, for instance, want to write a language which has
@@ -1978,7 +1965,7 @@ can be rewritten as a collection of BNF production rules.</i>
 
 <blockquote>
 <p>
-<b>Exercise.</b> Rewrite the following EBNF production rule as a collection of BNF production rules.
+<b>Exercise:</b> Rewrite the following EBNF production rule as a collection of BNF production rules.
 </p>
 
 <div class="org-src-container">
@@ -1989,7 +1976,7 @@ can be rewritten as a collection of BNF production rules.</i>
 
 <blockquote>
 <p>
-<b>Remark.</b> One issue with extending BNF is now we've made it harder to
+<b>Remark:</b> One issue with extending BNF is now we've made it harder to
 express grammars which include the symbols used for the EBNF
 extensions (e.g., <code>[</code> and <code>]</code>).  In practice this is not a problem, we
 will try to be very explicit if something like <code>[</code> appears as part of
@@ -2000,9 +1987,9 @@ grammar.
 </div>
 </div>
 
-<div id="outline-container-orgaf5667b" class="outline-3">
-<h3 id="orgaf5667b">Alternative</h3>
-<div class="outline-text-3" id="text-orgaf5667b">
+<div id="outline-container-org14bda8b" class="outline-3">
+<h3 id="org14bda8b">Alternative</h3>
+<div class="outline-text-3" id="text-org14bda8b">
 <p>
 We use <code>( SENT-FORM₁ | SENT-FORM₂ | ... | SENT-FORMₖ )</code> to notate the
 choice of multiple sentential forms as <i>part</i> of a production rule.
@@ -2032,9 +2019,9 @@ We can simplify this in EBNF by removing the production rules for operators.
 </div>
 </div>
 
-<div id="outline-container-org8672d52" class="outline-3">
-<h3 id="org8672d52">Repetition</h3>
-<div class="outline-text-3" id="text-org8672d52">
+<div id="outline-container-org3ca231f" class="outline-3">
+<h3 id="org3ca231f">Repetition</h3>
+<div class="outline-text-3" id="text-org3ca231f">
 <p>
 We use <code>{ SENT-FORM }</code> to notate a part of a production rule which can
 be repeated as many times as we want.  We can also combine this with
@@ -2065,7 +2052,7 @@ rules in terms of repetition.
 
 <blockquote>
 <p>
-<b>Exercise.</b> (Challenge) Write an EBNF specification for Boolean
+<b>Exercise:</b> (Challenge) Write an EBNF specification for Boolean
  expressions in Python.
 </p>
 </blockquote>
@@ -2077,12 +2064,12 @@ rules in terms of repetition.
 <div id="text-footnotes">
 
 <div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink">1</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">It can be used as a prefix operator if put in
-parentheses, e.g. <code>(+) x 1</code>, but it cannot in any circumstances be
-used as a postfix operator.  We will discuss fixity in more detail
-later.</p></div></div>
+parentheses, e.g. <code>(+) x 1</code>, but it cannot under any circumstances be
+used as a postfix operator.</p></div></div>
 
 <div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2" role="doc-backlink">2</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">This
-sentence is taken from the Wikipedia article on <a href="https://en.wikipedia.org/wiki/Syntactic_ambiguity">syntactic ambiguity</a>.</p></div></div>
+sentence is unapologetically taken from the Wikipedia article on
+<a href="https://en.wikipedia.org/wiki/Syntactic_ambiguity">syntactic ambiguity</a>.</p></div></div>
 
 <div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3" role="doc-backlink">3</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">We can only present the table like this
 because we assume that all operators of the same precedence also have
