@@ -658,13 +658,21 @@ All together, the updated ~lexer.mll~:
     | "-" { MINUS }
     | "*" { TIMES }
     | "/" { DIVIDE }
-    | num { NUM (int_of_string (Lexing.lexeme lexbuf)) }
-    | var { VAR (Lexing.lexeme lexbuf) }
     | "(" { LPAREN }
     | ")" { RPAREN }
+    | num { NUM (int_of_string (Lexing.lexeme lexbuf)) }
+    | var { VAR (Lexing.lexeme lexbuf) }
     | whitespace { read lexbuf }
     | eof { EOF }
 #+end_src
+
+#+begin_quote
+*Important:* The order in which you list lexemes matters. The ones
+that are listed first are matched first.  This implies, for example,
+that ~"let"~ will never be read as a variable name, because it will
+always first be read as the keyword ~let~.  In pratice, this basically
+means /put your keywords and symbols first/ and everything else after.
+#+end_quote
 
 At this point, you should be able to ~dune build~ your project.
 ** Step 5: Running
