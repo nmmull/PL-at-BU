@@ -274,7 +274,7 @@ If we want to use Menhir, we have to tell dune that.  First, add the
 stanza
 
 #+begin_src dune
-(using menhir 2.1)
+(using menhir 3.0)
 #+end_src
 
 to the end of the file ~dune-project~.

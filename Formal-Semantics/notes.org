@@ -3,7 +3,7 @@
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../myStyle.css" />
 #+OPTIONS: html-style:nil H:3 toc:2 num:nil tasks:nil
 #+HTML_LINK_HOME: ../toc.html
-We've discussed what is means to specify the /form/ of a program.
+We've discussed what it means to specify the /form/ of a program.
 This is the business of syntax, of formal grammar. Next we have to
 discuss what means to specify the /meaning/ of a program.
 

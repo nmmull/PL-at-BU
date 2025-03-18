@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2025-03-13 Thu 13:54 -->
+<!-- 2025-03-18 Tue 10:47 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Parser Generators</title>
@@ -50,18 +50,18 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org1dc3821">Lexing vs. Parsing</a></li>
-<li><a href="#org479bf9f">Using Menhir</a>
+<li><a href="#org305c7da">Lexing vs. Parsing</a></li>
+<li><a href="#orgda5be42">Using Menhir</a>
 <ul>
-<li><a href="#org09a269d">Step 0: The Project File</a></li>
-<li><a href="#org4714da3">Step 1: Setting Up</a></li>
-<li><a href="#org7c1b4f8">Step 2: Tokens</a></li>
-<li><a href="#orgd572def">Step 3: Rules</a></li>
-<li><a href="#org78ca33e">Step 4: Lexing</a></li>
-<li><a href="#org0f173ea">Step 5: Running</a></li>
+<li><a href="#org4db3bac">Step 0: The Project File</a></li>
+<li><a href="#org1582b5e">Step 1: Setting Up</a></li>
+<li><a href="#org03f016c">Step 2: Tokens</a></li>
+<li><a href="#org1db7369">Step 3: Rules</a></li>
+<li><a href="#org907e31f">Step 4: Lexing</a></li>
+<li><a href="#org49131a2">Step 5: Running</a></li>
 </ul>
 </li>
-<li><a href="#org4a87ecc">Closing Remarks</a></li>
+<li><a href="#org41806f2">Closing Remarks</a></li>
 </ul>
 </div>
 </div>
@@ -134,9 +134,9 @@ choice, and you'll have to make some choices based on your aesthetic
 inclinations as well as domain-specific considerations.
 </p>
 </blockquote>
-<div id="outline-container-org1dc3821" class="outline-2">
-<h2 id="org1dc3821">Lexing vs. Parsing</h2>
-<div class="outline-text-2" id="text-org1dc3821">
+<div id="outline-container-org305c7da" class="outline-2">
+<h2 id="org305c7da">Lexing vs. Parsing</h2>
+<div class="outline-text-2" id="text-org305c7da">
 <p>
 The last bit of preamble we need before we can start using Menhir: we
 need to distinguish between <b>lexing</b> and <b>parsing</b>.  Recall from the
@@ -312,9 +312,9 @@ variable names.  This is because these are not parsing issues.<sup><a id="fnr.5"
 </blockquote>
 </div>
 </div>
-<div id="outline-container-org479bf9f" class="outline-2">
-<h2 id="org479bf9f">Using Menhir</h2>
-<div class="outline-text-2" id="text-org479bf9f">
+<div id="outline-container-orgda5be42" class="outline-2">
+<h2 id="orgda5be42">Using Menhir</h2>
+<div class="outline-text-2" id="text-orgda5be42">
 <p>
 With that business out of the way, we go to generating a parser for a
 simple expression language using Menhir.  We always start with a
@@ -462,16 +462,16 @@ We will assume that you have a dune project set up (if not, you can
 run <code>dune init project parser_example</code> to create one).
 </p>
 </div>
-<div id="outline-container-org09a269d" class="outline-3">
-<h3 id="org09a269d">Step 0: The Project File</h3>
-<div class="outline-text-3" id="text-org09a269d">
+<div id="outline-container-org4db3bac" class="outline-3">
+<h3 id="org4db3bac">Step 0: The Project File</h3>
+<div class="outline-text-3" id="text-org4db3bac">
 <p>
 If we want to use Menhir, we have to tell dune that.  First, add the
 stanza
 </p>
 
 <div class="org-src-container">
-<pre class="src src-dune">(using menhir 2.1)
+<pre class="src src-dune">(using menhir 3.0)
 </pre>
 </div>
 
@@ -480,9 +480,9 @@ to the end of the file <code>dune-project</code>.
 </p>
 </div>
 </div>
-<div id="outline-container-org4714da3" class="outline-3">
-<h3 id="org4714da3">Step 1: Setting Up</h3>
-<div class="outline-text-3" id="text-org4714da3">
+<div id="outline-container-org1582b5e" class="outline-3">
+<h3 id="org1582b5e">Step 1: Setting Up</h3>
+<div class="outline-text-3" id="text-org1582b5e">
 <p>
 You need to create four files with the following file structure in the
 <code>lib</code> directory of your project.
@@ -590,9 +590,9 @@ At this point, you should be able to <code>dune build</code> your project.
 </p>
 </div>
 </div>
-<div id="outline-container-org7c1b4f8" class="outline-3">
-<h3 id="org7c1b4f8">Step 2: Tokens</h3>
-<div class="outline-text-3" id="text-org7c1b4f8">
+<div id="outline-container-org03f016c" class="outline-3">
+<h3 id="org03f016c">Step 2: Tokens</h3>
+<div class="outline-text-3" id="text-org03f016c">
 <p>
 Now we need to populate our parser with the tokens of our PL.
 We also need to discuss the anatomy of the <code>parser.mly</code> file.
@@ -696,9 +696,9 @@ next section.
 </p>
 </div>
 </div>
-<div id="outline-container-orgd572def" class="outline-3">
-<h3 id="orgd572def">Step 3: Rules</h3>
-<div class="outline-text-3" id="text-orgd572def">
+<div id="outline-container-org1db7369" class="outline-3">
+<h3 id="org1db7369">Step 3: Rules</h3>
+<div class="outline-text-3" id="text-org1db7369">
 <p>
 Onto the most important part, describing the <b>rules</b> of the grammar.
 Menhir is designed so that its rules looks <i>a whole lot</i> like EBNF
@@ -876,9 +876,9 @@ which strings correspond to which tokens.
 </p>
 </div>
 </div>
-<div id="outline-container-org78ca33e" class="outline-3">
-<h3 id="org78ca33e">Step 4: Lexing</h3>
-<div class="outline-text-3" id="text-org78ca33e">
+<div id="outline-container-org907e31f" class="outline-3">
+<h3 id="org907e31f">Step 4: Lexing</h3>
+<div class="outline-text-3" id="text-org907e31f">
 <p>
 The last thing we need to do: populate the lexer.  We won't discuss
 the anatomy of the <code>lex.mll</code> file in too much detail because it will
@@ -980,9 +980,9 @@ At this point, you should be able to <code>dune build</code> your project.
 </p>
 </div>
 </div>
-<div id="outline-container-org0f173ea" class="outline-3">
-<h3 id="org0f173ea">Step 5: Running</h3>
-<div class="outline-text-3" id="text-org0f173ea">
+<div id="outline-container-org49131a2" class="outline-3">
+<h3 id="org49131a2">Step 5: Running</h3>
+<div class="outline-text-3" id="text-org49131a2">
 <p>
 If all goes well you should be able to open <code>dune utop</code> and evaluate
 </p>
@@ -1012,9 +1012,9 @@ Don't worry too much about the module names in the output.  You'll use
 </div>
 </div>
 </div>
-<div id="outline-container-org4a87ecc" class="outline-2">
-<h2 id="org4a87ecc">Closing Remarks</h2>
-<div class="outline-text-2" id="text-org4a87ecc">
+<div id="outline-container-org41806f2" class="outline-2">
+<h2 id="org41806f2">Closing Remarks</h2>
+<div class="outline-text-2" id="text-org41806f2">
 <ul class="org-ul">
 <li>Menhir is it's own beast, there's a lot we're not covering.  You may
 occassionally have to look at documentation to see how things work
